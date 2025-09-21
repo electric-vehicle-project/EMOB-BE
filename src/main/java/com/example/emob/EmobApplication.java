@@ -9,7 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "Minhvuong0909", version = "2.5", description = "Information"))
+@OpenAPIDefinition(info = @Info(title = "EMOB system", version = "3.5", description = "Information"))
 @SecurityScheme(name = "api", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
 public class EmobApplication {
 	public static void main(String[] args) {
