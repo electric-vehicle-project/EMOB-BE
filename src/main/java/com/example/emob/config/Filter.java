@@ -38,15 +38,21 @@ public class Filter extends OncePerRequestFilter {
     HandlerExceptionResolver resolver;
 
     // danh sách uri
-    @Value("${security.public-apis}")
-    private List<String> authPermission;
+    private final List<String> AUTH_PERMISSION = List.of(
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/websocket/**"
+    );
 
     // kiểm tra uri có tồn tại trong List k
     // nếu có thì cho truy cập kh cần token
     // còn kh thì chưa có token
     private boolean checkIsPublicAPI (String uri) {
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        return authPermission.stream().anyMatch(pattern -> pathMatcher.match(pattern, uri));
+        return AUTH_PERMISSION.stream().anyMatch(pattern -> pathMatcher.match(pattern, uri));
     }
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
