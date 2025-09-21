@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Bean;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
-    @Bean
     AccountResponse toAccountResponse (Account account);
-    @Bean
     Account toAccount (RegisterRequest request);
 }
