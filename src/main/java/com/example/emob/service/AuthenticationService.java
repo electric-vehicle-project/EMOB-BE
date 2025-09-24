@@ -69,7 +69,40 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     }
 
 
-   
+    @Override
+    @Transactional
+    public APIResponse<AccountResponse> register(RegisterRequest request) {
+        // Map RegisterRequest => Account
+        Account account = accountMapper.toAccount(request);
+        account.setRole(Role.ADMIN);
+        account.setStatus(AccountStatus.ACTIVE);
+
+        try {
+            // Mã hóa mật khẩu trước khi lưu
+            account.setPassword(passwordEncoder.encode(request.getPassword()));
+
+            // Lưu tài khoản vào DB
+            Account newAccount = accountRepository.save(account);
+
+            // Tạo response thành công
+            APIResponse<AccountResponse> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Register successful");
+            apiResponse.setResult(accountMapper.toAccountResponse(newAccount));
+            return apiResponse;
+
+        } catch (Exception e) {
+            // Kiểm tra lỗi từ database
+            String errorMessage = e.getMessage().toLowerCase();
+            System.out.println(errorMessage);
+            if (errorMessage.contains("email")) {
+                throw new GlobalException(ErrorCode.EMAIL_EXISTED, "Email cannot be empty");
+            } else if (errorMessage.contains("phone")) {
+                throw new GlobalException(ErrorCode.PHONE_EXISTED, "Email cannot be empty");
+            } else {
+                throw new GlobalException(ErrorCode.OTHER, "Email cannot be empty");
+            }
+        }
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
