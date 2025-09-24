@@ -8,5 +8,5 @@ import com.example.emob.model.response.AccountResponse;
 public interface IAuthentication {
     APIResponse<AccountResponse> login (LoginRequest request);
 
-    APIResponse<AccountResponse> register (RegisterRequest request);
+    // APIResponse<AccountResponse> register (RegisterRequest request);
 }

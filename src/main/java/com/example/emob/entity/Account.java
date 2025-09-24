@@ -1,11 +1,9 @@
 package com.example.emob.entity;
 import com.example.emob.constant.AccountStatus;
-import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,15 +47,12 @@ public class Account implements UserDetails {
     Role role;
 
     @Column (unique = true)
-    @Pattern(regexp = "^[0]\\d{9}$", message = "Phone is invalid")
     String phone;
 
     @Column (unique = true)
     @Email
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$", message = "Email is invalid")
     String email;
 
-    @Pattern(regexp = "^.{8,}$", message = "Password must be at least 8 characters long")
     String password;
 
 

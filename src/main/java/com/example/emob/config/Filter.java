@@ -49,19 +49,19 @@ public class Filter extends OncePerRequestFilter {
 
             } catch (ExpiredJwtException e) {
                 resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.EXPIRED_TOKEN));
+                        new GlobalException(ErrorCode.EXPIRED_TOKEN, "Email cannot be empty"));
                 return;
             } catch (MalformedJwtException e) {
                 resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.INVALID_TOKEN));
+                        new GlobalException(ErrorCode.INVALID_TOKEN, "Email cannot be empty"));
                 return;
             } catch (SignatureException e) {
                 resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.NOT_MATCH_TOKEN));
+                        new GlobalException(ErrorCode.NOT_MATCH_TOKEN, "Email cannot be empty"));
                 return;
             } catch (Exception e) {
                 resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.EMPTY_TOKEN));
+                        new GlobalException(ErrorCode.EMPTY_TOKEN, "Email cannot be empty"));
                 return;
             }
         }

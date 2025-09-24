@@ -1,5 +1,6 @@
 package com.example.emob.service;
 
+import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.Role;
 import com.example.emob.entity.Account;
@@ -15,41 +16,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.AuthenticationException;
 
 @Service
 public class AuthenticationService implements IAuthentication, UserDetailsService {
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    AuthenticationManager authenticationManager;
 
     @Autowired
-    private AccountMapper accountMapper;
+    AccountMapper accountMapper;
 
     @Autowired
-    private TokenService tokenService;
+    TokenService tokenService;
 
     @Autowired
     AccountRepository accountRepository;
 
-
     @Override
-    public APIResponse<AccountResponse> login(LoginRequest request) {
+    public APIResponse<AccountResponse> login(LoginRequest request) throws AuthenticationException {
+        Authentication authentication = null;
         try {
+            System.out.println("chưa vào");
             // authenticated email and password are existed ?
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
+             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                     (request.getEmail(), request.getPassword()));
-            // get Object from authenticated
+            System.out.println("vào ròi");
+            // get Object from authenticatedauthentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
+            //                    (request.getEmail(), request.getPassword()));
             Account account = (Account) authentication.getPrincipal();
             // convert to AccountResponse
             AccountResponse accountResponse = accountMapper.toAccountResponse(account);
-            System.out.println(account);
             // generate token
             accountResponse.setToken(tokenService.generateToken(account));
             APIResponse<AccountResponse> apiResponse = new APIResponse<>();
@@ -58,45 +64,16 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             return apiResponse;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
+            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS, "Email");
         }
     }
 
-    @Override
-    public APIResponse<AccountResponse> register(RegisterRequest request) {
-        // Map RegisterRequest => Account
-        Account account = accountMapper.toAccount(request);
-        account.setRole(Role.ADMIN);
 
-        try {
-            // Mã hóa mật khẩu trước khi lưu
-            account.setPassword(passwordEncoder.encode(account.getPassword()));
-
-            // Lưu tài khoản vào DB
-            Account newAccount = accountRepository.save(account);
-
-            // Tạo response thành công
-            APIResponse<AccountResponse> apiResponse = new APIResponse<>();
-            apiResponse.setMessage("Register successful");
-            apiResponse.setResult(accountMapper.toAccountResponse(newAccount));
-            return apiResponse;
-
-        } catch (Exception e) {
-            // Kiểm tra lỗi từ database
-            String errorMessage = e.getMessage().toLowerCase();
-            System.out.println(errorMessage);
-            if (errorMessage.contains("email")) {
-                throw new GlobalException(ErrorCode.EMAIL_EXISTED);
-            } else if (errorMessage.contains("phone")) {
-                throw new GlobalException(ErrorCode.PHONE_EXISTED);
-            } else {
-                throw new GlobalException(ErrorCode.OTHER);
-            }
-        }
-    }
+   
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return accountRepository.findAccountByEmail(email);
     }
+
 }

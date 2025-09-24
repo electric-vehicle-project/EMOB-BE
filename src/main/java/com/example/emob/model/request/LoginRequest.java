@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoginRequest {
     @Email(message = "INVALID_EMAIL")
-    @Column(unique = true)
     @Schema(example = "Email is invalid")
     String email;
     @Size(min = 6, message = "PASSWORD_TOO_SHORT")
