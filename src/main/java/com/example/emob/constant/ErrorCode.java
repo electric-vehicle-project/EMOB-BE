@@ -27,7 +27,8 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, null,HttpStatus.INTERNAL_SERVER_ERROR), // 500
     UNAUTHENTICATED(org.apache.http.HttpStatus.SC_UNAUTHORIZED, "Unauthenticated!",HttpStatus.UNAUTHORIZED), // 401: xác thực
     UNAUTHORIZED(org.apache.http.HttpStatus.SC_FORBIDDEN, "You do not have permission!",HttpStatus.FORBIDDEN), // 403: phân quyền
-    NOT_FOUND(org.apache.http.HttpStatus.SC_NOT_FOUND, "Not found!",HttpStatus.NOT_FOUND),; // 404: truy cập
+    NOT_FOUND(org.apache.http.HttpStatus.SC_NOT_FOUND, "Not found!",HttpStatus.NOT_FOUND), // 404: truy cập
+    REPORTER_NOT_FOUND(org.apache.http.HttpStatus.SC_NOT_FOUND, "Reporter not found!",HttpStatus.NOT_FOUND),;
     /* =========================================== */
     final int code;
     final String message;
