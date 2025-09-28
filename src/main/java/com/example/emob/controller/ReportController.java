@@ -31,4 +31,9 @@ public class ReportController {
     public ResponseEntity<APIResponse<ReportResponse>> updateReport(@RequestBody @Valid UpdateReportRequest request, @PathVariable("reportId") UUID reportId) {
         return ResponseEntity.ok(reportService.updateReport(request, reportId));
     }
+
+    @DeleteMapping("/delete/{reportId}")
+    public ResponseEntity<APIResponse<ReportResponse>> deleteReport(@PathVariable("reportId") UUID reportId) {
+        return ResponseEntity.ok(reportService.deleteReport(reportId));
+    }
 }

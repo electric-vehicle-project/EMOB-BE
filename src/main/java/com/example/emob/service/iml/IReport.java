@@ -11,4 +11,6 @@ public interface IReport {
     APIResponse<ReportResponse> createReport (CreateReportRequest request);
 
     APIResponse<ReportResponse> updateReport (UpdateReportRequest request, UUID reportId);
+
+    APIResponse<ReportResponse> deleteReport (UUID reportId);
 }

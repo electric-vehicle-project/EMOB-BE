@@ -84,4 +84,23 @@ public class ReportService implements IReport {
             throw new GlobalException(ErrorCode.OTHER);
         }
     }
+
+    @Override
+    public APIResponse<ReportResponse> deleteReport(UUID reportId) {
+        Report report = reportRepository.findReportByReportId(reportId);
+        if (report == null) {
+            throw new GlobalException(ErrorCode.NOT_FOUND);
+        }
+        try {
+            report.setStatus(ReportStatus.DELETED);
+            reportRepository.save(report);
+            ReportResponse reportResponse = reportMapper.toReportResponse(report);
+            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Delete report successfully");
+            apiResponse.setResult(reportResponse);
+            return apiResponse;
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
+    }
 }
