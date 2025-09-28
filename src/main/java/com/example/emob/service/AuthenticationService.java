@@ -12,6 +12,8 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.service.iml.IAuthentication;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.AuthenticationException;
 
 @Service
 public class AuthenticationService implements IAuthentication, UserDetailsService {
@@ -41,7 +42,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     AccountRepository accountRepository;
 
     @Override
-    public APIResponse<AccountResponse> login(LoginRequest request) throws AuthenticationException {
+    public APIResponse<AccountResponse> login(LoginRequest request) {
         Authentication authentication = null;
         try {
             // authenticated email and password are existed ?
@@ -60,7 +61,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             return apiResponse;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS, "Email");
+            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
 
@@ -69,8 +70,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     public APIResponse<AccountResponse> register(RegisterRequest request) {
         // Map RegisterRequest => Account
         Account account = accountMapper.toAccount(request);
-        account.setRole(Role.ADMIN);
-        account.setStatus(AccountStatus.ACTIVE);
 
         try {
             // Mã hóa mật khẩu trước khi lưu
@@ -90,16 +89,18 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             String errorMessage = e.getMessage().toLowerCase();
             System.out.println(errorMessage);
             if (errorMessage.contains("email")) {
-                throw new GlobalException(ErrorCode.EMAIL_EXISTED, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.EMAIL_EXISTED);
             } else if (errorMessage.contains("phone")) {
-                throw new GlobalException(ErrorCode.PHONE_EXISTED, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.PHONE_EXISTED);
             } else {
-                throw new GlobalException(ErrorCode.OTHER, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.OTHER);
+
             }
         }
     }
 
     @Override
+    @NonNull
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return accountRepository.findAccountByEmail(email);
     }

@@ -3,9 +3,9 @@ import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +26,7 @@ import java.util.UUID;
 public class Account implements UserDetails {
     @Id
     @GeneratedValue
-    @Column(columnDefinition = "BINARY(16)", unique = true, updatable = false, nullable = false)
+    @UuidGenerator
     UUID id;
 
     String fullName;
@@ -39,8 +39,6 @@ public class Account implements UserDetails {
 
     String address;
 
-    int age;
-
     LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
@@ -50,9 +48,7 @@ public class Account implements UserDetails {
     String phone;
 
     @Column (unique = true)
-    @Email
     String email;
-
     String password;
 
 
