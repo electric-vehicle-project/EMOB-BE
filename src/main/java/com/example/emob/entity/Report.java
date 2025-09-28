@@ -37,4 +37,5 @@ public class Report {
     ReportStatus status;
 
     LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

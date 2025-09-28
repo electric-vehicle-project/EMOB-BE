@@ -9,6 +9,7 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
 import com.example.emob.mapper.ReportMapper;
 import com.example.emob.model.request.report.CreateReportRequest;
+import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ReportResponse;
 import com.example.emob.repository.CustomerRepository;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ReportService implements IReport {
@@ -56,6 +58,28 @@ public class ReportService implements IReport {
                 apiResponse.setMessage("Create report successfully");
                 apiResponse.setResult(reportResponse);
                 return apiResponse;
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
+    }
+
+    @Override
+    public APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId) {
+        Report report = reportRepository.findReportByReportId(reportId);
+        if (report == null) {
+            throw new GlobalException(ErrorCode.NOT_FOUND);
+        }
+        try {
+            report.setStatus(request.getStatus());
+            report.setTitle(request.getTitle());
+            report.setDescription(request.getDescription());
+            report.setUpdatedAt(LocalDateTime.now());
+            reportRepository.save(report);
+            ReportResponse reportResponse = reportMapper.toReportResponse(report);
+            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
+            apiResponse.setMessage("Update report successfully");
+            apiResponse.setResult(reportResponse);
+            return apiResponse;
         } catch (Exception ex) {
             throw new GlobalException(ErrorCode.OTHER);
         }

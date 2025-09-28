@@ -1,6 +1,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.model.request.report.CreateReportRequest;
+import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ReportResponse;
 import com.example.emob.service.ReportService;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
@@ -22,5 +25,10 @@ public class ReportController {
     @PostMapping("/generate")
     public ResponseEntity<APIResponse<ReportResponse>> generateReport(@RequestBody @Valid CreateReportRequest request) {
         return ResponseEntity.ok(reportService.createReport(request));
+    }
+
+    @PutMapping("/update/{reportId}")
+    public ResponseEntity<APIResponse<ReportResponse>> updateReport(@RequestBody @Valid UpdateReportRequest request, @PathVariable("reportId") UUID reportId) {
+        return ResponseEntity.ok(reportService.updateReport(request, reportId));
     }
 }
