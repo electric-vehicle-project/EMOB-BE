@@ -21,12 +21,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
+   @Autowired
     Filter filter;
     @Autowired
     AuthenticationService authenticationService;
 
-    @Bean
+
+   @Bean
     public PasswordEncoder encoder () {
         return new BCryptPasswordEncoder();
     }
@@ -34,25 +35,41 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-    @Bean
+   @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-        return http
+       return http
                 .cors(Customizer.withDefaults()) // bật cors ở security
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**"
-                        ).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                .authorizeHttpRequests(req -> req
+//
+//                        .requestMatchers(
+//                                "/swagger-ui/**",
+//                                "/v3/api-docs/**",
+//                                "/swagger-resources/**",
+//                                "/api/auth/login",
+//                                "/api/auth/register",
+//                                "/websocket/**"
+//                        )
+//                            .permitAll()
+////                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//
+//                        .anyRequest().authenticated()
+//               )
+               .authorizeHttpRequests(
 
-                        .anyRequest().authenticated()
-                )
+                       req -> req
+//                                AuthorizedURL
+                               .requestMatchers("/**")
+                               .permitAll()
+                               .anyRequest()
+                               .authenticated()
+
+               )
                 .userDetailsService(authenticationService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class).build();
-    }
+   }
 }
+
+
