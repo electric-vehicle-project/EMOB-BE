@@ -13,4 +13,6 @@ public interface IReport {
     APIResponse<ReportResponse> updateReport (UpdateReportRequest request, UUID reportId);
 
     APIResponse<ReportResponse> deleteReport (UUID reportId);
+
+    APIResponse<ReportResponse> viewReport (UUID reportId);
 }

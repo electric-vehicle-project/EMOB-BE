@@ -36,4 +36,9 @@ public class ReportController {
     public ResponseEntity<APIResponse<ReportResponse>> deleteReport(@PathVariable("reportId") UUID reportId) {
         return ResponseEntity.ok(reportService.deleteReport(reportId));
     }
+
+    @GetMapping("/view/{title}/{reportId}")
+    public ResponseEntity<APIResponse<ReportResponse>> viewReport(@PathVariable("reportId") UUID reportId) {
+        return ResponseEntity.ok(reportService.viewReport(reportId));
+    }
 }
