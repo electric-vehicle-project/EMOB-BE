@@ -1,5 +1,5 @@
 package com.example.emob.constant;
 
 public enum ReportType {
-    FEEDBACK, COMPLAINT
+    FEEDBACK, SALES, FINANCE, COMPLAINT
 }

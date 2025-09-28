@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -18,31 +18,29 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 
-@Table(name = "customer_feedback")
-public class CustomerFeedback {
+@Table(name = "customer")
+public class Customer {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "BINARY(16)", unique = true, updatable = false, nullable = false)
-    UUID customerId;
+    UUID id;
     String fullName;
     @Column(unique = true)
     String email;
     @Column(unique = true)
     String phoneNumber;
     String address;
-
-    Date dateOfBirth;
+    String note;
+    LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     Gender gender;
 
     int age;
 
-    String content;
-
     @Enumerated(EnumType.STRING)
     CustomerStatus status;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+//    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<Report> reports;
 }

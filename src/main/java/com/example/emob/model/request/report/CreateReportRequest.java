@@ -1,15 +1,16 @@
-package com.example.emob.model.response;
-
+package com.example.emob.model.request.report;
 
 import com.example.emob.constant.ReportStatus;
-import com.example.emob.constant.ReportType;
+import com.example.emob.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static com.example.emob.constant.ReportStatus.*;
 
 @Data
 @AllArgsConstructor
@@ -17,14 +18,8 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReportResponse {
-    UUID reportId;
-    String title;
+public class CreateReportRequest {
     String description;
-    ReportType type;
-    ReportStatus status;
-    UUID customerId;
-    String fullName;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    String title;
+    Customer customer;
 }

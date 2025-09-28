@@ -63,7 +63,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             return apiResponse;
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
-            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS, "Email");
+            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
 
@@ -94,11 +94,11 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             String errorMessage = e.getMessage().toLowerCase();
             System.out.println(errorMessage);
             if (errorMessage.contains("email")) {
-                throw new GlobalException(ErrorCode.EMAIL_EXISTED, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.EMAIL_EXISTED);
             } else if (errorMessage.contains("phone")) {
-                throw new GlobalException(ErrorCode.PHONE_EXISTED, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.PHONE_EXISTED);
             } else {
-                throw new GlobalException(ErrorCode.OTHER, "Email cannot be empty");
+                throw new GlobalException(ErrorCode.OTHER);
             }
         }
     }

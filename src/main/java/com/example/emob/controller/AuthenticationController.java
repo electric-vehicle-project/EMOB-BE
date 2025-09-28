@@ -6,6 +6,7 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @CrossOrigin("*")
 @SecurityRequirement(name = "api")
+@Tag(name = "Authentication", description = "login and register")
 public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;

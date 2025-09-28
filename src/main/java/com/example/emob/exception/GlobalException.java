@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GlobalException extends RuntimeException {
     ErrorCode errorCode;
-    public GlobalException(ErrorCode errorCode, String emailCannotBeEmpty) {
+    public GlobalException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

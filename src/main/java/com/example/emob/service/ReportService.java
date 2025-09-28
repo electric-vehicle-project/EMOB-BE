@@ -1,28 +1,32 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
-import com.example.emob.entity.CustomerFeedback;
+import com.example.emob.entity.Customer;
 import com.example.emob.entity.Report;
 import com.example.emob.exception.GlobalException;
-import com.example.emob.mapper.CustomerFeedbackMapper;
+import com.example.emob.mapper.CustomerMapper;
 import com.example.emob.mapper.ReportMapper;
-import com.example.emob.model.request.ReportRequest;
+import com.example.emob.model.request.report.CreateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ReportResponse;
-import com.example.emob.repository.CustomerFeedbackRepository;
+import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ReportRepository;
 import com.example.emob.service.iml.IReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 public class ReportService implements IReport {
     @Autowired
-    private CustomerFeedbackRepository customerFeedbackRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
-    private CustomerFeedbackMapper customerFeedbackMapper;
+    private CustomerMapper customerMapper;
 
     @Autowired
     private ReportMapper reportMapper;
@@ -31,25 +35,29 @@ public class ReportService implements IReport {
     private ReportRepository reportRepository;
 
     @Override
-    public APIResponse<ReportResponse> createReport(ReportRequest request) {
-        CustomerFeedback customerFeedback = customerFeedbackRepository.
-                findCustomerFeedbackByEmail(request.getReporterEmail());
-        System.out.println(customerFeedback.getEmail());
+    public APIResponse<ReportResponse> createReport(CreateReportRequest request) {
+        Customer customer = customerRepository.findCustomerById(request.getCustomer().getId());
+        System.out.println("Customer ID from request = " + request.getCustomer().getId());
+        if (customer == null) {
+            throw new GlobalException(ErrorCode.NOT_FOUND);
+        }
         try {
-                Report report = customerFeedbackMapper.toReport(customerFeedback);
+                Report report = reportMapper.toReport(request);
+                report.setReportBy(customer);
                 report.setType(ReportType.FEEDBACK);
-                report.setReportBy(customerFeedback);
                 report.setTitle(request.getTitle());
-                report.setContent(request.getContent());
+                report.setDescription(request.getDescription());
+                report.setStatus(ReportStatus.PENDING);
+                report.setCreatedAt(LocalDateTime.now());
                 reportRepository.save(report);
-                // create new feedback
+                // create new report
                 ReportResponse reportResponse = reportMapper.toReportResponse(report);
                 APIResponse<ReportResponse> apiResponse = new APIResponse<>();
                 apiResponse.setMessage("Create report successfully");
                 apiResponse.setResult(reportResponse);
                 return apiResponse;
         } catch (Exception ex) {
-            throw new GlobalException(ErrorCode.OTHER, "Error: " + ex.getMessage());
+            throw new GlobalException(ErrorCode.OTHER);
         }
     }
 }
