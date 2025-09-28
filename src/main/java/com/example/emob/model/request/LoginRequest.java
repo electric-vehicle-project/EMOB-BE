@@ -10,17 +10,21 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Builder
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Component
 public class LoginRequest {
     @Email(message = "INVALID_EMAIL")
-    @Schema(example = "Email is invalid")
+    @Schema(
+            description = "User email"
+
+    )
     String email;
+
     @Size(min = 6, message = "PASSWORD_TOO_SHORT")
-    @Schema(example = "Password must be longer than 6 digits")
+    @Schema(
+            description = "User password"
+
+    )
     String password;
 }
