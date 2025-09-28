@@ -52,6 +52,10 @@ public class Account implements UserDetails {
     String password;
 
 
+    @ManyToOne
+
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
