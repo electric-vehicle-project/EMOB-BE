@@ -23,6 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "Account")
 public class Account implements UserDetails {
     @Id
     @GeneratedValue
