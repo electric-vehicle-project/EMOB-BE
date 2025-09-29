@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import com.example.emob.constant.ReportType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,8 +20,7 @@ import java.util.UUID;
 @Table(name = "Report")
 public class Report {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "BINARY(16)", unique = true, nullable = false)
+    @UuidGenerator
     UUID id;
 
     String title;

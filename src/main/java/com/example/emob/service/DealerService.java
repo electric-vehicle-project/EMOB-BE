@@ -1,0 +1,77 @@
+package com.example.emob.service;
+
+import com.example.emob.constant.ErrorCode;
+import com.example.emob.entity.Dealer;
+import com.example.emob.exception.GlobalException;
+import com.example.emob.mapper.DealerMapper;
+import com.example.emob.mapper.PageMapper;
+import com.example.emob.model.request.DealerRequest;
+import com.example.emob.model.response.APIResponse;
+import com.example.emob.model.response.AccountResponse;
+import com.example.emob.model.response.DealerResponse;
+import com.example.emob.model.response.PageResponse;
+import com.example.emob.repository.DealerRepository;
+import com.example.emob.service.iml.IDealer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Service
+public class DealerService implements IDealer {
+    @Autowired
+    DealerRepository dealerRepository;
+    @Autowired
+    DealerMapper dealerMapper;
+    @Autowired
+    PageMapper pageMapper;
+
+    @Override
+    public APIResponse<DealerResponse> create(DealerRequest request) {
+        Dealer dealer = dealerMapper.toDealer(request);
+        dealer.setCreatedAt(LocalDateTime.now());
+        dealerRepository.save(dealer);
+
+        DealerResponse response = dealerMapper.toDealerResponse(dealer);
+        return APIResponse.success(response, "Created successfully");
+    }
+
+    @Override
+    public APIResponse<DealerResponse> update(UUID id, DealerRequest request) {
+        Dealer dealer = dealerRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+        dealerMapper.updateDealer(request,dealer);
+        dealerRepository.save(dealer);
+
+        return APIResponse.success(dealerMapper.toDealerResponse(dealer), "Updated successfully");
+    }
+
+    @Override
+    public APIResponse<DealerResponse> delete(UUID id) {
+        Dealer dealer = dealerRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        dealer.setDeleted(true);
+        dealerRepository.save(dealer);
+        DealerResponse response = dealerMapper.toDealerResponse(dealer);
+        return APIResponse.success(response, "Dealer deleted successfully");
+    }
+
+    @Override
+    public APIResponse<DealerResponse> get(UUID id) {
+        Dealer dealer = dealerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dealer not found"));
+
+        return APIResponse.success(dealerMapper.toDealerResponse(dealer));
+    }
+
+    @Override
+    public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
+        Page<Dealer> page = dealerRepository.findAll(pageable);
+        PageResponse<DealerResponse> response = pageMapper.toPageResponse(page,dealerMapper::toDealerResponse);
+        return APIResponse.success(response);
+    }
+}

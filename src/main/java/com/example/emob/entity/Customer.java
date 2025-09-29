@@ -2,16 +2,17 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.Gender;
-import com.example.emob.constant.MemberShipLevel;
+
+import com.example.emob.constant.MembershipLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-
 @Entity
 @Getter
 @Setter
@@ -19,8 +20,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-
-@Table(name = "customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -48,5 +47,6 @@ public class Customer {
     int loyaltyPoints;
 
     @Enumerated(EnumType.STRING)
-    MemberShipLevel memberShipLevel;
+    MembershipLevel memberShipLevel;
+    
 }
