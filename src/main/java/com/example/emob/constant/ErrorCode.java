@@ -29,6 +29,7 @@ public enum ErrorCode {
     DATA_INVALID( "Invalid data", HttpStatus.BAD_REQUEST),
     DB_ERROR("Database error", HttpStatus.INTERNAL_SERVER_ERROR),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
+
     final String message;
     final HttpStatus status;
 
