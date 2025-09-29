@@ -2,6 +2,8 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.Gender;
+import com.example.emob.constant.MemberShipLevel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -36,11 +38,15 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     Gender gender;
 
-    int age;
-
     @Enumerated(EnumType.STRING)
     CustomerStatus status;
 
-//    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
-//    List<Report> reports;
+    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Report> reports;
+
+    int loyaltyPoints;
+
+    @Enumerated(EnumType.STRING)
+    MemberShipLevel memberShipLevel;
 }

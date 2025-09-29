@@ -12,6 +12,8 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.service.iml.IAuthentication;
+import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,8 +23,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.AuthenticationException;
 
 @Service
 public class AuthenticationService implements IAuthentication, UserDetailsService {
@@ -42,14 +42,12 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     AccountRepository accountRepository;
 
     @Override
-    public APIResponse<AccountResponse> login(LoginRequest request) throws AuthenticationException {
+    public APIResponse<AccountResponse> login(LoginRequest request) {
         Authentication authentication = null;
         try {
-            System.out.println("chưa vào");
             // authenticated email and password are existed ?
              authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
                     (request.getEmail(), request.getPassword()));
-            System.out.println("vào ròi");
             // get Object from authenticatedauthentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
             //                    (request.getEmail(), request.getPassword()));
             Account account = (Account) authentication.getPrincipal();
@@ -69,12 +67,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
 
     @Override
-    @Transactional
     public APIResponse<AccountResponse> register(RegisterRequest request) {
         // Map RegisterRequest => Account
         Account account = accountMapper.toAccount(request);
-        account.setRole(Role.ADMIN);
-        account.setStatus(AccountStatus.ACTIVE);
 
         try {
             // Mã hóa mật khẩu trước khi lưu
@@ -99,11 +94,13 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
                 throw new GlobalException(ErrorCode.PHONE_EXISTED);
             } else {
                 throw new GlobalException(ErrorCode.OTHER);
+
             }
         }
     }
 
     @Override
+    @NonNull
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return accountRepository.findAccountByEmail(email);
     }

@@ -1,5 +1,5 @@
 package com.example.emob.constant;
 
 public enum ReportStatus {
-    PENDING, DELETED, RESOLVED
+    PENDING, DELETED, IN_PROGRESS, RESOLVED
 }

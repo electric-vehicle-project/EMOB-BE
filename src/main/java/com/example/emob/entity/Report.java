@@ -20,8 +20,8 @@ import java.util.UUID;
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "BINARY(16)", unique = true)
-    UUID reportId;
+    @Column(columnDefinition = "BINARY(16)", unique = true, nullable = false)
+    UUID id;
 
     String title;
     String description;
@@ -38,4 +38,8 @@ public class Report {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "accountId", referencedColumnName = "id")
+    Account accountId;
 }

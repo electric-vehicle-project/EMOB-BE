@@ -3,6 +3,7 @@ package com.example.emob.model.response;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
+import com.example.emob.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,7 @@ public class ReportResponse {
     String description;
     ReportType type;
     ReportStatus status;
-    UUID customerId;
+    Customer reportBy;
     String fullName;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

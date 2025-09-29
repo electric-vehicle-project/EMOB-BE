@@ -26,13 +26,15 @@ public class TokenService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
     // verify_token
-    public Account verifyToken (String token) {
-        Claims claims = Jwts.parser().verifyWith(getSignKey()).
-                build().
-                parseSignedClaims(token).
-                getPayload();
+    public Account verifyToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
         String idString = claims.getSubject();
-        long id = Long.parseLong(idString);
+        UUID id = UUID.fromString(idString); // parse sang UUID
         return accountRepository.findAccountById(id);
     }
 

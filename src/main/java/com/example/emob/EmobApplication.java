@@ -7,10 +7,13 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
-@OpenAPIDefinition(info = @Info(title = "EMOB system", version = "3.5", description = "Information"))
 @SecurityScheme(name = "api", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
+@OpenAPIDefinition(
+		info = @Info(title = "EMOB", version = "2.0")
+)
 public class EmobApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EmobApplication.class, args);

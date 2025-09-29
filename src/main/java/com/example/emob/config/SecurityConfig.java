@@ -40,22 +40,6 @@ public class SecurityConfig {
        return http
                 .cors(Customizer.withDefaults()) // bật cors ở security
                 .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(req -> req
-//
-//                        .requestMatchers(
-//                                "/swagger-ui/**",
-//                                "/v3/api-docs/**",
-//                                "/swagger-resources/**",
-//                                "/api/auth/login",
-//                                "/api/auth/register",
-//                                "/websocket/**"
-//                        )
-//                            .permitAll()
-////                        .requestMatchers("/api/auth/**").permitAll()
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-//
-//                        .anyRequest().authenticated()
-//               )
                .authorizeHttpRequests(
 
                        req -> req
@@ -64,7 +48,6 @@ public class SecurityConfig {
                                .permitAll()
                                .anyRequest()
                                .authenticated()
-
                )
                 .userDetailsService(authenticationService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
