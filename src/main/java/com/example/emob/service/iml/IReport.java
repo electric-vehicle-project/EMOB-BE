@@ -4,8 +4,8 @@ import com.example.emob.constant.ReportStatus;
 import com.example.emob.model.request.report.CreateReportRequest;
 import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
+import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.ReportResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
@@ -20,7 +20,7 @@ public interface IReport {
 
     APIResponse<ReportResponse> viewReport (UUID reportId);
 
-    APIResponse<Page<ReportResponse>> viewAllReport (Pageable pageable);
+    APIResponse<PageResponse<ReportResponse>> viewAllReport (Pageable pageable);
 
     // xử lý
     APIResponse<ReportResponse> changeStatus (UUID id, ReportStatus status);

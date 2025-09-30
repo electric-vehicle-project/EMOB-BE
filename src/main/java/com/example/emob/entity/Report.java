@@ -1,12 +1,11 @@
 package com.example.emob.entity;
 
 import com.example.emob.constant.ReportStatus;
-import jakarta.persistence.*;
 import com.example.emob.constant.ReportType;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -41,5 +40,5 @@ public class Report {
 
     @ManyToOne
     @JoinColumn(name = "accountId", referencedColumnName = "id")
-    Account accountId;
+    Account createBy;
 }

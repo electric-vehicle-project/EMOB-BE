@@ -7,7 +7,6 @@ import com.example.emob.mapper.DealerMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.DealerRequest;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.DealerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.DealerRepository;

@@ -50,6 +50,9 @@ public class SecurityConfig {
             "/api/admin/products/**"
     };
 
+    public static final String[] STAFF = {
+            "/api/report/**",
+    };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
             "/api/products/**",
@@ -80,8 +83,19 @@ public class SecurityConfig {
                .authorizeHttpRequests(
 
                        req -> req
+//                                AuthorizedURL
+                               .requestMatchers("/**")
+                               .permitAll()
+                               .anyRequest()
+                               .authenticated()
+               )
+               /*
+               .authorizeHttpRequests(
+
+                       req -> req
                                .requestMatchers(PUBLIC).permitAll()
                                .requestMatchers(SWAGGER).permitAll()
+                               .requestMatchers(STAFF).hasRole("STAFF")
                                .requestMatchers(ADMIN).hasRole("ADMIN")
                                .requestMatchers(AUTHENTICATED).authenticated()
                                .anyRequest().denyAll()
@@ -90,6 +104,8 @@ public class SecurityConfig {
                        .authenticationEntryPoint(authenticationEntryPoint)
                        .accessDeniedHandler(accessDeniedHandler)
                )
+
+                */
                 .userDetailsService(authenticationService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class).build();

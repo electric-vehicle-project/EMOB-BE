@@ -3,12 +3,11 @@ package com.example.emob.entity;
 import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.Gender;
 
-import com.example.emob.constant.MembershipLevel;
+import com.example.emob.constant.MemberShipLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,6 +46,6 @@ public class Customer {
     int loyaltyPoints;
 
     @Enumerated(EnumType.STRING)
-    MembershipLevel memberShipLevel;
+    MemberShipLevel memberShipLevel;
     
 }

@@ -1,8 +1,6 @@
 package com.example.emob.service;
 
-import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.Role;
 import com.example.emob.entity.Account;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.AccountMapper;
@@ -12,7 +10,6 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.service.iml.IAuthentication;
-import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

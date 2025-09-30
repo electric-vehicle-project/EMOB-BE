@@ -1,5 +1,5 @@
 package com.example.emob.constant;
 
 public enum CustomerStatus {
-    LEAD, ACTIVE, INACTIVE, BLOCKED, DELETED
+    APPROVED, PENDING, REJECTED
 }

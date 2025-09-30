@@ -2,15 +2,19 @@ package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.ReportStatus;
+import com.example.emob.entity.Account;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.Report;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
+import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.ReportMapper;
 import com.example.emob.model.request.report.CreateReportRequest;
 import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
+import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.ReportResponse;
+import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ReportRepository;
 import com.example.emob.service.iml.IReport;
@@ -39,23 +43,31 @@ public class ReportService implements IReport {
     @Autowired
     private ReportRepository reportRepository;
 
+    @Autowired
+    private PageMapper pageMapper;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> createReport(CreateReportRequest request) {
+        // khách hàng
         Customer customer = customerRepository.findById(request.getCustomerId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        // nhân viên nào tạo
+        Account account = accountRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {
             Report report = reportMapper.toReport(request);
             report.setStatus(ReportStatus.PENDING);
             report.setCreatedAt(LocalDateTime.now());
+            report.setCreateBy(account);
             report.setReportBy(customer);
             reportRepository.save(report);
             // create new report
             ReportResponse reportResponse = reportMapper.toReportResponse(report);
-            reportResponse.setReportId(report.getId());
-            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
-            apiResponse.setResult(reportResponse);
-            apiResponse.setMessage("Create report successfully");
-            return apiResponse;
+            return APIResponse.success(reportResponse, "Create report successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
@@ -65,22 +77,19 @@ public class ReportService implements IReport {
         }
     }
 
+    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId) {
         Report report = reportRepository.findById(reportId).
                 orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
         try {
             // Map request -> entity
             reportMapper.updateReportFromRequest(request, report);
             report.setUpdatedAt(LocalDateTime.now());
             reportRepository.save(report);
             ReportResponse reportResponse = reportMapper.toReportResponse(report);
-            reportResponse.setReportId(report.getId());
-            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
-            apiResponse.setMessage("Update report successfully");
-            apiResponse.setResult(reportResponse);
-            return apiResponse;
-
+            return APIResponse.success(reportResponse, "Update report successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
@@ -90,6 +99,7 @@ public class ReportService implements IReport {
         }
     }
 
+    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> deleteReport(UUID reportId) {
         Report report = reportRepository.findById(reportId).
@@ -98,11 +108,7 @@ public class ReportService implements IReport {
             report.setStatus(ReportStatus.DELETED);
             reportRepository.save(report);
             ReportResponse reportResponse = reportMapper.toReportResponse(report);
-            reportResponse.setReportId(report.getId());
-            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
-            apiResponse.setMessage("Delete report successfully");
-            apiResponse.setResult(reportResponse);
-            return apiResponse;
+            return APIResponse.success(reportResponse, "Delete report successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
@@ -112,31 +118,26 @@ public class ReportService implements IReport {
         }
     }
 
+    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> viewReport(UUID reportId) {
         Report report = reportRepository.findById(reportId).
                 orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         ReportResponse reportResponse = reportMapper.toReportResponse(report);
-        reportResponse.setReportId(report.getId());
-        APIResponse<ReportResponse> apiResponse = new APIResponse<>();
-        apiResponse.setMessage("View report successfully");
-        apiResponse.setResult(reportResponse);
-        return apiResponse;
+        return APIResponse.success(reportResponse, "View report successfully");
     }
 
     // phân trang
-    @PreAuthorize("hasAnyRole('Admin', 'Manager')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Override
-    public APIResponse<Page<ReportResponse>> viewAllReport(Pageable pageable) {
+    public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable) {
         Page<Report> reports = reportRepository.findAll(pageable);
         // map từng Report trong trang thành ReportResponse
-        Page<ReportResponse> responses = reports.map(reportMapper::toReportResponse);
-        APIResponse<Page<ReportResponse>> apiResponse = new APIResponse<>();
-        apiResponse.setResult(responses);
-        apiResponse.setMessage("View all reports successfully");
-        return apiResponse;
+        PageResponse<ReportResponse> responses = pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
+        return APIResponse.success(responses, "View all reports successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Override
     public APIResponse<ReportResponse> changeStatus(UUID reportId, ReportStatus status) {
         Report report = reportRepository.findById(reportId).
@@ -148,11 +149,8 @@ public class ReportService implements IReport {
             reportRepository.save(report);
 
             ReportResponse reportResponse = reportMapper.toReportResponse(report);
-            reportResponse.setReportId(report.getId());
-            APIResponse<ReportResponse> apiResponse = new APIResponse<>();
-            apiResponse.setResult(reportResponse);
-            apiResponse.setMessage("Change status successfully");
-            return apiResponse;
+//            reportResponse.setReportId(report.getId());
+            return APIResponse.success(reportResponse, "Change status successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
