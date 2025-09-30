@@ -2,6 +2,7 @@ package com.example.emob.entity;
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +27,6 @@ import java.util.UUID;
 @Table(name = "Account")
 public class Account implements UserDetails {
     @Id
-    @GeneratedValue
     @UuidGenerator
     UUID id;
 
@@ -54,6 +54,9 @@ public class Account implements UserDetails {
 
 
     @ManyToOne
+    @JoinColumn(name = "dealer_id")
+    @JsonIgnore
+    Dealer dealer;
 
 
 

@@ -55,10 +55,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             AccountResponse accountResponse = accountMapper.toAccountResponse(account);
             // generate token
             accountResponse.setToken(tokenService.generateToken(account));
-            APIResponse<AccountResponse> apiResponse = new APIResponse<>();
-            apiResponse.setMessage("Login Successful");
-            apiResponse.setResult(accountResponse);
-            return apiResponse;
+            return APIResponse.success(accountResponse,"Login Successful");
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
@@ -78,11 +75,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             // Lưu tài khoản vào DB
             Account newAccount = accountRepository.save(account);
 
-            // Tạo response thành công
-            APIResponse<AccountResponse> apiResponse = new APIResponse<>();
-            apiResponse.setMessage("Register successful");
-            apiResponse.setResult(accountMapper.toAccountResponse(newAccount));
-            return apiResponse;
+            return APIResponse.success(accountMapper.toAccountResponse(newAccount),"Login Successful");
 
         } catch (Exception e) {
             // Kiểm tra lỗi từ database
