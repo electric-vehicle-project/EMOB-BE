@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("*")
 @Tag(name = "Authentication Controller", description = "Endpoints for user registration and login")
 @SecurityRequirement(name = "api")
-@Tag(name = "Authentication", description = "login and register")
 public class AuthenticationController {
     @Autowired
     AuthenticationService authenticationService;

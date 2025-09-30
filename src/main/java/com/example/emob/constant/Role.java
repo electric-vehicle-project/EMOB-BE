@@ -2,6 +2,7 @@ package com.example.emob.constant;
 
 public enum Role {
     ADMIN, // hãng xe
-    Manager, // Dealer manager
-    Staff, // Dealer staff
+    MANAGER, // Dealer manager
+    DEALER_STAFF, // Dealer staff
+    EVM_STAFF,
 }

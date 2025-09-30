@@ -1,4 +1,4 @@
-package com.example.emob.config;
+package com.example.emob.security;
 
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Account;
@@ -59,22 +59,19 @@ public class Filter extends OncePerRequestFilter {
                 resolver.resolveException(request, response, null,
                         new GlobalException(ErrorCode.NOT_MATCH_TOKEN));
                 return;
-            } catch (Exception e) {
-                resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.EMPTY_TOKEN));
-                return;
             }
         }
 
-        // Nếu token null và request public → vẫn pass
         filterChain.doFilter(request, response);
     }
 
 
 
-    public String getToken(HttpServletRequest request) {
+    private String getToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader == null) return null;
-        return authHeader.substring(7);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 }
