@@ -25,14 +25,14 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/staff")
+@RequestMapping("/api/dealer/report")
 @SecurityRequirement(name = "api")
 @Tag(name = "Report Controller", description = "Endpoints for managing reports")
 public class ReportController {
     @Autowired
     ReportService reportService;
 
-    @PostMapping("/report")
+    @PostMapping("/staff")
     @Operation(
             summary = "Generate Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -46,8 +46,8 @@ public class ReportController {
                                             name = "Feedback Report",
                                             value = """
                                                                    {
-                                                       "accountId": "57532cd5-bb7f-4565-9430-fb4ddf227c3f",
-                                                        "customerId": "79b7f9b8-9d3d-11f0-b102-0242ac110002",
+                                                       "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
+                                                         "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                         "description": "string",
                                                         "title": "string",
                                                         "status": "PENDING",
@@ -62,8 +62,8 @@ public class ReportController {
                                             name = "Complaint Report",
                                             value = """
                                                                    {
-                                                                   "accountId": "57532cd5-bb7f-4565-9430-fb4ddf227c3f",
-                                                                     "customerId": "79b7f9b8-9d3d-11f0-b102-0242ac110002",
+                                                                   "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
+                                                                     "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                                      "description": "bad",
                                                                      "title": "giá cả",
                                                                      "status": "PENDING",
@@ -83,7 +83,7 @@ public class ReportController {
     }
 
 
-    @PutMapping("/report/{reportId}")
+    @PutMapping("/staff/{reportId}")
     @Operation(
             summary = "Update Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -114,7 +114,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.updateReport(request, reportId));
     }
 
-    @DeleteMapping("/report/{reportId}")
+    @DeleteMapping("/staff/{reportId}")
     @Operation(
             summary = "Delete Report"
     )
@@ -122,7 +122,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.deleteReport(reportId));
     }
 
-    @GetMapping("/report/{reportId}")
+    @GetMapping("/staff/{reportId}")
     @Operation(
             summary = "View Report"
     )
@@ -130,7 +130,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.viewReport(reportId));
     }
 
-    @GetMapping("/reports")
+    @GetMapping("/manager/reports")
     @Operation(
             summary = "View All Reports"
     )
@@ -140,7 +140,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.viewAllReport(pageable));
     }
 
-    @PutMapping("/manager/report/{reportId}")
+    @PutMapping("/manager/{reportId}")
     @Operation(
             summary = "Change Status Report"
     )

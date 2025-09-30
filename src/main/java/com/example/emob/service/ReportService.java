@@ -49,7 +49,6 @@ public class ReportService implements IReport {
     @Autowired
     private AccountRepository accountRepository;
 
-    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> createReport(CreateReportRequest request) {
         // khách hàng
@@ -77,7 +76,6 @@ public class ReportService implements IReport {
         }
     }
 
-    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId) {
         Report report = reportRepository.findById(reportId).
@@ -99,7 +97,6 @@ public class ReportService implements IReport {
         }
     }
 
-    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> deleteReport(UUID reportId) {
         Report report = reportRepository.findById(reportId).
@@ -118,7 +115,6 @@ public class ReportService implements IReport {
         }
     }
 
-    @PreAuthorize("hasRole('STAFF')")
     @Override
     public APIResponse<ReportResponse> viewReport(UUID reportId) {
         Report report = reportRepository.findById(reportId).
@@ -128,7 +124,6 @@ public class ReportService implements IReport {
     }
 
     // phân trang
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Override
     public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable) {
         Page<Report> reports = reportRepository.findAll(pageable);
@@ -137,7 +132,6 @@ public class ReportService implements IReport {
         return APIResponse.success(responses, "View all reports successfully");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Override
     public APIResponse<ReportResponse> changeStatus(UUID reportId, ReportStatus status) {
         Report report = reportRepository.findById(reportId).
