@@ -1,5 +1,7 @@
 package com.example.emob.config;
 
+import com.example.emob.security.CustomAccessDeniedHandler;
+import com.example.emob.security.CustomAuthenticationEntryPoint;
 import com.example.emob.service.AuthenticationService;
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,43 @@ public class SecurityConfig {
    @Autowired
     Filter filter;
     @Autowired
-    AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
+    @Autowired
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
+
+    // Public
+    public static final String[] PUBLIC = {
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/refresh-token",
+            "/api/public/**",
+    };
+
+
+    // ADMIN
+    public static final String[] ADMIN = {
+            "/api/admin/**",
+            "/api/admin/users/**",
+            "/api/admin/dealer/**",
+            "/api/admin/products/**"
+    };
+
+    // Authenticated chung
+    public static final String[] AUTHENTICATED = {
+            "/api/products/**",
+            "/api/cart/**",
+            "/api/files/**",
+            "/api/notifications/**"
+    };
+    public static final String[] SWAGGER = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml"
+    };
 
    @Bean
     public PasswordEncoder encoder () {
@@ -43,11 +80,15 @@ public class SecurityConfig {
                .authorizeHttpRequests(
 
                        req -> req
-//                                AuthorizedURL
-                               .requestMatchers("/**")
-                               .permitAll()
-                               .anyRequest()
-                               .authenticated()
+                               .requestMatchers(PUBLIC).permitAll()
+                               .requestMatchers(SWAGGER).permitAll()
+                               .requestMatchers(ADMIN).hasRole("ADMIN")
+                               .requestMatchers(AUTHENTICATED).authenticated()
+                               .anyRequest().denyAll()
+               )
+               .exceptionHandling(ex -> ex
+                       .authenticationEntryPoint(authenticationEntryPoint)
+                       .accessDeniedHandler(accessDeniedHandler)
                )
                 .userDetailsService(authenticationService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

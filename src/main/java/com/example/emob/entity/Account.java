@@ -62,9 +62,10 @@ public class Account implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (this.role != null) authorities.add(new SimpleGrantedAuthority(this.role.toString()));
+        if (this.role != null) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
+        }
         return authorities;
     }
 
