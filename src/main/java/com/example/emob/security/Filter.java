@@ -1,10 +1,12 @@
 package com.example.emob.security;
 
+import com.example.emob.config.SecurityConfig;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Account;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.service.TokenService;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -21,6 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class Filter extends OncePerRequestFilter {
@@ -31,16 +34,20 @@ public class Filter extends OncePerRequestFilter {
     @Qualifier("handlerExceptionResolver")
     HandlerExceptionResolver resolver;
 
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
+        String path = request.getRequestURI();
         String token = getToken(request);
+
 
         if (token != null) {
             try {
-                Account account = tokenService.verifyToken(token);
+
+                Account account = tokenService.verifyTokenToAccount(token);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
@@ -58,6 +65,10 @@ public class Filter extends OncePerRequestFilter {
             } catch (SignatureException e) {
                 resolver.resolveException(request, response, null,
                         new GlobalException(ErrorCode.NOT_MATCH_TOKEN));
+                return;
+            } catch (JwtException e){
+                resolver.resolveException(request, response, null,
+                        new GlobalException(ErrorCode.INVALID_TOKEN));
                 return;
             }
         }
