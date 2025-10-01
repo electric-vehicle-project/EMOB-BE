@@ -19,6 +19,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportResponse {
+    UUID accountId;
     UUID reportId;
     String title;
     String description;

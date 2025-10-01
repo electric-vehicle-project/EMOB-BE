@@ -50,6 +50,13 @@ public class SecurityConfig {
             "/api/admin/products/**"
     };
 
+    public static final String[] DEALER_STAFF = {
+            "/api/dealer/report/staff/**",
+    };
+
+    public static final String[] MANAGER = {
+            "/api/dealer/report/manager/**",
+    };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
             "/api/products/**",
@@ -82,6 +89,8 @@ public class SecurityConfig {
                        req -> req
                                .requestMatchers(PUBLIC).permitAll()
                                .requestMatchers(SWAGGER).permitAll()
+                               .requestMatchers(DEALER_STAFF).hasRole("DEALER_STAFF")
+                               .requestMatchers(MANAGER).hasRole("MANAGER")
                                .requestMatchers(ADMIN).hasRole("ADMIN")
                                .requestMatchers(AUTHENTICATED).authenticated()
                                .anyRequest().denyAll()
@@ -90,6 +99,8 @@ public class SecurityConfig {
                        .authenticationEntryPoint(authenticationEntryPoint)
                        .accessDeniedHandler(accessDeniedHandler)
                )
+
+
                 .userDetailsService(authenticationService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class).build();

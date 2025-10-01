@@ -4,6 +4,7 @@ import com.example.emob.constant.ReportStatus;
 import com.example.emob.model.request.report.CreateReportRequest;
 import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
+import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.ReportResponse;
 import com.example.emob.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +25,14 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/reports")
+@RequestMapping("/api/dealer/report")
 @SecurityRequirement(name = "api")
-@Tag(name = "Report", description = "CRUD API for Report")
+@Tag(name = "Report Controller", description = "Endpoints for managing reports")
 public class ReportController {
     @Autowired
     ReportService reportService;
 
-    @PostMapping("/generate")
+    @PostMapping("/staff")
     @Operation(
             summary = "Generate Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -44,28 +46,31 @@ public class ReportController {
                                             name = "Feedback Report",
                                             value = """
                                                                    {
-                                                      "customerId": "79b7f9b8-9d3d-11f0-b102-0242ac110002",
-                                                      "description": "good",
-                                                      "title": "nhận định",
-                                                      "status": "PENDING",
-                                                      "type": "FEEDBACK"
+                                                       "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
+                                                         "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
+                                                        "description": "string",
+                                                        "title": "string",
+                                                        "status": "PENDING",
+                                                        "type": "FEEDBACK"
+                                                    
                                                     }
-                                                    
-                                                    
+
+
                                                     """
                                     ),
                                     @ExampleObject(
                                             name = "Complaint Report",
                                             value = """
                                                                    {
-                                                                     "customerId": "79b7f9b8-9d3d-11f0-b102-0242ac110002",
+                                                                   "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
+                                                                     "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                                      "description": "bad",
                                                                      "title": "giá cả",
                                                                      "status": "PENDING",
                                                                      "type": "COMPLAINT"
                                                                    }
-                                                    
-                                                    
+
+
                                                     """
                                     )
                             }
@@ -78,7 +83,7 @@ public class ReportController {
     }
 
 
-    @PutMapping("/update/{reportId}")
+    @PutMapping("/staff/{reportId}")
     @Operation(
             summary = "Update Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -109,112 +114,35 @@ public class ReportController {
         return ResponseEntity.ok(reportService.updateReport(request, reportId));
     }
 
-    @DeleteMapping("/delete/{reportId}")
+    @DeleteMapping("/staff/{reportId}")
     @Operation(
-            summary = "Delete Report",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Update status of Report by deleted",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Delete Report",
-                                            description = "Set status of report",
-                                            value = """
-                                                    b9bf95d6-e51d-4fd2-8980-55445edf5356
-                                                    
-                                                    
-                                                    """
-                                    )
-                            }
-                    )
-            )
+            summary = "Delete Report"
     )
     public ResponseEntity<APIResponse<ReportResponse>> deleteReport(@PathVariable("reportId") UUID reportId) {
         return ResponseEntity.ok(reportService.deleteReport(reportId));
     }
 
-    @GetMapping("/view/{reportId}")
+    @GetMapping("/staff/{reportId}")
     @Operation(
-            summary = "View Report",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "View Report",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "View Report",
-                                            description = "View report by ID",
-                                            value = """
-                                                    b9bf95d6-e51d-4fd2-8980-55445edf5356
-                                                    
-                                                    
-                                                    """
-                                    )
-                            }
-                    )
-            )
+            summary = "View Report"
     )
     public ResponseEntity<APIResponse<ReportResponse>> viewReport(@PathVariable("reportId") UUID reportId) {
         return ResponseEntity.ok(reportService.viewReport(reportId));
     }
 
-    @GetMapping("/view-all")
+    @GetMapping("/manager/reports")
     @Operation(
-            summary = "View All Report",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "View All Report",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "View All Report",
-                                            description = "View All Report By Title",
-                                            value = """
-                                                    {
-                                                      "page": 0,
-                                                      "size": 12,
-                                                      "sort": [
-                                                        "title"
-                                                      ]
-                                                    }
-                                                    
-                                                    
-                                                    """
-                                    )
-                            }
-                    )
-            )
+            summary = "View All Reports"
     )
-    public ResponseEntity<APIResponse<Page<ReportResponse>>> viewAllReports(Pageable pageable) {
+    public ResponseEntity<APIResponse<PageResponse<ReportResponse>>> viewAllReports(@RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(reportService.viewAllReport(pageable));
     }
 
-    @PutMapping("/change-status/{reportId}")
+    @PutMapping("/manager/{reportId}")
     @Operation(
-            summary = "Change Status Report",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Process Report",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Process Report",
-                                            description = "Change status of report by IN_PROGRESS or RESOLVED",
-                                            value = """
-                                                    {
-                                                          "reportId": "b9bf95d6-e51d-4fd2-8980-55445edf5356",
-                                                          "status": "RESOLVED"
-                                                        }
-                                                    """
-                                    )
-                            }
-                    )
-            )
+            summary = "Change Status Report"
     )
     public ResponseEntity<APIResponse<ReportResponse>> changeStatus(@PathVariable("reportId") UUID reportId, ReportStatus status) {
         return ResponseEntity.ok(reportService.changeStatus(reportId, status));

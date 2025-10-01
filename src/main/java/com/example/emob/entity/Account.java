@@ -1,6 +1,7 @@
 package com.example.emob.entity;
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
+import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -12,10 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Builder
@@ -52,13 +50,16 @@ public class Account implements UserDetails {
     String email;
     String password;
 
-
+    @Enumerated(EnumType.STRING)
+    MemberShipLevel memberShipLevel;
     @ManyToOne
     @JoinColumn(name = "dealer_id")
     @JsonIgnore
     Dealer dealer;
 
-
+    @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<Report> reports;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
