@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-   @Autowired
+    @Autowired
     Filter filter;
     @Autowired
     private AuthenticationService authenticationService;
@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/api/auth/register",
             "/api/auth/refresh-token",
             "/api/public/**",
+
     };
 
 
@@ -51,11 +52,15 @@ public class SecurityConfig {
     };
 
     public static final String[] DEALER_STAFF = {
-            "/api/dealer/report/staff/**",
+            "/api/dealer-staff/report/**",
+            "/api/dealer-staff/test-drive/**",
     };
 
     public static final String[] MANAGER = {
             "/api/dealer/report/manager/**",
+            "/api/dealer-staff/test-drive/schedules/**",
+            "/api/dealer-staff/report/process-report/**",
+            "/api/dealer-staff/report/view-all/**",
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {

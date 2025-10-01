@@ -61,6 +61,10 @@ public class Account implements UserDetails {
     @JsonIgnore
     Set<Report> reports;
 
+    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<TestDrive> createTest;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

@@ -47,5 +47,8 @@ public class Customer {
 
     @Enumerated(EnumType.STRING)
     MemberShipLevel memberShipLevel;
-    
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<TestDrive> customerTest;
 }
