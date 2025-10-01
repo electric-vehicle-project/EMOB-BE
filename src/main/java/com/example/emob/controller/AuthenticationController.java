@@ -1,10 +1,14 @@
 package com.example.emob.controller;
 
+import com.example.emob.entity.Account;
 import com.example.emob.model.request.LoginRequest;
 import com.example.emob.model.request.RegisterRequest;
+import com.example.emob.model.request.TokenRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.service.AuthenticationService;
+import com.example.emob.service.RefreshTokenService;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -12,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.apache.catalina.util.Introspection;
+import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -93,7 +99,7 @@ public class AuthenticationController {
                   "dateOfBirth": "1992-02-02",
                   "role": "STAFF",
                   "phone": "0123456789",
-                  "email": "bob@example.com",
+                  "email": "bob@example.coqm",
                   "password": "Pass5678"
                 }
                 """)
@@ -104,4 +110,18 @@ public class AuthenticationController {
     public ResponseEntity<APIResponse<AccountResponse>> register (@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout a account")
+    public ResponseEntity<APIResponse<Void>> logout (@RequestBody TokenRequest refreshRequest) throws ParseException, JsonEOFException {
+        authenticationService.logout(refreshRequest);
+        return ResponseEntity.ok(APIResponse.<Void>builder().code(200).message("Logout successfully").build());
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "refresh token")
+    public  ResponseEntity<APIResponse<AccountResponse>>  refresh( @RequestBody TokenRequest refreshRequest){
+        return ResponseEntity.ok(authenticationService.refresh(refreshRequest));
+    }
+
 }
