@@ -27,4 +27,5 @@ public class AccountResponse {
     String phone;
     String email;
     String token;
+    String refreshToken;
 }

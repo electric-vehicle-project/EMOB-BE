@@ -38,4 +38,7 @@ public class TestDrive {
     int duration;
 
     LocalDateTime scheduledAt;
+
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
 }

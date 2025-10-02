@@ -25,6 +25,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Service
@@ -46,28 +49,49 @@ public class TestDriveService implements ITestDrive {
     @Autowired
     private PageMapper pageMapper;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public APIResponse<TestDriveResponse> createSchedule(TestDriveRequest request) {
+        // khung giờ làm việc
+        LocalDateTime date = request.getScheduledAt();
+        LocalTime time = date.toLocalTime();
         Customer customer = customerRepository.findById(request.getCustomerId())
                             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
         Account salePerson = accountRepository.findById(request.getAccountId())
                             .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
                             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+        if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
+            throw new GlobalException(ErrorCode.INVALID_DATE);
+        }
+        // kiểm tra staff có bị trùng giờ hay bận không ?
+        // so sánh trong khoảng 1h
+        LocalDateTime startTime = date.minusMinutes(59);
+        LocalDateTime endTime = date.plusMinutes(59);
+        long busy = testDriveRepository.existsOverlap(salePerson.getId(),
+                                    startTime, endTime);
+
+        System.out.println("Busy: " + busy);
+        if (busy >= 1) {
+            throw new GlobalException(ErrorCode.STAFF_BUSY);
+        }
         try {
             TestDrive testDrive = testDriveMapper.toTestDrive(request);
             testDrive.setCustomer(customer);
             testDrive.setSalesperson(salePerson);
             testDrive.setStatus(TestStatus.PENDING);
+            testDrive.setCreateAt(LocalDateTime.now());
             testDriveRepository.save(testDrive);
+            notificationService.sendTestDriveConfirmation(testDrive);
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
             return APIResponse.success(testDriveResponse, "Create schedule successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
             throw new GlobalException(ErrorCode.DB_ERROR);
-        } catch (Exception ex) {
-            throw new GlobalException(ErrorCode.OTHER);
         }
     }
 
@@ -81,13 +105,35 @@ public class TestDriveService implements ITestDrive {
 
     @Override
     public APIResponse<TestDriveResponse> updateSchedule(UpdateTestDriveRequest request, UUID id) {
+        LocalDateTime date = request.getScheduleDate();
+        LocalTime time = date.toLocalTime();
         TestDrive testDrive = testDriveRepository.findById(id)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+        Account salePerson = accountRepository.findById(request.getSalePersonId())
+                .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+        if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
+            throw new GlobalException(ErrorCode.INVALID_DATE);
+        }
+        // kiểm tra staff có bị trùng giờ hay bận không ?
+        // so sánh trong khoảng 1h
+        LocalDateTime startTime = date.minusMinutes(59);
+        LocalDateTime endTime = date.plusMinutes(59);
+        long busy = testDriveRepository.existsOverlap(salePerson.getId(),
+                startTime, endTime);
+
+        System.out.println("Busy: " + busy);
+        if (busy >= 1) {
+            throw new GlobalException(ErrorCode.STAFF_BUSY);
+        }
         try {
             testDriveMapper.updateScheduleFromRequest(request, testDrive);
             testDriveRepository.save(testDrive);
+            notificationService.sendTestDriveConfirmation(testDrive);
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
-            return APIResponse.success(testDriveResponse, "Create schedule successfully");
+            return APIResponse.success(testDriveResponse, "Update schedule successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {

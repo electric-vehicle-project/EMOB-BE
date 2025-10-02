@@ -1,11 +1,12 @@
 server:
   port: 8080
 spring:
+
   application: ElectricVehicleSystem
   datasource:
-    url: jdbc:mysql://localhost:3306/Test
+    url: jdbc:mysql://localhost:3306/test
     username: root
-    password: root
+    password: 12345678
   jpa:
     hibernate:
       ddl-auto: update
@@ -19,14 +20,22 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username:
-    password:
+    username: cn100705@gmail.com
+    password: kiyk opth gbpu agre
     properties:
-    mail:
-      smtp:
-        auth: true
-        starttls:
-          enable: true
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+              required: true
+#            connectiontimeout: 5000
+#            timeout: 5000
+#            writetimeout: 5000
+#            socketFactory:
+#              port: 587
+#              class: javax.net.ssl.SSLSocketFactory
+#              fallback: false
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -41,11 +50,24 @@ spring:
       - /api/auth/login
       - /api/auth/register
       - /websocket/**
+#Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 12345678
+      database: 0
+#JWT
+  jwt:
+    secretkey: yxzHhwvD3gfwENyU95c1VUb2iH5manykVOuPwj1WTy4=
+    duration: 30
+
 #firebase-admin
 fcm:
   credentials:
     file:
       path: ./firebase-admin.json
+
 
 #logging:
 #  level:

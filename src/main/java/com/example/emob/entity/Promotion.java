@@ -1,0 +1,48 @@
+package com.example.emob.entity;
+
+import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionType;
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "promotion")
+public class Promotion {
+    @Id
+    @GeneratedValue
+    @Column(columnDefinition = "BINARY(16)", unique = true)
+    UUID id;
+    @Column(unique = true)
+    String name; // tên chương trình
+    String description; // chi tiết tên chương trình
+    float value; // giá trị khuyến mãi
+    float minValue; // giá trị khuyến mãi tối thiểu
+    LocalDateTime startDate;
+    LocalDateTime endDate;
+    @Enumerated(EnumType.STRING)
+    PromotionScope scope;
+
+    @Enumerated(EnumType.STRING)
+    PromotionType type;
+
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by", referencedColumnName = "id")
+    Account createBy;
+
+    @ManyToOne
+    @JoinColumn(name = "dealer_id", referencedColumnName = "id")
+    Dealer dealer;
+}

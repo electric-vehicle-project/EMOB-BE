@@ -37,9 +37,11 @@ public class SecurityConfig {
     public static final String[] PUBLIC = {
             "/api/auth/login",
             "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/refresh",
             "/api/auth/refresh-token",
             "/api/public/**",
-
+            "/api/dealer/promotion/**",
     };
 
 

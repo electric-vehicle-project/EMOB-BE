@@ -20,14 +20,17 @@ public enum ErrorCode {
     EMPTY_TOKEN("Empty token", HttpStatus.UNAUTHORIZED),
     EXPIRED_TOKEN("Expired token!", HttpStatus.UNAUTHORIZED),
     INVALID_TOKEN("Invalid token!", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("Invalid refresh token!", HttpStatus.UNAUTHORIZED),
     INVALID_CODE("Invalid message code!", HttpStatus.BAD_REQUEST),
     NOT_MATCH_TOKEN("Token does not match locally computed signature!", HttpStatus.UNAUTHORIZED),
     OTHER(null, HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(null, HttpStatus.INTERNAL_SERVER_ERROR),
-    UNAUTHENTICATED("Unauthenticated!", HttpStatus.FORBIDDEN),
-    UNAUTHORIZED("You do not have permission!", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED("Unauthenticated!", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED("You do not have permission!", HttpStatus.FORBIDDEN),
     DATA_INVALID( "Invalid data", HttpStatus.BAD_REQUEST),
     DB_ERROR("Database error", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_DATE("Invalid date", HttpStatus.BAD_REQUEST),
+    STAFF_BUSY("Staff is busy", HttpStatus.BAD_REQUEST),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
     final String message;
     final HttpStatus status;

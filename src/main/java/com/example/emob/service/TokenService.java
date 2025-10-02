@@ -1,10 +1,13 @@
 package com.example.emob.service;
 
 import com.example.emob.entity.Account;
+import com.example.emob.model.response.DecodedToken;
 import com.example.emob.repository.AccountRepository;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,25 +21,66 @@ import java.util.UUID;
 public class TokenService {
     @Autowired
     AccountRepository accountRepository;
-    protected final String SECRET_KEY = "yxzHhwvD3gfwENyU95c1VUb2iH5manykVOuPwj1WTy4=";
+
+
+
+    @Value("${spring.jwt.secretkey}")
+    private String SECRET_KEY;
+
+
+
+
+
+
+
 
     // getSignKey
     public SecretKey getSignKey () {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+
     // verify_token
-    public Account verifyToken(String token) {
+    public Account verifyTokenToAccount(String token) {
+        DecodedToken decodedToken = decodeToken(token); // decode token
+
+        String jti = decodedToken.getJti();
+
+        Claims claims = Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        String idString = claims.getSubject();
+        UUID id = UUID.fromString(idString); // parse sang UUID
+        return accountRepository.findAccountById(id);
+    }
+
+    public DecodedToken decodeToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSignKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
 
-        String idString = claims.getSubject();
-        UUID id = UUID.fromString(idString); // parse sang UUID
-        return accountRepository.findAccountById(id);
+        Object aud = claims.get("aud");
+        if (aud == null && claims.getAudience() != null) {
+            aud = claims.getAudience();
+        }
+
+        return new DecodedToken(
+                claims.getIssuer(),
+                aud,
+                claims.getSubject(),
+                claims.getId(),
+                (String) claims.get("token_type"),
+                (String) claims.get("roles"),
+                claims.getIssuedAt(),
+                claims.getExpiration()
+        );
     }
+
 
     // ===== ACCESS TOKEN =====
     public String generateToken(final Account account) {
@@ -47,10 +91,14 @@ public class TokenService {
                 .subject(String.valueOf(account.getId()))// sub
                 .id(UUID.randomUUID().toString())        // jti
                 .claim("token_type", "access")           // phân biệt loại
-                .claim("roles", account.getRole())       // roles nếu bạn cần
+                .claim("roles", "ROLE_"+account.getRole())       // roles nếu bạn cần
                 .issuedAt(Date.from(now))                // iat
                 .expiration(Date.from(now.plus(15, java.time.temporal.ChronoUnit.MINUTES))) // 15'
                 .signWith(getSignKey(), Jwts.SIG.HS256)                // KHÔNG dùng chung key với refresh
                 .compact();
     }
+
+
+
+
 }

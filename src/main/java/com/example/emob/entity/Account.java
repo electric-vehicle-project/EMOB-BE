@@ -56,20 +56,18 @@ public class Account implements UserDetails {
     @JoinColumn(name = "dealer_id")
     @JsonIgnore
     Dealer dealer;
-
     @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     Set<Report> reports;
 
-    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<TestDrive> createTest;
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if (this.role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+this.role));
         }
         return authorities;
     }
