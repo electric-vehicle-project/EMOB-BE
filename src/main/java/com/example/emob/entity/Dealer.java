@@ -3,7 +3,6 @@ package com.example.emob.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
