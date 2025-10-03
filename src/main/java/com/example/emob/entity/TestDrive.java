@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,7 @@ public class TestDrive {
     @Id
     @GeneratedValue
     @Column(columnDefinition = "BINARY(16)", unique = true)
-    UUID testId;
+    UUID id;
 
     String location;
 
@@ -27,12 +28,17 @@ public class TestDrive {
     TestStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "salePersonId", referencedColumnName = "id")
-    Account salePersonId;
+    @JoinColumn(name = "salesperson", referencedColumnName = "id")
+    Account salesperson;
 
     @ManyToOne
-    @JoinColumn(name = "customerId", referencedColumnName = "id")
-    Customer customerId;
+    @JoinColumn(name = "customer", referencedColumnName = "id")
+    Customer customer;
 
     int duration;
+
+    LocalDateTime scheduledAt;
+
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
 }

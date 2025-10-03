@@ -3,7 +3,6 @@ package com.example.emob.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -31,4 +30,8 @@ public class Dealer {
 
     @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Account> accounts = new HashSet<>();
+
+    @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Promotion> promotions = new HashSet<>();
+
 }

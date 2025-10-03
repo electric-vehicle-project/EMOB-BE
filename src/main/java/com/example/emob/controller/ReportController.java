@@ -25,14 +25,14 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/dealer/report")
+@RequestMapping("/api/dealer-staff/report")
 @SecurityRequirement(name = "api")
 @Tag(name = "Report Controller", description = "Endpoints for managing reports")
 public class ReportController {
     @Autowired
     ReportService reportService;
 
-    @PostMapping("/staff")
+    @PostMapping()
     @Operation(
             summary = "Generate Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -62,7 +62,7 @@ public class ReportController {
                                             name = "Complaint Report",
                                             value = """
                                                                    {
-                                                                   "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
+                                                                     "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
                                                                      "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                                      "description": "bad",
                                                                      "title": "giá cả",
@@ -83,7 +83,7 @@ public class ReportController {
     }
 
 
-    @PutMapping("/staff/{reportId}")
+    @PutMapping("/{reportId}")
     @Operation(
             summary = "Update Report",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -114,7 +114,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.updateReport(request, reportId));
     }
 
-    @DeleteMapping("/staff/{reportId}")
+    @DeleteMapping("/{reportId}")
     @Operation(
             summary = "Delete Report"
     )
@@ -122,7 +122,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.deleteReport(reportId));
     }
 
-    @GetMapping("/staff/{reportId}")
+    @GetMapping("/{reportId}")
     @Operation(
             summary = "View Report"
     )
@@ -130,7 +130,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.viewReport(reportId));
     }
 
-    @GetMapping("/manager/reports")
+    @GetMapping("/view-all")
     @Operation(
             summary = "View All Reports"
     )
@@ -140,7 +140,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.viewAllReport(pageable));
     }
 
-    @PutMapping("/manager/{reportId}")
+    @PutMapping("/process-report/{reportId}")
     @Operation(
             summary = "Change Status Report"
     )

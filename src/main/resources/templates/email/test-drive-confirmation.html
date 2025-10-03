@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Xác nhận lịch lái thử</title>
+</head>
+    <body>
+        <p>Xin chào <b th:text="${customerName}"></b>,</p>
+        <p>
+            ⏰ Thời gian: <span th:text="${scheduleTime}"></span><br />
+            📍 Địa điểm: <span th:text="${location}"></span><br />
+            👨‍💼 Nhân viên phụ trách: <span th:text="${staffName}"></span>
+        </p>
+
+        <p>Cảm ơn bạn đã quan tâm đến sản phẩm của chúng tôi!</p>
+    </body>
+</html>
