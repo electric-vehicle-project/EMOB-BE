@@ -58,10 +58,15 @@ public class Account implements UserDetails {
     Dealer dealer;
     @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    Set<Report> reports;
+    Set<Report> reports = new HashSet<>();
 
+    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<TestDrive> createTest = new HashSet<>();
 
-
+    @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<Promotion> promotions = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
