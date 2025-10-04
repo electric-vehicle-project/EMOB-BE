@@ -71,15 +71,23 @@ public class GlobalExceptionHandler {
                 .body(apiResponse);
     }
 
-    @org.springframework.web.bind.annotation.ExceptionHandler(HttpMessageNotReadableException.class)
+        @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<Object>> httpMessageNotReadableException(HttpMessageNotReadableException exception) {
         APIResponse<Object> apiResponse = new APIResponse<>();
-        apiResponse.setCode(ErrorCode.NOT_FOUND.getCode());
-        apiResponse.setMessage(ErrorCode.NOT_FOUND.getMessage());
+        apiResponse.setCode(ErrorCode.NOT_FOUND_ENUM.getCode());
+        apiResponse.setMessage(ErrorCode.NOT_FOUND_ENUM.getMessage());
         return  ResponseEntity
-                .status(ErrorCode.NOT_FOUND.getStatus())
+                .status(ErrorCode.NOT_FOUND_ENUM.getStatus())
                 .body(apiResponse);
     }
-
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<APIResponse<Object>> IllegalArgumentExceptionException(IllegalArgumentException exception) {
+        APIResponse<Object> apiResponse = new APIResponse<>();
+        apiResponse.setCode(ErrorCode.FIELDS_EMPTY.getCode());
+        apiResponse.setMessage(ErrorCode.FIELDS_EMPTY.getMessage());
+        return  ResponseEntity
+                .status(ErrorCode.FIELDS_EMPTY.getStatus())
+                .body(apiResponse);
+    }
 
 }

@@ -19,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -34,7 +35,14 @@ public class Filter extends OncePerRequestFilter {
     @Qualifier("handlerExceptionResolver")
     HandlerExceptionResolver resolver;
 
+    private boolean isPublicEndpoint(String uri) {
+        // Lấy mảng PUBLIC từ SecurityConfig
+        String[] publicEndpoints = SecurityConfig.PUBLIC;
 
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        return Arrays.stream(publicEndpoints)
+                .anyMatch(pattern -> pathMatcher.match(pattern, uri));
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -42,13 +50,16 @@ public class Filter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
         String token = getToken(request);
-
+        if (isPublicEndpoint(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (token != null) {
             try {
 
                 Account account = tokenService.verifyTokenToAccount(token);
-
+                System.out.println(account.getAuthorities());
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -97,9 +97,9 @@ public class AuthenticationController {
                   "status": "ACTIVE",
                   "address": "456 Oak St",
                   "dateOfBirth": "1992-02-02",
-                  "role": "STAFF",
+                  "role": "EVM_STAFF",
                   "phone": "0123456789",
-                  "email": "bob@example.coqm",
+                  "email": "bob@example.com",
                   "password": "Pass5678"
                 }
                 """)

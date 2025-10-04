@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/admin/dealer")
+@RequestMapping("/api/dealer")
 @CrossOrigin("*")
 @Tag(name = "Dealer Controller", description = "Endpoints for managing dealers")
 @SecurityRequirement(name = "api")
