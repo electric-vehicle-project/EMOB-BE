@@ -41,7 +41,7 @@ public class SecurityConfig {
             "/api/auth/refresh",
             "/api/auth/refresh-token",
             "/api/public/**",
-            "/api/dealer/promotion/**",
+            "/api/evm-staff/promotion/**",
     };
 
 

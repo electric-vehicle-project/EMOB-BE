@@ -1,12 +1,15 @@
 package com.example.emob.entity;
 
 import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.constant.PromotionType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,6 +38,9 @@ public class Promotion {
     @Enumerated(EnumType.STRING)
     PromotionType type;
 
+    @Enumerated(EnumType.STRING)
+    PromotionStatus status;
+
     LocalDateTime createAt;
     LocalDateTime updateAt;
 
@@ -42,7 +48,11 @@ public class Promotion {
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     Account createBy;
 
-    @ManyToOne
-    @JoinColumn(name = "dealer_id", referencedColumnName = "id")
-    Dealer dealer;
+    @ManyToMany
+    @JoinTable(
+            name = "promotion_dealer",
+            joinColumns = @JoinColumn(name = "promotion_id"),
+            inverseJoinColumns = @JoinColumn(name = "dealer_id")
+    )
+    Set<Dealer> dealers = new HashSet<>();
 }

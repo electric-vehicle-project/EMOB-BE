@@ -1,33 +1,29 @@
-package com.example.emob.model.response;
+package com.example.emob.model.request.promotion;
 
 import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionStatus;
-import com.example.emob.constant.PromotionType;
 import com.example.emob.entity.Dealer;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PromotionResponse {
-    UUID promotionId;
-    UUID evmStaffId;
-    Set<UUID> managerId;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UpdatePromotionRequest {
+    @NotNull
     String name;
     String description;
-    PromotionType type;
     float value;
     float minValue;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    PromotionScope scope;
     PromotionStatus status;
-    LocalDateTime createAt;
 }

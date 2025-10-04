@@ -96,7 +96,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
                 throw new GlobalException(ErrorCode.PHONE_EXISTED);
             } else {
                 throw new GlobalException(ErrorCode.OTHER);
-
             }
         }
     }
