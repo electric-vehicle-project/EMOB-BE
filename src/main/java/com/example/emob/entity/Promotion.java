@@ -1,5 +1,6 @@
 package com.example.emob.entity;
 
+import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionStatus;
 import com.example.emob.constant.PromotionType;
@@ -44,6 +45,8 @@ public class Promotion {
     LocalDateTime createAt;
     LocalDateTime updateAt;
 
+    MemberShipLevel memberShipLevel;
+
     @ManyToOne
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     Account createBy;
@@ -55,4 +58,12 @@ public class Promotion {
             inverseJoinColumns = @JoinColumn(name = "dealer_id")
     )
     Set<Dealer> dealers = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "promotion_vehicle",
+            joinColumns = @JoinColumn(name = "promotion_id"),
+            inverseJoinColumns = @JoinColumn(name = "vehicle_id")
+    )
+    Set<ElectricVehicle> vehicles = new HashSet<>();
 }
