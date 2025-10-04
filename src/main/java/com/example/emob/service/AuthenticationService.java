@@ -15,6 +15,7 @@ import com.example.emob.service.iml.IAuthentication;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,26 +51,44 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
     @Override
     public APIResponse<AccountResponse> login(LoginRequest request) {
-        Authentication authentication = null;
         try {
-            // authenticated email and password are existed ?
-             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
-                    (request.getEmail(), request.getPassword()));
-            // get Object from authenticatedauthentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
-            //                    (request.getEmail(), request.getPassword()));
-            Account account = (Account) authentication.getPrincipal();
-            // convert to AccountResponse
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+
+
+            Object principal = authentication.getPrincipal();
+            if (!(principal instanceof Account)) {
+                throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
+            }
+            Account account = (Account) principal;
+
+
             AccountResponse accountResponse = accountMapper.toAccountResponse(account);
-            // generate token
-            accountResponse.setToken(tokenService.generateToken(account));
-            // generate refresh token
-            accountResponse.setRefreshToken(refreshTokenService.createRefreshToken(account).getToken());
-            return APIResponse.success(accountResponse,"Login Successful");
+
+
+            String accessToken = tokenService.generateToken(account);
+            accountResponse.setToken(accessToken);
+
+
+            String refreshToken = refreshTokenService.createRefreshToken(account).getToken();
+            accountResponse.setRefreshToken(refreshToken);
+
+            return APIResponse.success(accountResponse, "Login Successful");
+
+        } catch (BadCredentialsException ex) {
+            // Sai email hoặc password
+            throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
+        } catch (UsernameNotFoundException ex) {
+            // UserDetailsService không tìm thấy user
+            throw new GlobalException(ErrorCode.NOT_FOUND);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
             throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
         }
     }
+
 
 
     @Override

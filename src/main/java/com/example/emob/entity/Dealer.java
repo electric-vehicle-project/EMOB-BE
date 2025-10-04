@@ -31,7 +31,13 @@ public class Dealer {
     @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Account> accounts = new HashSet<>();
 
+
     @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Promotion> promotions = new HashSet<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "inventory_id")
+    Inventory inventory;
+
 
 }

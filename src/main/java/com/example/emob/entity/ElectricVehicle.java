@@ -1,6 +1,7 @@
 package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -45,4 +47,11 @@ public class ElectricVehicle {
     @Enumerated(EnumType.STRING)
     VehicleType type;
     LocalDate createdAt;
+
+    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<VehicleUnit> vehicleUnits;
+
+    @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    InventoryItem inventoryItem;
+
 }

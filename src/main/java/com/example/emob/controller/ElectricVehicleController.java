@@ -1,6 +1,8 @@
 package com.example.emob.controller;
 
+import com.example.emob.entity.VehicleUnit;
 import com.example.emob.model.request.ElectricVehicleRequest;
+import com.example.emob.model.request.VehicleUnitRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ElectricVehicleResponse;
 import com.example.emob.model.response.PageResponse;
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,10 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/evm-staff/vehicle")
+@RequestMapping("/api/vehicle")
 @CrossOrigin("*")
 @Tag(name = "Electric Vehicle Controller", description = "Endpoints for managing electric vehicles")
 @SecurityRequirement(name = "api")
@@ -36,54 +40,74 @@ public class ElectricVehicleController {
     @Operation(
             summary = "Create a new Electric Vehicle",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Electric vehicle creation request",
+                    description = "Request payload for creating an electric vehicle",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ElectricVehicleRequest.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "Tesla Model 3",
+                                            name = "Tesla Model S",
                                             value = """
-                                            {
-                                              "brand": "Tesla",
-                                              "model": "Model 3",
-                                              "importPrice": 30000,
-                                              "retailPrice": 40000,
-                                              "batteryKwh": 75,
-                                              "rangeKm": 500,
-                                              "chargeTimeHr": 6.5,
-                                              "powerKw": 250,
-                                              "images": ["https://example.com/model3-front.jpg"],
-                                              "weightKg": 1800,
-                                              "topSpeedKmh": 225,
-                                              "type": "CAR"
-                                            }
-                                            """
+                                        {
+                                          "brand": "Tesla",
+                                          "model": "Model S Plaid",
+                                          "importPrice": 90000,
+                                          "retailPrice": 120000,
+                                          "batteryKwh": 100,
+                                          "rangeKm": 650,
+                                          "chargeTimeHr": 1.5,
+                                          "powerKw": 450,
+                                          "images": ["https://example.com/tesla-models-front.jpg", "https://example.com/tesla-models-side.jpg"],
+                                          "weightKg": 2200,
+                                          "topSpeedKmh": 322,
+                                          "type": "CAR"
+                                        }
+                                        """
                                     ),
                                     @ExampleObject(
-                                            name = "Yadea G5",
+                                            name = "Yadea G5 Scooter",
                                             value = """
-                                            {
-                                              "brand": "Yadea",
-                                              "model": "G5",
-                                              "importPrice": 800,
-                                              "retailPrice": 1200,
-                                              "batteryKwh": 2.3,
-                                              "rangeKm": 60,
-                                              "chargeTimeHr": 4,
-                                              "powerKw": 1.2,
-                                              "images": ["https://example.com/yadea-g5.png"],
-                                              "weightKg": 85,
-                                              "topSpeedKmh": 60,
-                                              "type": "SCOOTER"
-                                            }
-                                            """
+                                        {
+                                          "brand": "Yadea",
+                                          "model": "G5",
+                                          "importPrice": 900,
+                                          "retailPrice": 1500,
+                                          "batteryKwh": 2.5,
+                                          "rangeKm": 70,
+                                          "chargeTimeHr": 3.5,
+                                          "powerKw": 1.5,
+                                          "images": ["https://example.com/yadea-g5-front.png", "https://example.com/yadea-g5-side.png"],
+                                          "weightKg": 88,
+                                          "topSpeedKmh": 65,
+                                          "type": "SCOOTER"
+                                        }
+                                        """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Niu Electric Bike",
+                                            value = """
+                                        {
+                                          "brand": "Niu",
+                                          "model": "MQi+ Sport",
+                                          "importPrice": 1200,
+                                          "retailPrice": 1800,
+                                          "batteryKwh": 1.6,
+                                          "rangeKm": 80,
+                                          "chargeTimeHr": 4,
+                                          "powerKw": 1.0,
+                                          "images": ["https://example.com/niu-mqi-sport.png"],
+                                          "weightKg": 70,
+                                          "topSpeedKmh": 45,
+                                          "type": "BIKE"
+                                        }
+                                        """
                                     )
                             }
                     )
             )
     )
+
     public ResponseEntity<APIResponse<ElectricVehicleResponse>> createVehicle(
             @Valid @RequestBody ElectricVehicleRequest request
     ) {
@@ -129,5 +153,40 @@ public class ElectricVehicleController {
     @Operation(summary = "Delete electric vehicle by ID")
     public ResponseEntity<APIResponse<ElectricVehicleResponse>> deleteVehicle(@PathVariable UUID id) {
         return ResponseEntity.ok(vehicleService.delete(id));
+    }
+
+    @PostMapping("/bulk")
+    @Operation(
+            summary = "Tạo hàng loạt xe Vehicle Units cho một mẫu xe cụ thể",
+            description = "API này cho phép tạo nhiều xe (VehicleUnit) cùng lúc dựa trên mẫu xe (ElectricVehicle) có sẵn.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Thông tin yêu cầu tạo hàng loạt Vehicle Unit",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = VehicleUnitRequest.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Create 10 Tesla Model 3 units",
+                                            value = """
+                                            {
+                                              "vehicleId": "nhập fields vô đây",
+                                              "quantity": 10,
+                                              "color": "White",
+                                              "purchaseDate": "2025-10-05T10:00:00",
+                                              "warrantyStart": "2025-10-10",
+                                              "warrantyEnd": "2028-10-10",
+                                              "productionYear": "2025-01-01"
+                                            }
+                                            """
+                                    )
+                            }
+                    )
+            )
+    )
+    public ResponseEntity<APIResponse<List<VehicleUnit>>> createBulkVehicles(
+            @RequestBody VehicleUnitRequest request
+    ) {
+        return ResponseEntity.ok(vehicleService.createBulkVehicles(request));
     }
 }
