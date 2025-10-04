@@ -106,8 +106,8 @@ public class DealerController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete dealer by ID")
-    public ResponseEntity<APIResponse<Void>> deleteDealer(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<DealerResponse>> deleteDealer(@PathVariable UUID id) {
         dealerService.delete(id);
-        return ResponseEntity.ok(new APIResponse<>(200, "Dealer deleted successfully", null));
+        return ResponseEntity.ok(dealerService.delete(id));
     }
 }
