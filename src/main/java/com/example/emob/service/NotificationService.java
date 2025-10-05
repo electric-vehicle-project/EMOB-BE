@@ -35,7 +35,7 @@ public class NotificationService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(testDrive.getCustomer().getEmail());
-            helper.setSubject("Xác nhận lịch lái thử xe");
+                helper.setSubject("Xác nhận lịch lái thử xe");
             helper.setText(htmlContent, true); // true = HTML
 
             mailSender.send(message);

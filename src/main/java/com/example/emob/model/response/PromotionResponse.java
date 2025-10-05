@@ -1,5 +1,6 @@
 package com.example.emob.model.response;
 
+import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionStatus;
 import com.example.emob.constant.PromotionType;
@@ -7,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -16,7 +18,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionResponse {
     UUID promotionId;
-    UUID dealerId;
+    UUID staffId;
+    Set<UUID> dealerId;
+    Set<UUID> vehicleId;
     String name;
     String description;
     PromotionType type;
@@ -27,4 +31,5 @@ public class PromotionResponse {
     PromotionScope scope;
     PromotionStatus status;
     LocalDateTime createAt;
+    MemberShipLevel memberShipLevel;
 }

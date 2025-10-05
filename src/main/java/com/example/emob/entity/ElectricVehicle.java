@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -48,6 +49,8 @@ public class ElectricVehicle {
     VehicleType type;
     LocalDate createdAt;
 
+    @ManyToMany(mappedBy = "vehicles")
+    Set<Promotion> promotions = new HashSet<>();
     @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
     Set<VehicleUnit> vehicleUnits;
 
