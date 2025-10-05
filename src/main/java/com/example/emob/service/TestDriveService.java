@@ -6,9 +6,11 @@ import com.example.emob.constant.TestStatus;
 import com.example.emob.entity.Account;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.TestDrive;
+import com.example.emob.entity.VehicleUnit;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.TestDriveMapper;
+import com.example.emob.model.request.VehicleUnitRequest;
 import com.example.emob.model.request.schedule.TestDriveRequest;
 import com.example.emob.model.request.schedule.UpdateTestDriveRequest;
 import com.example.emob.model.response.APIResponse;
@@ -16,6 +18,7 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.TestDriveResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
+import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.TestDriveRepository;
 import com.example.emob.service.iml.ITestDrive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,9 @@ public class TestDriveService implements ITestDrive {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private VehicleUnitRepo das
+
     @Override
     public APIResponse<TestDriveResponse> createSchedule(TestDriveRequest request) {
         // khung giờ làm việc
@@ -64,6 +70,7 @@ public class TestDriveService implements ITestDrive {
                             .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
                             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
+        VehicleUnit vehicleUnit =
         if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
             throw new GlobalException(ErrorCode.INVALID_DATE);
         }

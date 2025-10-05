@@ -2,6 +2,7 @@ package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Dealer;
+import com.example.emob.entity.Inventory;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerMapper;
 import com.example.emob.mapper.PageMapper;
@@ -32,8 +33,9 @@ public class DealerService implements IDealer {
     public APIResponse<DealerResponse> create(DealerRequest request) {
         Dealer dealer = dealerMapper.toDealer(request);
         dealer.setCreatedAt(LocalDateTime.now());
+        Inventory inventory = new Inventory();
+        dealer.setInventory(inventory);
         dealerRepository.save(dealer);
-
         DealerResponse response = dealerMapper.toDealerResponse(dealer);
         return APIResponse.success(response, "Created successfully");
     }

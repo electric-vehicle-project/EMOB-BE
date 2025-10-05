@@ -31,8 +31,10 @@ public enum ErrorCode {
     DB_ERROR("Database error", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_DATE("Invalid date", HttpStatus.BAD_REQUEST),
     STAFF_BUSY("Staff is busy", HttpStatus.BAD_REQUEST),
-    CANNOT_CAST("Not cast", HttpStatus.NOT_EXTENDED),
+    FIELDS_EMPTY("Black or missing fileds",HttpStatus.BAD_REQUEST),
+    NOT_FOUND_ENUM("Field enum not found",HttpStatus.NOT_FOUND),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
+
     final String message;
     final HttpStatus status;
 

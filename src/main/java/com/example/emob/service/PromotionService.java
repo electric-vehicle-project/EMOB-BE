@@ -89,8 +89,6 @@ public class PromotionService implements IPromotion {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         } catch (DataAccessException ex) {
             throw new GlobalException(ErrorCode.DB_ERROR);
-        } catch (ClassCastException ex) {
-            throw new GlobalException(ErrorCode.CANNOT_CAST);
         } catch (Exception ex) {
             throw new GlobalException(ErrorCode.OTHER);
         }

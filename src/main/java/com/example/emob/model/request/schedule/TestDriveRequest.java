@@ -1,6 +1,7 @@
 package com.example.emob.model.request.schedule;
 
 import com.example.emob.constant.TestStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,8 +16,10 @@ import java.util.UUID;
 public class TestDriveRequest {
     UUID customerId;
     UUID accountId;
+    UUID vehicleUnitId;
     String location;
     TestStatus status;
     int duration;
+    @NotNull
     LocalDateTime scheduledAt;
 }

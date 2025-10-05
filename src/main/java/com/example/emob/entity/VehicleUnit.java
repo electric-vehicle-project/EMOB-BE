@@ -1,12 +1,15 @@
 package com.example.emob.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.example.emob.constant.VehicleStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -23,4 +26,19 @@ public class VehicleUnit {
     String color;
     @Column(name = "vin_number", unique = true, nullable = false, length = 17)
     String vinNumber;
+    LocalDateTime purchaseDate;
+    LocalDate warrantyStart;
+    LocalDate warrantyEnd;
+    LocalDate productionYear;
+    @Enumerated(EnumType.STRING)
+    VehicleStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    @JsonIgnore
+    ElectricVehicle vehicle;
+
+    @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<TestDrive> testDrive;
 }
