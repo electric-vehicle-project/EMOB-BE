@@ -1,6 +1,7 @@
 package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -50,4 +51,10 @@ public class ElectricVehicle {
 
     @ManyToMany(mappedBy = "vehicles")
     Set<Promotion> promotions = new HashSet<>();
+    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<VehicleUnit> vehicleUnits;
+
+    @OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    InventoryItem inventoryItem;
+
 }

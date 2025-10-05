@@ -47,10 +47,7 @@ public class SecurityConfig {
 
     // ADMIN
     public static final String[] ADMIN = {
-            "/api/admin/**",
-            "/api/admin/users/**",
-            "/api/admin/dealer/**",
-            "/api/admin/products/**"
+            "/api/dealer/**",
     };
 
     public static final String[] DEALER_STAFF = {
@@ -61,6 +58,10 @@ public class SecurityConfig {
 
     public static final String[] EVM_STAFF = {
             "/api/evm-staff/promotion"
+    };
+
+    public static final String[] EVM_STAFF = {
+            "/api/vehicle/**",
     };
 
     public static final String[] MANAGER = {
@@ -103,6 +104,7 @@ public class SecurityConfig {
                                .requestMatchers(PUBLIC).permitAll()
                                .requestMatchers(SWAGGER).permitAll()
                                .requestMatchers(DEALER_STAFF).hasRole("DEALER_STAFF")
+                               .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
                                .requestMatchers(MANAGER).hasRole("MANAGER")
                                .requestMatchers(ADMIN).hasRole("ADMIN")
                                .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
