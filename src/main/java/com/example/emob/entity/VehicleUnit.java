@@ -23,5 +23,4 @@ public class VehicleUnit {
     String color;
     @Column(name = "vin_number", unique = true, nullable = false, length = 17)
     String vinNumber;
-
 }
