@@ -25,5 +25,4 @@ public class UpdatePromotionRequest {
     float minValue;
     LocalDateTime startDate;
     LocalDateTime endDate;
-    PromotionStatus status;
 }

@@ -1,6 +1,9 @@
 package com.example.emob.model.request.promotion;
 
+import com.example.emob.constant.MemberShipLevel;
+import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionType;
+import com.example.emob.entity.ElectricVehicle;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -18,8 +21,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionRequest {
-    UUID evmStaffId;
+    UUID staffId;
     Set<UUID> dealerId;
+    Set<UUID> electricVehiclesId;
     @NotNull
     String name;
     String description;
@@ -28,6 +32,7 @@ public class PromotionRequest {
     float minValue;
     LocalDateTime startDate;
     LocalDateTime endDate;
+    MemberShipLevel memberShipLevel;
 }
 
 

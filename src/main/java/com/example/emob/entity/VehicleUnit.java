@@ -7,9 +7,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -26,6 +23,7 @@ public class VehicleUnit {
     String color;
     @Column(name = "vin_number", unique = true, nullable = false, length = 17)
     String vinNumber;
+
     LocalDateTime purchaseDate;
     LocalDate warrantyStart;
     LocalDate warrantyEnd;
@@ -38,7 +36,4 @@ public class VehicleUnit {
     @JsonIgnore
     ElectricVehicle vehicle;
 
-    @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<TestDrive> testDrive;
 }

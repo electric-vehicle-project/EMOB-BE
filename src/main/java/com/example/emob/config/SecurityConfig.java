@@ -53,6 +53,15 @@ public class SecurityConfig {
     public static final String[] DEALER_STAFF = {
             "/api/dealer-staff/report/**",
             "/api/dealer-staff/test-drive/**",
+            "/api/evm-staff/promotion/**",
+    };
+
+    public static final String[] EVM_STAFF = {
+            "/api/evm-staff/promotion"
+    };
+
+    public static final String[] EVM_STAFF = {
+            "/api/vehicle/**",
     };
 
     public static final String[] EVM_STAFF = {
@@ -64,6 +73,7 @@ public class SecurityConfig {
             "/api/dealer-staff/test-drive/schedules/**",
             "/api/dealer-staff/report/process-report/**",
             "/api/dealer-staff/report/view-all/**",
+            "/api/evm-staff/promotion/view-all"
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
@@ -101,6 +111,7 @@ public class SecurityConfig {
                                .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
                                .requestMatchers(MANAGER).hasRole("MANAGER")
                                .requestMatchers(ADMIN).hasRole("ADMIN")
+                               .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
                                .requestMatchers(AUTHENTICATED).authenticated()
                                .anyRequest().denyAll()
                )

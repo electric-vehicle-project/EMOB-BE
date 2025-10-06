@@ -3,6 +3,7 @@ package com.example.emob.service;
 import com.example.emob.constant.*;
 import com.example.emob.entity.Account;
 import com.example.emob.entity.Dealer;
+import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Promotion;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
@@ -14,8 +15,10 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.PromotionResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.DealerRepository;
+import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.PromotionRepository;
 import com.example.emob.service.iml.IPromotion;
+import com.example.emob.util.PromotionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -45,45 +49,66 @@ public class PromotionService implements IPromotion {
     @Autowired
     PageMapper pageMapper;
 
+    @Autowired
+    ElectricVehicleRepository electricVehicleRepository;
+
     @Override
-    public APIResponse<PromotionResponse> createPromotion(PromotionRequest request, PromotionScope scope) {
+    @Transactional
+    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+    public APIResponse<PromotionResponse> createPromotion(PromotionRequest request) {
         if (request.getValue() < request.getMinValue()) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
         }
-        Account evmStaff = accountRepository.findById(request.getEvmStaffId())
+        Account staffId = accountRepository.findById(request.getStaffId())
                 .filter((item) -> item.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-
+        System.out.println("tìm thấy: " + staffId.getId());
         try {
             Promotion promotion = promotionMapper.toPromotion(request);
-            if (request.getStartDate().isAfter(LocalDateTime.now())) {
-                promotion.setStatus(PromotionStatus.UPCOMING);
-            } else if (request.getEndDate().isBefore(LocalDateTime.now())) {
-                promotion.setStatus(PromotionStatus.EXPIRED);
-            } else {
-                promotion.setStatus(PromotionStatus.ACTIVE);
-            }
-            if (scope.equals(PromotionScope.GLOBAL)) {
+            // check promotion status
+            PromotionStatus promotionStatus = PromotionHelper.checkPromotionStatus(request.getStartDate(), request.getEndDate());
+            promotion.setStatus(promotionStatus);
+            // check role
+            if (staffId.getRole().equals(Role.EVM_STAFF)) {
+                promotion.setScope(PromotionScope.GLOBAL);
                 // rỗng dealer nghĩa là tất cả là global
                 promotion.setDealers(new HashSet<>());
-            } else if (scope.equals(PromotionScope.LOCAL)) {
+                promotion.setVehicles(new HashSet<>());
+            } else if (staffId.getRole().equals(Role.DEALER_STAFF)) {
+                promotion.setScope(PromotionScope.LOCAL);
                 // phải có ít nhất 1 dealerId trong Set
                 if (request.getDealerId() == null) {
-                    throw  new GlobalException(ErrorCode.DATA_INVALID);
+                    throw new GlobalException(ErrorCode.DATA_INVALID);
                 }
                 Set<Dealer> dealerSet = new HashSet<>(dealerRepository.findAllById(request.getDealerId()));
                 if (dealerSet.isEmpty()) {
                     throw new GlobalException(ErrorCode.NOT_FOUND);
                 }
+
                 promotion.setDealers(dealerSet);
+                // gán khuyến mãi cho các mẫu xe
+                if (request.getElectricVehiclesId() != null) {
+                    Set<ElectricVehicle> electricVehicles = new HashSet<>(electricVehicleRepository
+                                                        .findAllById(request.getElectricVehiclesId()));
+                    if (electricVehicles.isEmpty()) throw new GlobalException(ErrorCode.NOT_FOUND);
+                    promotion.setVehicles(electricVehicles);
+                    float default_value = request.getValue();
+                    PromotionHelper.calculateDiscountForCustomer(request.getMemberShipLevel(), promotion, default_value);
+                } else {
+                    throw new GlobalException(ErrorCode.DATA_INVALID);
+                }
+            } else {
+                throw new GlobalException(ErrorCode.UNAUTHENTICATED);
             }
-            promotion.setScope(scope);
             promotion.setCreateAt(LocalDateTime.now());
-            promotion.setCreateBy(evmStaff);
+            promotion.setCreateBy(staffId);
             promotionRepository.save(promotion);
             Set<UUID> uuids = promotionMapper.dealersToIds(promotion.getDealers());
+            Set<UUID> vehiclesToIds = promotionMapper.vehiclesToIds(promotion.getVehicles());
             PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-            promotionResponse.setManagerId(uuids);
+            PromotionHelper.responseMemberShipLevel(promotion, promotionResponse);
+            promotionResponse.setDealerId(uuids);
+            promotionResponse.setVehicleId(vehiclesToIds);
             return APIResponse.success(promotionResponse, "Create promotion for local successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
@@ -93,6 +118,7 @@ public class PromotionService implements IPromotion {
             throw new GlobalException(ErrorCode.OTHER);
         }
     }
+
 
     @Override
     public APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id) {
@@ -114,12 +140,14 @@ public class PromotionService implements IPromotion {
         }
 
         try {
-            Set<UUID> uuids = promotionMapper.dealersToIds(promotion.getDealers());
+            Set<UUID> vehiclesToIds = promotionMapper.vehiclesToIds(promotion.getVehicles());
+            Set<UUID> dealersToIds = promotionMapper.dealersToIds(promotion.getDealers());
             promotionMapper.updatePromotionFromRequest(request, promotion);
             promotion.setUpdateAt(LocalDateTime.now());
             promotionRepository.save(promotion);
             PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-            promotionResponse.setManagerId(uuids);
+            promotionResponse.setDealerId(dealersToIds);
+            promotionResponse.setVehicleId(vehiclesToIds);
             return APIResponse.success(promotionResponse, "Update promotion successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);
@@ -152,8 +180,10 @@ public class PromotionService implements IPromotion {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         Set<UUID> uuids = promotionMapper.dealersToIds(promotion.getDealers());
+        Set<UUID> vehiclesToIds = promotionMapper.vehiclesToIds(promotion.getVehicles());
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-        promotionResponse.setManagerId(uuids);
+        promotionResponse.setDealerId(uuids);
+        promotionResponse.setVehicleId(vehiclesToIds);
         return APIResponse.success(promotionResponse, "View Promotion Successfully");
     }
 

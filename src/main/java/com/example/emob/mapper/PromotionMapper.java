@@ -1,6 +1,7 @@
 package com.example.emob.mapper;
 
 import com.example.emob.entity.Dealer;
+import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Promotion;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface PromotionMapper {
     @Mapping(source = "id", target = "promotionId")
-    @Mapping(source = "createBy.id", target = "evmStaffId")
+    @Mapping(source = "createBy.id", target = "staffId")
     PromotionResponse toPromotionResponse (Promotion promotion);
 
     @Named("dealersToIds")
@@ -26,7 +27,11 @@ public interface PromotionMapper {
         return dealers == null || dealers.isEmpty() ? Collections.emptySet() :
                 dealers.stream().map(Dealer::getId).collect(Collectors.toSet());
     }
-
+    @Named("vehiclesToIds")
+    default Set<UUID> vehiclesToIds(Set<ElectricVehicle> vehicles) {
+        return vehicles == null || vehicles.isEmpty() ? Collections.emptySet() :
+                vehicles.stream().map(ElectricVehicle::getId).collect(Collectors.toSet());
+    }
     @Mapping(target = "id", ignore = true)
     Promotion toPromotion (PromotionRequest request);
 

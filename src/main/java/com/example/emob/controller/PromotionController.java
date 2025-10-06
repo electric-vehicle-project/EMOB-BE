@@ -32,7 +32,7 @@ public class PromotionController {
     @Autowired
     PromotionService promotionService;
 
-    @PostMapping("/{scope}")
+    @PostMapping
     @Operation(
             summary = "Generate Promotion",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -44,8 +44,8 @@ public class PromotionController {
                     )
             )
     )
-    public ResponseEntity<APIResponse<PromotionResponse>> createPromotion (@RequestBody @Valid PromotionRequest request, @PathVariable("scope")PromotionScope scope) {
-        return ResponseEntity.ok(promotionService.createPromotion(request, scope));
+    public ResponseEntity<APIResponse<PromotionResponse>> createPromotion (@RequestBody @Valid PromotionRequest request) {
+        return ResponseEntity.ok(promotionService.createPromotion(request));
     }
 
     @PutMapping("/{id}")

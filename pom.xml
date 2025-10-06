@@ -150,7 +150,6 @@
 			<version>1.17.2</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<!-- Compiler plugin for MapStruct and Lombok -->
@@ -180,6 +179,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			
 		</plugins>
 	</build>
 </project>
