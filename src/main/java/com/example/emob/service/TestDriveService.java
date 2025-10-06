@@ -55,8 +55,6 @@ public class TestDriveService implements ITestDrive {
     @Autowired
     private NotificationService notificationService;
 
-    @Autowired
-    private VehicleUnitRepo das
 
     @Override
     public APIResponse<TestDriveResponse> createSchedule(TestDriveRequest request) {
@@ -70,7 +68,6 @@ public class TestDriveService implements ITestDrive {
                             .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
                             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        VehicleUnit vehicleUnit =
         if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
             throw new GlobalException(ErrorCode.INVALID_DATE);
         }
@@ -104,7 +101,7 @@ public class TestDriveService implements ITestDrive {
                     "Quý khách nhớ đến đúng hẹn",
                     testDrive.getCustomer().getFullName(),
                     "Xác nhận",
-                    "zuongm52@gmail.com"
+                    "truong0345218921@gmail.com"
             );
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
             return APIResponse.success(testDriveResponse, "Create schedule successfully");
