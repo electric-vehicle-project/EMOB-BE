@@ -7,6 +7,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity

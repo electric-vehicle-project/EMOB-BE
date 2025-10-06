@@ -57,16 +57,10 @@ public class SecurityConfig {
     };
 
     public static final String[] EVM_STAFF = {
-            "/api/evm-staff/promotion"
+            "/api/evm-staff/promotion",
+            "/api/vehicle/**"
     };
 
-    public static final String[] EVM_STAFF = {
-            "/api/vehicle/**",
-    };
-
-    public static final String[] EVM_STAFF = {
-            "/api/vehicle/**",
-    };
 
     public static final String[] MANAGER = {
             "/api/dealer/report/manager/**",
