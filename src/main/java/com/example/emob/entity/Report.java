@@ -1,13 +1,14 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -18,9 +19,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Report")
 public class Report {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
 
     String title;
     String description;

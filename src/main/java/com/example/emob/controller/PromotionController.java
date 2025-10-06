@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.constant.PromotionScope;
@@ -29,8 +30,7 @@ import java.util.UUID;
 @SecurityRequirement(name = "api")
 @Tag(name = "Promotion Controller", description = "Endpoints for managing promotions")
 public class PromotionController {
-    @Autowired
-    PromotionService promotionService;
+    @Autowired PromotionService promotionService;
 
     @PostMapping
     @Operation(

@@ -1,10 +1,9 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
 
+import java.util.Date;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -12,12 +11,12 @@ import java.util.Date;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DecodedToken {
-     String iss;
-     Object aud;  // có thể là String hoặc List<String>
-     String sub;
-     String jti;
-     String tokenType;
-     String roles;
-     Date iat;
-     Date exp;
+    String iss;
+    Object aud; // có thể là String hoặc List<String>
+    String sub;
+    String jti;
+    String tokenType;
+    String roles;
+    Date iat;
+    Date exp;
 }

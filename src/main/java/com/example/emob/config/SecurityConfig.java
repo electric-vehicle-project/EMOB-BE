@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.config;
 
 import com.example.emob.security.CustomAccessDeniedHandler;
@@ -19,108 +20,95 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    Filter filter;
-    @Autowired
-    private AuthenticationService authenticationService;
+    @Autowired Filter filter;
+    @Autowired private AuthenticationService authenticationService;
 
-    @Autowired
-    private CustomAccessDeniedHandler accessDeniedHandler;
-    @Autowired
-    private CustomAuthenticationEntryPoint authenticationEntryPoint;
+    @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
+    @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     // Public
     public static final String[] PUBLIC = {
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/logout",
-            "/api/auth/refresh",
-            "/api/auth/refresh-token",
-            "/api/public/**",
-            "/api/evm-staff/promotion/**",
+        "/api/auth/login",
+        "/api/auth/register",
+        "/api/auth/logout",
+        "/api/auth/refresh",
+        "/api/auth/refresh-token",
+        "/api/public/**",
+        "/api/dealer/promotion/**",
     };
-
 
     // ADMIN
     public static final String[] ADMIN = {
-            "/api/dealer/**",
+        "/api/dealer/**",
     };
 
     public static final String[] DEALER_STAFF = {
-            "/api/dealer-staff/report/**",
-            "/api/dealer-staff/test-drive/**",
-            "/api/evm-staff/promotion/**",
+        "/api/dealer-staff/report/**", "/api/dealer-staff/test-drive/**",
     };
 
     public static final String[] EVM_STAFF = {
-            "/api/evm-staff/promotion"
-    };
-
-    public static final String[] EVM_STAFF = {
-            "/api/vehicle/**",
+        "/api/vehicle/**",
+        "/api/promotion"
     };
 
     public static final String[] MANAGER = {
-            "/api/dealer/report/manager/**",
-            "/api/dealer-staff/test-drive/schedules/**",
-            "/api/dealer-staff/report/process-report/**",
-            "/api/dealer-staff/report/view-all/**",
-            "/api/evm-staff/promotion/view-all"
+        "/api/dealer/report/manager/**",
+        "/api/dealer-staff/test-drive/schedules/**",
+        "/api/dealer-staff/report/process-report/**",
+        "/api/dealer-staff/report/view-all/**",
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
-            "/api/products/**",
-            "/api/cart/**",
-            "/api/files/**",
-            "/api/notifications/**"
+        "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
     };
     public static final String[] SWAGGER = {
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/v3/api-docs.yaml"
+        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
     };
 
-   @Bean
-    public PasswordEncoder encoder () {
+    @Bean
+    public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
         return configuration.getAuthenticationManager();
     }
-   @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-       return http
-                .cors(Customizer.withDefaults()) // bật cors ở security
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.cors(Customizer.withDefaults()) // bật cors ở security
                 .csrf(AbstractHttpConfigurer::disable)
-               .authorizeHttpRequests(
-
-                       req -> req
-                               .requestMatchers(PUBLIC).permitAll()
-                               .requestMatchers(SWAGGER).permitAll()
-                               .requestMatchers(DEALER_STAFF).hasRole("DEALER_STAFF")
-                               .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
-                               .requestMatchers(MANAGER).hasRole("MANAGER")
-                               .requestMatchers(ADMIN).hasRole("ADMIN")
-                               .requestMatchers(EVM_STAFF).hasRole("EVM_STAFF")
-                               .requestMatchers(AUTHENTICATED).authenticated()
-                               .anyRequest().denyAll()
-               )
-               .exceptionHandling(ex -> ex
-                       .authenticationEntryPoint(authenticationEntryPoint)
-                       .accessDeniedHandler(accessDeniedHandler)
-               )
-
-
+                .authorizeHttpRequests(
+                        req ->
+                                req.requestMatchers(PUBLIC)
+                                        .permitAll()
+                                        .requestMatchers(SWAGGER)
+                                        .permitAll()
+                                        .requestMatchers(DEALER_STAFF)
+                                        .hasRole("DEALER_STAFF")
+                                        .requestMatchers(EVM_STAFF)
+                                        .hasRole("EVM_STAFF")
+                                        .requestMatchers(MANAGER)
+                                        .hasRole("MANAGER")
+                                        .requestMatchers(ADMIN)
+                                        .hasRole("ADMIN")
+                                        .requestMatchers(AUTHENTICATED)
+                                        .authenticated()
+                                        .anyRequest()
+                                        .denyAll())
+                .exceptionHandling(
+                        ex ->
+                                ex.authenticationEntryPoint(authenticationEntryPoint)
+                                        .accessDeniedHandler(accessDeniedHandler))
                 .userDetailsService(authenticationService)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class).build();
-   }
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 }
-
-

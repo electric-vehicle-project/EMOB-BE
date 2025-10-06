@@ -1,12 +1,12 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import jakarta.persistence.*;
+import java.util.Set;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
-
-import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -16,15 +16,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Inventory {
-    @Id
-    @UuidGenerator
-    UUID id;
-    int totalQuantity;
+    @Id @UuidGenerator UUID id;
+    int quantity;
     boolean isCompany = false;
 
-    @OneToOne(mappedBy = "inventory",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToOne(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
     Dealer dealer;
 
-    @OneToMany(mappedBy = "inventory",cascade = CascadeType.ALL,orphanRemoval = true)
-    Set<InventoryItem> inventoryItems;
+    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<VehicleUnit> vehicleUnits;
 }

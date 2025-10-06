@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
@@ -12,7 +13,10 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.service.iml.IAuthentication;
+import java.util.UUID;
 import lombok.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,53 +28,38 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class AuthenticationService implements IAuthentication, UserDetailsService {
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
+    @Autowired PasswordEncoder passwordEncoder;
 
-    @Autowired
-    AuthenticationManager authenticationManager;
+    @Autowired AuthenticationManager authenticationManager;
 
-    @Autowired
-    AccountMapper accountMapper;
+    @Autowired AccountMapper accountMapper;
 
-    @Autowired
-    TokenService tokenService;
+    @Autowired TokenService tokenService;
 
-    @Autowired
-    AccountRepository accountRepository;
+    @Autowired AccountRepository accountRepository;
 
-
-    @Autowired
-    RefreshTokenService refreshTokenService;
-
-
+    @Autowired RefreshTokenService refreshTokenService;
 
     @Override
     public APIResponse<AccountResponse> login(LoginRequest request) {
         try {
-
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-
-
+            Authentication authentication =
+                    authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    request.getEmail(), request.getPassword()));
             Object principal = authentication.getPrincipal();
             if (!(principal instanceof Account)) {
                 throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
             }
             Account account = (Account) principal;
 
-
             AccountResponse accountResponse = accountMapper.toAccountResponse(account);
-
 
             String accessToken = tokenService.generateToken(account);
             accountResponse.setToken(accessToken);
-
 
             String refreshToken = refreshTokenService.createRefreshToken(account).getToken();
             accountResponse.setRefreshToken(refreshToken);
@@ -89,8 +78,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         }
     }
 
-
-
     @Override
     public APIResponse<AccountResponse> register(RegisterRequest request) {
         // Map RegisterRequest => Account
@@ -103,12 +90,13 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             // Lưu tài khoản vào DB
             Account newAccount = accountRepository.save(account);
 
-            return APIResponse.success(accountMapper.toAccountResponse(newAccount),"Login Successful");
+            return APIResponse.success(
+                    accountMapper.toAccountResponse(newAccount), "Login Successful");
 
         } catch (Exception e) {
             // Kiểm tra lỗi từ database
             String errorMessage = e.getMessage().toLowerCase();
-            System.out.println(errorMessage);
+            AuthenticationService.log.info(errorMessage);
             if (errorMessage.contains("email")) {
                 throw new GlobalException(ErrorCode.EMAIL_EXISTED);
             } else if (errorMessage.contains("phone")) {
@@ -121,19 +109,21 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
     @Override
     public APIResponse<AccountResponse> refresh(TokenRequest refreshRequest) {
-        RefreshToken validToken = refreshTokenService.verifyToken(refreshRequest.getToken())
-                .orElseThrow(() -> new GlobalException(ErrorCode.INVALID_REFRESH_TOKEN));
-        Account account = accountRepository.findAccountById(
-                UUID.fromString(validToken.getAccountId())
-        );
+        RefreshToken validToken =
+                refreshTokenService
+                        .verifyToken(refreshRequest.getToken())
+                        .orElseThrow(() -> new GlobalException(ErrorCode.INVALID_REFRESH_TOKEN));
+        Account account =
+                accountRepository.findAccountById(UUID.fromString(validToken.getAccountId()));
 
         // rotation: revoke cũ + cấp mới
-        RefreshToken newRefreshToken = refreshTokenService.rotateToken(refreshRequest.getToken(),account);
+        RefreshToken newRefreshToken =
+                refreshTokenService.rotateToken(refreshRequest.getToken(), account);
         String newToken = tokenService.generateToken(account);
         AccountResponse accountResponse = accountMapper.toAccountResponse(account);
         accountResponse.setRefreshToken(newRefreshToken.getToken());
         accountResponse.setToken(newToken);
-        return APIResponse.success(accountResponse,"Refresh Successful");
+        return APIResponse.success(accountResponse, "Refresh Successful");
     }
 
     @Override
@@ -141,15 +131,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         refreshTokenService.revokeToken(refreshRequest.getToken());
     }
 
-
-
-
-
-
     @Override
     @NonNull
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return accountRepository.findAccountByEmail(email);
     }
-
 }
