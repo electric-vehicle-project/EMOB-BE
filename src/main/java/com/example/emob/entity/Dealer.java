@@ -32,7 +32,7 @@ public class Dealer {
     Set<Account> accounts = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
     Set<Promotion> promotions = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
