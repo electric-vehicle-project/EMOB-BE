@@ -1,14 +1,14 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
 
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor

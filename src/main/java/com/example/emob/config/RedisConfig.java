@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(
+            RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 

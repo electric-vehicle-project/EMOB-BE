@@ -1,12 +1,12 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
 
 import com.example.emob.constant.VehicleType;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor

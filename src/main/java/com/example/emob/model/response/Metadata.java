@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
 
 import lombok.*;

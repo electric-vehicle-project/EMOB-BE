@@ -1,17 +1,17 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.Gender;
-
 import com.example.emob.constant.MemberShipLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 @Entity
 @Getter
 @Setter
@@ -24,12 +24,15 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "BINARY(16)", unique = true, updatable = false, nullable = false)
     UUID id;
+
     String fullName;
+
     @Column(unique = true)
     String email;
-    
+
     @Column(unique = true)
     String phoneNumber;
+
     String address;
     String note;
     LocalDate dateOfBirth;

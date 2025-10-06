@@ -1,15 +1,15 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -19,10 +19,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleUnit {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
     String color;
+
     @Column(name = "vin_number", unique = true, nullable = false, length = 17)
     String vinNumber;
 
@@ -30,6 +29,7 @@ public class VehicleUnit {
     LocalDate warrantyStart;
     LocalDate warrantyEnd;
     LocalDate productionYear;
+
     @Enumerated(EnumType.STRING)
     VehicleStatus status;
 
@@ -38,4 +38,8 @@ public class VehicleUnit {
     @JsonIgnore
     ElectricVehicle vehicle;
 
+    @ManyToOne
+    @JoinColumn(name = "inventory_id")
+    @JsonIgnore
+    Inventory inventory;
 }
