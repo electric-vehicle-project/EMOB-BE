@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service;
 
 import com.example.emob.constant.*;
@@ -34,14 +35,12 @@ import java.util.*;
 @Service
 public class PromotionService implements IPromotion {
 
-    @Autowired
-    DealerRepository dealerRepository;
+    @Autowired DealerRepository dealerRepository;
 
-    @Autowired
-    PromotionRepository promotionRepository;
+    @Autowired PromotionRepository promotionRepository;
 
-    @Autowired
-    PromotionMapper promotionMapper;
+    @Autowired PromotionMapper promotionMapper;
+
 
     @Autowired
     AccountRepository accountRepository;

@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.config;
 
 import com.example.emob.entity.Inventory;
@@ -8,20 +9,17 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
-    @Autowired
-    InventoryRepository inventoryRepository;
+    @Autowired InventoryRepository inventoryRepository;
 
     @Override
     public void run(String... args) throws Exception {
         seedCompanyInventory();
     }
+
     private void seedCompanyInventory() {
         if (inventoryRepository.countByIsCompanyTrue() == 0) {
-            Inventory companyInventory = Inventory.builder()
-                    .totalQuantity(0)
-                    .isCompany(true)
-                    .dealer(null)
-                    .build();
+            Inventory companyInventory =
+                    Inventory.builder().quantity(0).isCompany(true).dealer(null).build();
             inventoryRepository.save(companyInventory);
             System.out.println("Seeded company inventory!");
         }

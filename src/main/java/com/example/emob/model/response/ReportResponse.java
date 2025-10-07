@@ -1,16 +1,14 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
-
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
 import com.example.emob.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor

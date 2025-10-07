@@ -1,10 +1,10 @@
-package com.example.emob.model.request;
+/* EMOB-2025 */
+package com.example.emob.model.request.vehicle;
 
 import com.example.emob.constant.VehicleType;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -14,8 +14,6 @@ import java.util.List;
 public class ElectricVehicleRequest {
     String brand;
     String model;
-    float importPrice;
-    float retailPrice;
     Float batteryKwh;
     Integer rangeKm;
     Float chargeTimeHr;

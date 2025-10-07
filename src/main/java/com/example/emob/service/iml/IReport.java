@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service.iml;
 
 import com.example.emob.constant.ReportStatus;
@@ -6,23 +7,21 @@ import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.ReportResponse;
-import org.springframework.data.domain.Pageable;
-
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 
 public interface IReport {
     // ghi nhận
-    APIResponse<ReportResponse> createReport (CreateReportRequest request);
+    APIResponse<ReportResponse> createReport(CreateReportRequest request);
 
-    APIResponse<ReportResponse> updateReport (UpdateReportRequest request, UUID reportId);
+    APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId);
 
-    APIResponse<ReportResponse> deleteReport (UUID reportId);
+    APIResponse<ReportResponse> deleteReport(UUID reportId);
 
-    APIResponse<ReportResponse> viewReport (UUID reportId);
+    APIResponse<ReportResponse> viewReport(UUID reportId);
 
-    APIResponse<PageResponse<ReportResponse>> viewAllReport (Pageable pageable);
+    APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable);
 
     // xử lý
-    APIResponse<ReportResponse> changeStatus (UUID id, ReportStatus status);
-
+    APIResponse<ReportResponse> changeStatus(UUID id, ReportStatus status);
 }

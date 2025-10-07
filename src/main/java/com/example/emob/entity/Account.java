@@ -1,19 +1,20 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
+
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDate;
-import java.util.*;
 
 @Entity
 @Builder
@@ -24,9 +25,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Account")
 public class Account implements UserDetails {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
 
     String fullName;
 
@@ -43,19 +42,22 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     Role role;
 
-    @Column (unique = true)
+    @Column(unique = true)
     String phone;
 
-    @Column (unique = true)
+    @Column(unique = true)
     String email;
+
     String password;
 
     @Enumerated(EnumType.STRING)
     MemberShipLevel memberShipLevel;
+
     @ManyToOne
     @JoinColumn(name = "dealer_id")
     @JsonIgnore
     Dealer dealer;
+
     @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     Set<Report> reports = new HashSet<>();
@@ -72,7 +74,7 @@ public class Account implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         if (this.role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_"+this.role));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
         }
         return authorities;
     }

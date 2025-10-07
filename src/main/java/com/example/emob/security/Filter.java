@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.security;
 
 import com.example.emob.config.SecurityConfig;
@@ -13,6 +14,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,13 +26,9 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 @Component
 public class Filter extends OncePerRequestFilter {
-    @Autowired
-    TokenService tokenService;
+    @Autowired TokenService tokenService;
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
@@ -40,14 +39,13 @@ public class Filter extends OncePerRequestFilter {
         String[] publicEndpoints = SecurityConfig.PUBLIC;
 
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        return Arrays.stream(publicEndpoints)
-                .anyMatch(pattern -> pathMatcher.match(pattern, uri));
+        return Arrays.stream(publicEndpoints).anyMatch(pattern -> pathMatcher.match(pattern, uri));
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String path = request.getRequestURI();
         String token = getToken(request);
         if (isPublicEndpoint(path)) {
@@ -61,33 +59,33 @@ public class Filter extends OncePerRequestFilter {
                 Account account = tokenService.verifyTokenToAccount(token);
                 System.out.println(account.getAuthorities());
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        new UsernamePasswordAuthenticationToken(
+                                account, null, account.getAuthorities());
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (ExpiredJwtException e) {
-                resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.EXPIRED_TOKEN));
+                resolver.resolveException(
+                        request, response, null, new GlobalException(ErrorCode.EXPIRED_TOKEN));
                 return;
             } catch (MalformedJwtException e) {
-                resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.INVALID_TOKEN));
+                resolver.resolveException(
+                        request, response, null, new GlobalException(ErrorCode.INVALID_TOKEN));
                 return;
             } catch (SignatureException e) {
-                resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.NOT_MATCH_TOKEN));
+                resolver.resolveException(
+                        request, response, null, new GlobalException(ErrorCode.NOT_MATCH_TOKEN));
                 return;
-            } catch (JwtException e){
-                resolver.resolveException(request, response, null,
-                        new GlobalException(ErrorCode.INVALID_TOKEN));
+            } catch (JwtException e) {
+                resolver.resolveException(
+                        request, response, null, new GlobalException(ErrorCode.INVALID_TOKEN));
                 return;
             }
         }
 
         filterChain.doFilter(request, response);
     }
-
-
 
     private String getToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");

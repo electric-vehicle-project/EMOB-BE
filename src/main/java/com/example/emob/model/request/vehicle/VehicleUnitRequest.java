@@ -1,12 +1,13 @@
-package com.example.emob.model.request;
+/* EMOB-2025 */
+package com.example.emob.model.request.vehicle;
 
-import jakarta.persistence.Column;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
+import com.example.emob.constant.VehicleStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -20,4 +21,5 @@ public class VehicleUnitRequest {
     LocalDate warrantyStart;
     LocalDate warrantyEnd;
     LocalDate productionYear;
+    VehicleStatus status;
 }
