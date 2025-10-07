@@ -2,10 +2,12 @@
 package com.example.emob.controller;
 
 import com.example.emob.model.request.LoginRequest;
+import com.example.emob.model.request.OtpRequest;
 import com.example.emob.model.request.RegisterRequest;
 import com.example.emob.model.request.TokenRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
+import com.example.emob.model.response.OtpResponse;
 import com.example.emob.service.AuthenticationService;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +28,23 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication Controller", description = "Endpoints for user registration and login")
 @SecurityRequirement(name = "api")
 public class AuthenticationController {
-    @Autowired AuthenticationService authenticationService;
+    @Autowired
+    AuthenticationService authenticationService;
+
+    @PostMapping("/forgot-password")
+    public void forgotPassword (@Valid @RequestBody OtpRequest request) {
+        authenticationService.forgotPassword(request);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<APIResponse<OtpResponse>> verifyOtp (@Valid @RequestBody OtpRequest request, String otp) {
+        return ResponseEntity.ok(authenticationService.verifyOtp(request, otp));
+    }
+
+    @PostMapping("/reset-password")
+    public void resetPassword (@RequestParam String token, @RequestParam String newPassword) {
+        authenticationService.resetPassword(token, newPassword);
+    }
 
     @PostMapping("/login")
     @Operation(

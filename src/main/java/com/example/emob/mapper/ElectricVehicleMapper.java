@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.mapper;
 
-import com.example.emob.entity.Dealer;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.VehicleUnit;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
@@ -11,10 +10,7 @@ import com.example.emob.model.response.VehicleUnitResponse;
 import java.util.UUID;
 import org.mapstruct.*;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface ElectricVehicleMapper {

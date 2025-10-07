@@ -2,10 +2,7 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.*;
-import com.example.emob.entity.Account;
-import com.example.emob.entity.Dealer;
-import com.example.emob.entity.ElectricVehicle;
-import com.example.emob.entity.Promotion;
+import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.PromotionMapper;
@@ -14,10 +11,7 @@ import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.PromotionResponse;
-import com.example.emob.repository.AccountRepository;
-import com.example.emob.repository.DealerRepository;
-import com.example.emob.repository.ElectricVehicleRepository;
-import com.example.emob.repository.PromotionRepository;
+import com.example.emob.repository.*;
 import com.example.emob.service.iml.IPromotion;
 import com.example.emob.util.PromotionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +44,7 @@ public class PromotionService implements IPromotion {
 
     @Autowired
     ElectricVehicleRepository electricVehicleRepository;
+
 
     @Override
     @Transactional
@@ -192,4 +187,13 @@ public class PromotionService implements IPromotion {
         PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
         return APIResponse.success(promotionResponsePageResponse, "View All Promotions Successfully");
     }
+
+    @Override
+    public APIResponse<PageResponse<PromotionResponse>> viewAllGlobalPromotions(Pageable pageable) {
+        Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
+        PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
+        return APIResponse.success(promotionResponsePageResponse, "View All Global Promotions Successfully");
+    }
+
+
 }

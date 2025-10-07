@@ -22,4 +22,5 @@ public interface IPromotion {
 
     APIResponse<PageResponse<PromotionResponse>> viewAllPromotions (Pageable pageable);
 
+    APIResponse<PageResponse<PromotionResponse>> viewAllGlobalPromotions (Pageable pageable);
 }

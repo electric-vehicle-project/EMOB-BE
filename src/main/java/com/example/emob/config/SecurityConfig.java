@@ -23,26 +23,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired Filter filter;
-    @Autowired private AuthenticationService authenticationService;
+    @Autowired
+    Filter filter;
+    @Autowired
+    private AuthenticationService authenticationService;
 
-    @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
-    @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
+    @Autowired
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     // Public
     public static final String[] PUBLIC = {
-        "/api/auth/login",
-        "/api/auth/register",
-        "/api/auth/logout",
-        "/api/auth/refresh",
-        "/api/auth/refresh-token",
-        "/api/public/**",
-        "/api/dealer/promotion/**",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/refresh",
+            "/api/auth/refresh-token",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth/verify-otp",
+            "/api/public/**",
+            "/api/evm-staff/promotion/**",
     };
 
     // ADMIN
     public static final String[] ADMIN = {
-        "/api/dealer/**",
+            "/api/dealer/**",
+            "/api/evm-staff/promotion/view-global-all"
     };
 
     public static final String[] DEALER_STAFF = {
@@ -57,17 +65,17 @@ public class SecurityConfig {
     };
 
     public static final String[] MANAGER = {
-        "/api/dealer/report/manager/**",
-        "/api/dealer-staff/test-drive/schedules/**",
-        "/api/dealer-staff/report/process-report/**",
-        "/api/dealer-staff/report/view-all/**",
+            "/api/dealer/report/manager/**",
+            "/api/dealer-staff/test-drive/schedules/**",
+            "/api/dealer-staff/report/process-report/**",
+            "/api/dealer-staff/report/view-all/**",
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
-        "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
+            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
     };
     public static final String[] SWAGGER = {
-        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
     };
 
     @Bean

@@ -19,15 +19,17 @@ import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.TestDriveRepository;
 import com.example.emob.service.iml.ITestDrive;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.UUID;
+import com.example.emob.util.NotificationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.UUID;
 
 @Service
 public class TestDriveService implements ITestDrive {
@@ -42,7 +44,9 @@ public class TestDriveService implements ITestDrive {
 
     @Autowired private PageMapper pageMapper;
 
-    @Autowired private NotificationService notificationService;
+    @Autowired
+    private EmailService emailService;
+
 
     @Override
     public APIResponse<TestDriveResponse> createSchedule(TestDriveRequest request) {
@@ -80,7 +84,20 @@ public class TestDriveService implements ITestDrive {
             testDrive.setStatus(TestStatus.PENDING);
             testDrive.setCreateAt(LocalDateTime.now());
             testDriveRepository.save(testDrive);
-            notificationService.sendTestDriveConfirmation(testDrive);
+
+            emailService.sendEmail(
+                    "Xác nhận lịch lái thử",
+                    "Đặt lịch thành công",
+                    "Chúng tôi cảm ơn",
+                    NotificationHelper.CONFIRM_TEST_DRIVE,
+                    "Lịch hẹn của bạn đã được xác nhận thành công",
+                    "https://app.diagrams.net/#G1m4SbslLmKuduNeCj6kPdxNauEpzCLl4J#%7B%22pageId%22%3A%22rHYpNvzPq7mJ_Pk65GUX%22%7D",
+                    "Cảm ơn quý khách",
+                    "Quý khách nhớ đến đúng hẹn",
+                    testDrive.getCustomer().getFullName(),
+                    "Xác nhận",
+                    "truong0345218921@gmail.com"
+            );
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
             return APIResponse.success(testDriveResponse, "Create schedule successfully");
         } catch (DataIntegrityViolationException ex) {
@@ -131,7 +148,7 @@ public class TestDriveService implements ITestDrive {
         try {
             testDriveMapper.updateScheduleFromRequest(request, testDrive);
             testDriveRepository.save(testDrive);
-            notificationService.sendTestDriveConfirmation(testDrive);
+//            emailService.sendNotification(testDrive);
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
             return APIResponse.success(testDriveResponse, "Update schedule successfully");
         } catch (DataIntegrityViolationException ex) {

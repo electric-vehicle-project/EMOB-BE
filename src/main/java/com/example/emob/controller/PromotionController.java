@@ -73,4 +73,12 @@ public class PromotionController {
         Pageable pageResponse = PageRequest.of(page, size);
         return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse));
     }
+
+    @GetMapping("/view-global-all")
+    @Operation(summary = "View All Global Promotion")
+    public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllGlobalPromotions (@RequestParam(defaultValue = "0") int page,
+                                                                                           @RequestParam(defaultValue = "10") int size) {
+        Pageable pageResponse = PageRequest.of(page, size);
+        return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse));
+    }
 }

@@ -41,4 +41,8 @@ public class TestDrive {
 
     LocalDateTime createAt;
     LocalDateTime updateAt;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicleUnit", referencedColumnName = "id")
+    VehicleUnit vehicleUnit;
 }
