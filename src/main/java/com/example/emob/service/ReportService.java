@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
@@ -18,6 +19,8 @@ import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ReportRepository;
 import com.example.emob.service.iml.IReport;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,37 +28,32 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 public class ReportService implements IReport {
-    @Autowired
-    private CustomerRepository customerRepository;
+    @Autowired private CustomerRepository customerRepository;
 
-    @Autowired
-    private CustomerMapper customerMapper;
+    @Autowired private CustomerMapper customerMapper;
 
-    @Autowired
-    private ReportMapper reportMapper;
+    @Autowired private ReportMapper reportMapper;
 
-    @Autowired
-    private ReportRepository reportRepository;
+    @Autowired private ReportRepository reportRepository;
 
-    @Autowired
-    private PageMapper pageMapper;
+    @Autowired private PageMapper pageMapper;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    @Autowired private AccountRepository accountRepository;
 
     @Override
     public APIResponse<ReportResponse> createReport(CreateReportRequest request) {
         // khách hàng
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Customer customer =
+                customerRepository
+                        .findById(request.getCustomerId())
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         // nhân viên nào tạo
-        Account account = accountRepository.findById(request.getAccountId())
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Account account =
+                accountRepository
+                        .findById(request.getAccountId())
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {
             Report report = reportMapper.toReport(request);
             report.setStatus(ReportStatus.PENDING);
@@ -77,8 +75,10 @@ public class ReportService implements IReport {
 
     @Override
     public APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId) {
-        Report report = reportRepository.findById(reportId).
-                orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Report report =
+                reportRepository
+                        .findById(reportId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
         try {
             // Map request -> entity
@@ -98,8 +98,10 @@ public class ReportService implements IReport {
 
     @Override
     public APIResponse<ReportResponse> deleteReport(UUID reportId) {
-        Report report = reportRepository.findById(reportId).
-                orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Report report =
+                reportRepository
+                        .findById(reportId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {
             report.setStatus(ReportStatus.DELETED);
             reportRepository.save(report);
@@ -116,8 +118,10 @@ public class ReportService implements IReport {
 
     @Override
     public APIResponse<ReportResponse> viewReport(UUID reportId) {
-        Report report = reportRepository.findById(reportId).
-                orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Report report =
+                reportRepository
+                        .findById(reportId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         ReportResponse reportResponse = reportMapper.toReportResponse(report);
         return APIResponse.success(reportResponse, "View report successfully");
     }
@@ -127,14 +131,17 @@ public class ReportService implements IReport {
     public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable) {
         Page<Report> reports = reportRepository.findAll(pageable);
         // map từng Report trong trang thành ReportResponse
-        PageResponse<ReportResponse> responses = pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
+        PageResponse<ReportResponse> responses =
+                pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
         return APIResponse.success(responses, "View all reports successfully");
     }
 
     @Override
     public APIResponse<ReportResponse> changeStatus(UUID reportId, ReportStatus status) {
-        Report report = reportRepository.findById(reportId).
-                orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Report report =
+                reportRepository
+                        .findById(reportId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {
             // IN_PROGRESS | RESOLVED
             report.setStatus(status);
@@ -142,7 +149,7 @@ public class ReportService implements IReport {
             reportRepository.save(report);
 
             ReportResponse reportResponse = reportMapper.toReportResponse(report);
-//            reportResponse.setReportId(report.getId());
+            //            reportResponse.setReportId(report.getId());
             return APIResponse.success(reportResponse, "Change status successfully");
         } catch (DataIntegrityViolationException ex) {
             throw new GlobalException(ErrorCode.DATA_INVALID);

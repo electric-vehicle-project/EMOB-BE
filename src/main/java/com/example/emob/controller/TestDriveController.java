@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.model.request.schedule.TestDriveRequest;
@@ -13,13 +14,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
@@ -28,23 +28,27 @@ import java.util.UUID;
 @Tag(name = "Test Drive Controller", description = "Endpoints for managing schedule test drive")
 public class TestDriveController {
 
-    @Autowired
-    TestDriveService testDriveService;
-
+    @Autowired TestDriveService testDriveService;
 
     @PostMapping
     @Operation(
             summary = "Create Schedule Test Drive",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Create Schedule Test Drive",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = TestDriveRequest.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Account A",
-                                            value = """
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Create Schedule Test Drive",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(
+                                                            implementation =
+                                                                    TestDriveRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Account A",
+                                                        value =
+                                                                """
                                                                    {
                                                         "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                          "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
@@ -55,13 +59,10 @@ public class TestDriveController {
                                                     }
 
 
-                                                    """
-                                    )
-                            }
-                    )
-            )
-    )
-    public ResponseEntity<APIResponse<TestDriveResponse>> createSchedule(@RequestBody @Valid TestDriveRequest request) {
+                                                    """)
+                                            })))
+    public ResponseEntity<APIResponse<TestDriveResponse>> createSchedule(
+            @RequestBody @Valid TestDriveRequest request) {
         return ResponseEntity.ok(testDriveService.createSchedule(request));
     }
 
@@ -73,8 +74,9 @@ public class TestDriveController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update Schedule Test Drive")
-    public ResponseEntity<APIResponse<TestDriveResponse>> updateSchedule(@RequestBody @Valid UpdateTestDriveRequest request , @PathVariable UUID id) {
-        return ResponseEntity.ok(testDriveService.updateSchedule(request ,id));
+    public ResponseEntity<APIResponse<TestDriveResponse>> updateSchedule(
+            @RequestBody @Valid UpdateTestDriveRequest request, @PathVariable UUID id) {
+        return ResponseEntity.ok(testDriveService.updateSchedule(request, id));
     }
 
     @DeleteMapping("/{id}")
@@ -85,8 +87,9 @@ public class TestDriveController {
 
     @GetMapping("/schedules")
     @Operation(summary = "View All Schedule Test Drive")
-    public ResponseEntity<APIResponse<PageResponse<TestDriveResponse>>> viewAllSchedules(@RequestParam(defaultValue = "0") int page,
-                                                                            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<APIResponse<PageResponse<TestDriveResponse>>> viewAllSchedules(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(testDriveService.viewAllSchedules(pageable));
     }

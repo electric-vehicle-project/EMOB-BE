@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.constant;
 
 import lombok.AccessLevel;
@@ -27,7 +28,7 @@ public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(null, HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHENTICATED("Unauthenticated!", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED("You do not have permission!", HttpStatus.FORBIDDEN),
-    DATA_INVALID( "Invalid data", HttpStatus.BAD_REQUEST),
+    DATA_INVALID("Invalid data", HttpStatus.BAD_REQUEST),
     DB_ERROR("Database error", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_DATE("Invalid date", HttpStatus.BAD_REQUEST),
     STAFF_BUSY("Staff is busy", HttpStatus.BAD_REQUEST),
@@ -42,4 +43,3 @@ public enum ErrorCode {
         return status.value();
     }
 }
-

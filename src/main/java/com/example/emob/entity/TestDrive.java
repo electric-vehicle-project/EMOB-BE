@@ -1,12 +1,12 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.TestStatus;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @Builder
