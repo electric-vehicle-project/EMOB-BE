@@ -1,12 +1,18 @@
+/* EMOB-2025 */
 package com.example.emob.service.iml;
 
 import com.example.emob.entity.VehicleUnit;
 import com.example.emob.model.request.ElectricVehicleRequest;
 import com.example.emob.model.request.VehicleUnitRequest;
+import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
+import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
+import com.example.emob.model.request.vehicle.VehicleUnitRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ElectricVehicleResponse;
 import com.example.emob.model.response.PageResponse;
-
+import com.example.emob.model.response.VehicleUnitResponse;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -22,5 +28,8 @@ public interface IVehicle {
     APIResponse<ElectricVehicleResponse> get(UUID id);
 
     APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable);
-    APIResponse<List<VehicleUnit>> createBulkVehicles(VehicleUnitRequest request);
+
+    APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
+
+    APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
 }

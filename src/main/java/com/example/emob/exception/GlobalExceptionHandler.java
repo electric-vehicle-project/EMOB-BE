@@ -1,8 +1,11 @@
+/* EMOB-2025 */
 package com.example.emob.exception;
-
 
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.model.response.APIResponse;
+import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,18 +13,18 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Objects;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIResponse<Object>> handleValidation(MethodArgumentNotValidException exception) {
+    public ResponseEntity<APIResponse<Object>> handleValidation(
+            MethodArgumentNotValidException exception) {
         APIResponse<Object> apiResponse = new APIResponse<>();
 
         String field = Objects.requireNonNull(exception.getFieldError()).getField();
-        System.out.println(field);
+        log.info(field);
         ErrorCode errorCode;
 
         switch (field) {
@@ -46,18 +49,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(errorCode.getStatus()).body(apiResponse);
     }
+
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<APIResponse<Object>> handleAccessDinedException(AccessDeniedException exception) {
+    public ResponseEntity<APIResponse<Object>> handleAccessDinedException(
+            AccessDeniedException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
         APIResponse<Object> apiResponse = new APIResponse<>();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
-        return  ResponseEntity
-                .status(errorCode.getStatus())
-                .body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatus()).body(apiResponse);
     }
-
 
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<APIResponse<Object>> globalException(GlobalException exception) {
@@ -66,9 +68,7 @@ public class GlobalExceptionHandler {
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
 
-        return  ResponseEntity
-                .status(errorCode.getStatus())
-                .body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatus()).body(apiResponse);
     }
 
         @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -89,5 +89,6 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.FIELDS_EMPTY.getStatus())
                 .body(apiResponse);
     }
+
 
 }

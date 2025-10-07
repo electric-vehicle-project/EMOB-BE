@@ -1,14 +1,14 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -18,9 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Dealer {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
 
     String name;
     String contactInfo;
@@ -32,8 +30,10 @@ public class Dealer {
     Set<Account> accounts = new HashSet<>();
 
 
-    @ManyToMany(mappedBy = "dealers")
+
+    @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
     Set<Promotion> promotions = new HashSet<>();
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "inventory_id")
     Inventory inventory;

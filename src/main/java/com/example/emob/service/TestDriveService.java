@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service;
 
 import com.example.emob.constant.AccountStatus;
@@ -21,7 +22,6 @@ import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.TestDriveRepository;
 import com.example.emob.service.iml.ITestDrive;
-import com.example.emob.util.NotificationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,21 +36,15 @@ import java.util.UUID;
 @Service
 public class TestDriveService implements ITestDrive {
 
-    @Autowired
-    private CustomerRepository customerRepository;
+    @Autowired private CustomerRepository customerRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
+    @Autowired private AccountRepository accountRepository;
 
-    @Autowired
-    private TestDriveRepository testDriveRepository;
+    @Autowired private TestDriveRepository testDriveRepository;
 
+    @Autowired private TestDriveMapper testDriveMapper;
 
-    @Autowired
-    private TestDriveMapper testDriveMapper;
-
-    @Autowired
-    private PageMapper pageMapper;
+    @Autowired private PageMapper pageMapper;
 
     @Autowired
     private NotificationService notificationService;
@@ -61,12 +55,16 @@ public class TestDriveService implements ITestDrive {
         // khung giờ làm việc
         LocalDateTime date = request.getScheduledAt();
         LocalTime time = date.toLocalTime();
-        Customer customer = customerRepository.findById(request.getCustomerId())
-                            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Customer customer =
+                customerRepository
+                        .findById(request.getCustomerId())
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        Account salePerson = accountRepository.findById(request.getAccountId())
-                            .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
-                            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Account salePerson =
+                accountRepository
+                        .findById(request.getAccountId())
+                        .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
         if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
             throw new GlobalException(ErrorCode.INVALID_DATE);
@@ -75,8 +73,7 @@ public class TestDriveService implements ITestDrive {
         // so sánh trong khoảng 1h
         LocalDateTime startTime = date.minusMinutes(59);
         LocalDateTime endTime = date.plusMinutes(59);
-        long busy = testDriveRepository.existsOverlap(salePerson.getId(),
-                                    startTime, endTime);
+        long busy = testDriveRepository.existsOverlap(salePerson.getId(), startTime, endTime);
 
         System.out.println("Busy: " + busy);
         if (busy >= 1) {
@@ -114,8 +111,10 @@ public class TestDriveService implements ITestDrive {
 
     @Override
     public APIResponse<TestDriveResponse> viewSchedule(UUID id) {
-        TestDrive testDrive = testDriveRepository.findById(id)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        TestDrive testDrive =
+                testDriveRepository
+                        .findById(id)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
         return APIResponse.success(testDriveResponse, "View Schedule Test Drive Successfully");
     }
@@ -124,12 +123,16 @@ public class TestDriveService implements ITestDrive {
     public APIResponse<TestDriveResponse> updateSchedule(UpdateTestDriveRequest request, UUID id) {
         LocalDateTime date = request.getScheduleDate();
         LocalTime time = date.toLocalTime();
-        TestDrive testDrive = testDriveRepository.findById(id)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        TestDrive testDrive =
+                testDriveRepository
+                        .findById(id)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        Account salePerson = accountRepository.findById(request.getSalePersonId())
-                .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Account salePerson =
+                accountRepository
+                        .findById(request.getSalePersonId())
+                        .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
         if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
             throw new GlobalException(ErrorCode.INVALID_DATE);
@@ -138,8 +141,7 @@ public class TestDriveService implements ITestDrive {
         // so sánh trong khoảng 1h
         LocalDateTime startTime = date.minusMinutes(59);
         LocalDateTime endTime = date.plusMinutes(59);
-        long busy = testDriveRepository.existsOverlap(salePerson.getId(),
-                startTime, endTime);
+        long busy = testDriveRepository.existsOverlap(salePerson.getId(), startTime, endTime);
 
         System.out.println("Busy: " + busy);
         if (busy >= 1) {
@@ -162,8 +164,10 @@ public class TestDriveService implements ITestDrive {
 
     @Override
     public APIResponse<TestDriveResponse> cancelSchedule(UUID id) {
-        TestDrive testDrive = testDriveRepository.findById(id)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        TestDrive testDrive =
+                testDriveRepository
+                        .findById(id)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {
             testDrive.setStatus(TestStatus.CANCELLED);
             testDriveRepository.save(testDrive);
@@ -182,7 +186,8 @@ public class TestDriveService implements ITestDrive {
     public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
         Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
         PageResponse<TestDriveResponse> testDriveResponsePageResponse =
-                    pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
-        return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
+                pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
+        return APIResponse.success(
+                testDriveResponsePageResponse, "View All Schedules Successfully");
     }
 }

@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.model.request.DealerRequest;
@@ -12,13 +13,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+<<<<<<< HEAD
+=======
+import java.util.UUID;
+>>>>>>> f514e41d121209766b1808e639b623d8b269ae3d
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/dealer")
@@ -27,44 +30,43 @@ import java.util.UUID;
 @SecurityRequirement(name = "api")
 public class DealerController {
 
-    @Autowired
-    private DealerService dealerService;
+    @Autowired private DealerService dealerService;
 
     @PostMapping
     @Operation(
             summary = "Create a new Dealer",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Dealer creation request",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = DealerRequest.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Dealer A",
-                                            value = """
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Dealer creation request",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = DealerRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Dealer A",
+                                                        value =
+                                                                """
                             {
                               "name": "Dealer One",
                               "contactInfo": "dealer1@example.com",
                               "country": "USA"
                             }
-                            """
-                                    ),
-                                    @ExampleObject(
-                                            name = "Dealer B",
-                                            value = """
+                            """),
+                                                @ExampleObject(
+                                                        name = "Dealer B",
+                                                        value =
+                                                                """
                             {
                               "name": "Dealer Two",
                               "contactInfo": "dealer2@example.com",
                               "country": "Canada"
                             }
-                            """
-                                    )
-                            }
-                    )
-            )
-    )
-    public ResponseEntity<APIResponse<DealerResponse>> createDealer(@Valid @RequestBody DealerRequest request) {
+                            """)
+                                            })))
+    public ResponseEntity<APIResponse<DealerResponse>> createDealer(
+            @Valid @RequestBody DealerRequest request) {
         return ResponseEntity.ok(dealerService.create(request));
     }
 
@@ -73,12 +75,12 @@ public class DealerController {
     public ResponseEntity<APIResponse<DealerResponse>> getDealer(@PathVariable UUID id) {
         return ResponseEntity.ok(dealerService.get(id));
     }
+
     @GetMapping
     @Operation(summary = "Get all dealers")
     public ResponseEntity<APIResponse<PageResponse<DealerResponse>>> getAllDealers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(dealerService.getAll(pageable));
     }
@@ -86,19 +88,17 @@ public class DealerController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Update dealer by ID",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Dealer update request",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = DealerRequest.class)
-                    )
-            )
-    )
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Dealer update request",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(implementation = DealerRequest.class))))
     public ResponseEntity<APIResponse<DealerResponse>> updateDealer(
-            @PathVariable UUID id,
-            @Valid @RequestBody DealerRequest request
-    ) {
+            @PathVariable UUID id, @Valid @RequestBody DealerRequest request) {
         return ResponseEntity.ok(dealerService.update(id, request));
     }
 

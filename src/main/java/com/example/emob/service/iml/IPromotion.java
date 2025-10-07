@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.service.iml;
 
 import com.example.emob.constant.PromotionScope;
@@ -11,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface IPromotion {
-    APIResponse<PromotionResponse> createPromotion (PromotionRequest request, PromotionScope scope);
+    APIResponse<PromotionResponse> createPromotion (PromotionRequest request);
 
     APIResponse<PromotionResponse> updatePromotion (UpdatePromotionRequest request, UUID id);
 
@@ -20,4 +21,5 @@ public interface IPromotion {
     APIResponse<PromotionResponse> viewPromotion (UUID id);
 
     APIResponse<PageResponse<PromotionResponse>> viewAllPromotions (Pageable pageable);
+
 }

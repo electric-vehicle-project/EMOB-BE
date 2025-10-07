@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleStatus;
@@ -20,10 +21,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleUnit {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
     String color;
+
     @Column(name = "vin_number", unique = true, nullable = false, length = 17)
     String vinNumber;
     LocalDateTime purchaseDate;

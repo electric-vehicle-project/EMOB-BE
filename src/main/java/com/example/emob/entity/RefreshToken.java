@@ -1,13 +1,13 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
-
-import java.io.Serializable;
-import java.time.Instant;
 
 @RedisHash("refreshToken") // key prefix trong Redis
 @Getter
@@ -18,13 +18,10 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken implements Serializable {
 
-    @Id
-    String token;
+    @Id String token;
 
     String accountId;
     Instant issuedAt;
     boolean isRevoked;
-
-    @TimeToLive
-    Long ttl;
+    @TimeToLive Long ttl;
 }

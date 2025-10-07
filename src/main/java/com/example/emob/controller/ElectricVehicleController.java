@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.entity.VehicleUnit;
@@ -6,6 +7,7 @@ import com.example.emob.model.request.VehicleUnitRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ElectricVehicleResponse;
 import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.VehicleUnitResponse;
 import com.example.emob.service.ElectricVehicleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -26,14 +30,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vehicle")
+@RequestMapping("/api/vehicle")
 @CrossOrigin("*")
 @Tag(name = "Electric Vehicle Controller", description = "Endpoints for managing electric vehicles")
 @SecurityRequirement(name = "api")
 @Slf4j
 public class ElectricVehicleController {
 
-    @Autowired
-    private ElectricVehicleService vehicleService;
+    @Autowired private ElectricVehicleService vehicleService;
 
     @PostMapping
     @Operation(
@@ -108,8 +112,7 @@ public class ElectricVehicleController {
     )
 
     public ResponseEntity<APIResponse<ElectricVehicleResponse>> createVehicle(
-            @Valid @RequestBody ElectricVehicleRequest request
-    ) {
+            @Valid @RequestBody ElectricVehicleRequest request) {
         return ResponseEntity.ok(vehicleService.create(request));
     }
 
@@ -123,8 +126,7 @@ public class ElectricVehicleController {
     @Operation(summary = "Get all electric vehicles")
     public ResponseEntity<APIResponse<PageResponse<ElectricVehicleResponse>>> getAllVehicles(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(vehicleService.getAll(pageable));
     }
@@ -132,25 +134,78 @@ public class ElectricVehicleController {
     @PutMapping("/{id}")
     @Operation(
             summary = "Update electric vehicle by ID",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Electric vehicle update request",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ElectricVehicleRequest.class)
-                    )
-            )
-    )
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Electric vehicle update request",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(
+                                                            implementation =
+                                                                    ElectricVehicleRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Niu Electric MOTORBIKE",
+                                                        value =
+                                                                """
+                            {
+                              "brand": "Niu",
+                              "model": "MQi+ Sport",
+                              "batteryKwh": 1.6,
+                              "rangeKm": 80,
+                              "chargeTimeHr": 4,
+                              "powerKw": 1.0,
+                              "images": ["https://example.com/niu-mqi-sport.png"],
+                              "weightKg": 70,
+                              "topSpeedKmh": 45,
+                              "type": "MOTORBIKE"
+                            }
+                            """)
+                                            })))
     public ResponseEntity<APIResponse<ElectricVehicleResponse>> updateVehicle(
-            @PathVariable UUID id,
-            @Valid @RequestBody ElectricVehicleRequest request
-    ) {
+            @PathVariable UUID id, @Valid @RequestBody ElectricVehicleRequest request) {
         return ResponseEntity.ok(vehicleService.update(id, request));
+    }
+
+    @PutMapping("/{id}/prices")
+    @Operation(
+            summary = "Cập nhập import và retail prices của 1 electric vehicle by ID",
+            description =
+                    "API này cho phép cập nhật giá nhập và giá bán lẻ của một mẫu xe điện cụ thể.",
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Request chứa thông tin giá mới cho mẫu xe điện",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(
+                                                            implementation =
+                                                                    ElectricVehicleRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Update vehicle prices",
+                                                        value =
+                                                                """
+                                    {
+                                      "importPrice": 90000,
+                                      "retailPrice": 120000
+                                    }
+                                    """)
+                                            })))
+    public ResponseEntity<APIResponse<ElectricVehicleResponse>> updateVehiclePrices(
+            @PathVariable UUID id, @RequestBody ElectricVehiclePriceRequest request) {
+
+        return ResponseEntity.ok(vehicleService.updatePrices(id, request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete electric vehicle by ID")
-    public ResponseEntity<APIResponse<ElectricVehicleResponse>> deleteVehicle(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<ElectricVehicleResponse>> deleteVehicle(
+            @PathVariable UUID id) {
         return ResponseEntity.ok(vehicleService.delete(id));
     }
 
