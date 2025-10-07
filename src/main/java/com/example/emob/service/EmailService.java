@@ -1,6 +1,6 @@
 package com.example.emob.service;
 
-import com.example.emob.service.iml.INotification;
+import com.example.emob.service.iml.IEmail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,13 @@ import java.io.UnsupportedEncodingException;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService implements INotification {
+public class EmailService implements IEmail {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
     @Override
-    public void sendNotification(String headerType ,String title, String subTitle, String icon, String greeting, String buttonUrl,
+    public void sendEmail(String headerType ,String title, String subTitle, String icon, String greeting, String buttonUrl,
                                                    String content, String alert, String customer, String buttonName, String toEmail) {
         Context context = new Context();
         context.setVariable("headerType", headerType);

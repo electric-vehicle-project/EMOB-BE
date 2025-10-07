@@ -6,11 +6,9 @@ import com.example.emob.constant.TestStatus;
 import com.example.emob.entity.Account;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.TestDrive;
-import com.example.emob.entity.VehicleUnit;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.TestDriveMapper;
-import com.example.emob.model.request.VehicleUnitRequest;
 import com.example.emob.model.request.schedule.TestDriveRequest;
 import com.example.emob.model.request.schedule.UpdateTestDriveRequest;
 import com.example.emob.model.response.APIResponse;
@@ -18,7 +16,6 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.TestDriveResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
-import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.TestDriveRepository;
 import com.example.emob.service.iml.ITestDrive;
 import com.example.emob.util.NotificationHelper;
@@ -53,7 +50,7 @@ public class TestDriveService implements ITestDrive {
     private PageMapper pageMapper;
 
     @Autowired
-    private NotificationService notificationService;
+    private EmailService emailService;
 
 
     @Override
@@ -90,7 +87,7 @@ public class TestDriveService implements ITestDrive {
             testDrive.setCreateAt(LocalDateTime.now());
             testDriveRepository.save(testDrive);
 
-            notificationService.sendNotification(
+            emailService.sendEmail(
                     "Xác nhận lịch lái thử",
                     "Đặt lịch thành công",
                     "Chúng tôi cảm ơn",
@@ -148,7 +145,7 @@ public class TestDriveService implements ITestDrive {
         try {
             testDriveMapper.updateScheduleFromRequest(request, testDrive);
             testDriveRepository.save(testDrive);
-//            notificationService.sendNotification(testDrive);
+//            emailService.sendNotification(testDrive);
             TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
             return APIResponse.success(testDriveResponse, "Update schedule successfully");
         } catch (DataIntegrityViolationException ex) {

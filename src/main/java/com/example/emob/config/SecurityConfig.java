@@ -40,6 +40,9 @@ public class SecurityConfig {
             "/api/auth/logout",
             "/api/auth/refresh",
             "/api/auth/refresh-token",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth/verify-otp",
             "/api/public/**",
             "/api/evm-staff/promotion/**",
     };
