@@ -46,41 +46,21 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     @Override
     public APIResponse<AccountResponse> login(LoginRequest request) {
         try {
-<<<<<<< HEAD
-
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-            );
-
-
-=======
             Authentication authentication =
                     authenticationManager.authenticate(
                             new UsernamePasswordAuthenticationToken(
                                     request.getEmail(), request.getPassword()));
->>>>>>> f514e41d121209766b1808e639b623d8b269ae3d
             Object principal = authentication.getPrincipal();
             if (!(principal instanceof Account)) {
                 throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
             }
             Account account = (Account) principal;
 
-<<<<<<< HEAD
-
-            AccountResponse accountResponse = accountMapper.toAccountResponse(account);
-
-
-            String accessToken = tokenService.generateToken(account);
-            accountResponse.setToken(accessToken);
-
-
-=======
             AccountResponse accountResponse = accountMapper.toAccountResponse(account);
 
             String accessToken = tokenService.generateToken(account);
             accountResponse.setToken(accessToken);
 
->>>>>>> f514e41d121209766b1808e639b623d8b269ae3d
             String refreshToken = refreshTokenService.createRefreshToken(account).getToken();
             accountResponse.setRefreshToken(refreshToken);
 
@@ -98,11 +78,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         }
     }
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> f514e41d121209766b1808e639b623d8b269ae3d
     @Override
     public APIResponse<AccountResponse> register(RegisterRequest request) {
         // Map RegisterRequest => Account

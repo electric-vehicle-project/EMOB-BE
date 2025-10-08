@@ -12,10 +12,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
 @Entity
 @Builder
 @Getter
@@ -53,6 +49,7 @@ public class ElectricVehicle {
 
     @ManyToMany(mappedBy = "vehicles")
     Set<Promotion> promotions = new HashSet<>();
-    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<VehicleUnit> vehicleUnits;
 }

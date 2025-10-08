@@ -1,9 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.iml;
 
-import com.example.emob.entity.VehicleUnit;
-import com.example.emob.model.request.ElectricVehicleRequest;
-import com.example.emob.model.request.VehicleUnitRequest;
+
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -15,8 +13,6 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.UUID;
 
 public interface IVehicle {
     APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request);
@@ -32,4 +28,5 @@ public interface IVehicle {
     APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
     APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
+
 }

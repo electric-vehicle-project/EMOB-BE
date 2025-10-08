@@ -1,13 +1,13 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.InventoryStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
-
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -17,9 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryItem {
-    @Id
-    @UuidGenerator
-    UUID id;
+    @Id @UuidGenerator UUID id;
 
     int quantity;
 
@@ -35,6 +33,4 @@ public class InventoryItem {
     @JoinColumn(name = "vehicle_id")
     @JsonIgnore
     ElectricVehicle vehicle;
-
-
 }

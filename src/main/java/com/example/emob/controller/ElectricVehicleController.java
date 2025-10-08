@@ -2,8 +2,9 @@
 package com.example.emob.controller;
 
 import com.example.emob.entity.VehicleUnit;
-import com.example.emob.model.request.ElectricVehicleRequest;
-import com.example.emob.model.request.VehicleUnitRequest;
+import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
+import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
+import com.example.emob.model.request.vehicle.VehicleUnitRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ElectricVehicleResponse;
 import com.example.emob.model.response.PageResponse;
@@ -25,11 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
-
 @RestController
-@RequestMapping("/api/vehicle")
 @RequestMapping("/api/vehicle")
 @CrossOrigin("*")
 @Tag(name = "Electric Vehicle Controller", description = "Endpoints for managing electric vehicles")
@@ -42,16 +39,22 @@ public class ElectricVehicleController {
     @PostMapping
     @Operation(
             summary = "Create a new Electric Vehicle",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Request payload for creating an electric vehicle",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ElectricVehicleRequest.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Tesla Model S",
-                                            value = """
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            description = "Request payload for creating an electric vehicle",
+                            required = true,
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(
+                                                            implementation =
+                                                                    ElectricVehicleRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Tesla Model S",
+                                                        value =
+                                                                """
                                         {
                                           "brand": "Tesla",
                                           "model": "Model S Plaid",
@@ -66,11 +69,11 @@ public class ElectricVehicleController {
                                           "topSpeedKmh": 322,
                                           "type": "CAR"
                                         }
-                                        """
-                                    ),
-                                    @ExampleObject(
-                                            name = "Yadea G5 Scooter",
-                                            value = """
+                                        """),
+                                                @ExampleObject(
+                                                        name = "Yadea G5 Scooter",
+                                                        value =
+                                                                """
                                         {
                                           "brand": "Yadea",
                                           "model": "G5",
@@ -85,11 +88,11 @@ public class ElectricVehicleController {
                                           "topSpeedKmh": 65,
                                           "type": "SCOOTER"
                                         }
-                                        """
-                                    ),
-                                    @ExampleObject(
-                                            name = "Niu Electric Bike",
-                                            value = """
+                                        """),
+                                                @ExampleObject(
+                                                        name = "Niu Electric Bike",
+                                                        value =
+                                                                """
                                         {
                                           "brand": "Niu",
                                           "model": "MQi+ Sport",
@@ -104,13 +107,8 @@ public class ElectricVehicleController {
                                           "topSpeedKmh": 45,
                                           "type": "BIKE"
                                         }
-                                        """
-                                    )
-                            }
-                    )
-            )
-    )
-
+                                        """)
+                                            })))
     public ResponseEntity<APIResponse<ElectricVehicleResponse>> createVehicle(
             @Valid @RequestBody ElectricVehicleRequest request) {
         return ResponseEntity.ok(vehicleService.create(request));
@@ -212,17 +210,25 @@ public class ElectricVehicleController {
     @PostMapping("/bulk")
     @Operation(
             summary = "Tạo hàng loạt xe Vehicle Units cho một mẫu xe cụ thể",
-            description = "API này cho phép tạo nhiều xe (VehicleUnit) cùng lúc dựa trên mẫu xe (ElectricVehicle) có sẵn.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    required = true,
-                    description = "Thông tin yêu cầu tạo hàng loạt Vehicle Unit",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = VehicleUnitRequest.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "Create 10 Tesla Model 3 units",
-                                            value = """
+            description =
+                    "API này cho phép tạo nhiều xe (VehicleUnit) cùng lúc dựa trên mẫu xe"
+                            + " (ElectricVehicle) có sẵn.",
+            requestBody =
+                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                            required = true,
+                            description = "Thông tin yêu cầu tạo hàng loạt Vehicle Unit",
+                            content =
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema =
+                                                    @Schema(
+                                                            implementation =
+                                                                    VehicleUnitRequest.class),
+                                            examples = {
+                                                @ExampleObject(
+                                                        name = "Create 10 Tesla Model 3 units",
+                                                        value =
+                                                                """
                                             {
                                               "vehicleId": "nhập fields vô đây",
                                               "quantity": 10,
@@ -232,15 +238,10 @@ public class ElectricVehicleController {
                                               "warrantyEnd": "2028-10-10",
                                               "productionYear": "2025-01-01"
                                             }
-                                            """
-                                    )
-                            }
-                    )
-            )
-    )
-    public ResponseEntity<APIResponse<List<VehicleUnit>>> createBulkVehicles(
-            @RequestBody VehicleUnitRequest request
-    ) {
+                                            """)
+                                            })))
+    public ResponseEntity<APIResponse<List<VehicleUnitResponse>>> createBulkVehicles(
+            @RequestBody VehicleUnitRequest request) {
         return ResponseEntity.ok(vehicleService.createBulkVehicles(request));
     }
 }

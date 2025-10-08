@@ -4,6 +4,7 @@ package com.example.emob.config;
 import com.example.emob.security.CustomAccessDeniedHandler;
 import com.example.emob.security.CustomAuthenticationEntryPoint;
 import com.example.emob.service.AuthenticationService;
+
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,19 +43,19 @@ public class SecurityConfig {
 
     // ADMIN
     public static final String[] ADMIN = {
-            "/api/dealer/**",
         "/api/dealer/**",
     };
 
     public static final String[] DEALER_STAFF = {
-        "/api/dealer-staff/report/**", "/api/dealer-staff/test-drive/**",
+        "/api/dealer-staff/report/**",
+            "/api/dealer-staff/test-drive/**",
+            "/api/contract/**"
     };
 
     public static final String[] EVM_STAFF = {
         "/api/vehicle/**",
         "/api/promotion"
     };
-
 
     public static final String[] MANAGER = {
         "/api/dealer/report/manager/**",

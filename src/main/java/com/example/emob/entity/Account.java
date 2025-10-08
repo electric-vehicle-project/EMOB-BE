@@ -70,6 +70,14 @@ public class Account implements UserDetails {
     @JsonIgnore
     Set<Promotion> promotions = new HashSet<>();
 
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<SaleContract> contracts = new HashSet<>();
+
+//    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JsonIgnore
+//    Set<SaleOrder> orders = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();

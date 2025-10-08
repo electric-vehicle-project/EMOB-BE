@@ -59,7 +59,17 @@ public class AuthenticationController {
                       "email": "bob@example.com",
                       "password": "Pass5678"
                     }
-                    """)
+                    """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            description = "Example login for Alice",
+                                                            value =
+                                                                    """
+                                                                            {
+                                                                              "email": "alice123@example.com",
+                                                                              "password": "Pass1234"
+                                                                            }
+                        """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> login(
             @Valid @RequestBody LoginRequest request) {
@@ -108,7 +118,23 @@ public class AuthenticationController {
                   "email": "bob@example.com",
                   "password": "Pass5678"
                 }
-                """)
+                """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            value =
+                                                                    """
+                    {
+                      "fullName": "Alice",
+                      "gender": "FEMALE",
+                      "status": "ACTIVE",
+                      "address": "123 Elm St",
+                      "dateOfBirth": "1990-01-01",
+                      "role": "DEALER_STAFF",
+                      "phone": "09876543211",
+                      "email": "alice123@example.com",
+                      "password": "Pass1234"
+                    }
+                    """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> register(
             @Valid @RequestBody RegisterRequest request) {

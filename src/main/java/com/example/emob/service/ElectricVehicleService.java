@@ -2,8 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.InventoryStatus;
-import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
@@ -33,18 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ElectricVehicleService implements IVehicle {
-    @Autowired
-    ElectricVehicleRepository vehicleRepository;
-    @Autowired
-    ElectricVehicleMapper vehicleMapper;
-    @Autowired
-    PageMapper pageMapper;
-    @Autowired
-    InventoryRepository inventoryRepository;
-    @Autowired
-    VehicleUnitRepository vehicleUnitRepository;
-    @Autowired
-    InventoryItemRepository inventoryItemRepository;
     @Autowired ElectricVehicleRepository vehicleRepository;
     @Autowired ElectricVehicleMapper vehicleMapper;
     @Autowired PageMapper pageMapper;
@@ -58,7 +44,12 @@ public class ElectricVehicleService implements IVehicle {
             vehicle.setCreatedAt(LocalDate.now());
             vehicleRepository.save(vehicle);
 
-        return APIResponse.success(vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
+            return APIResponse.success(
+                    vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+        }
     }
 
     @Override
@@ -146,6 +137,7 @@ public class ElectricVehicleService implements IVehicle {
                 responses,
                 "Created " + savedUnits.size() + " vehicle units and linked to company inventory.");
     }
+
 
     @Override
     public APIResponse<ElectricVehicleResponse> updatePrices(

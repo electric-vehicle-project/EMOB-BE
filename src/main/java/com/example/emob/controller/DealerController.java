@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-<<<<<<< HEAD
-=======
 import java.util.UUID;
->>>>>>> f514e41d121209766b1808e639b623d8b269ae3d
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,22 +45,22 @@ public class DealerController {
                                                         name = "Dealer A",
                                                         value =
                                                                 """
-                            {
-                              "name": "Dealer One",
-                              "contactInfo": "dealer1@example.com",
-                              "country": "USA"
-                            }
-                            """),
+                {
+                  "name": "Dealer One",
+                  "contactInfo": "dealer1@example.com",
+                  "country": "USA"
+                }
+                """),
                                                 @ExampleObject(
                                                         name = "Dealer B",
                                                         value =
                                                                 """
-                            {
-                              "name": "Dealer Two",
-                              "contactInfo": "dealer2@example.com",
-                              "country": "Canada"
-                            }
-                            """)
+                {
+                  "name": "Dealer Two",
+                  "contactInfo": "dealer2@example.com",
+                  "country": "Canada"
+                }
+                """)
                                             })))
     public ResponseEntity<APIResponse<DealerResponse>> createDealer(
             @Valid @RequestBody DealerRequest request) {
