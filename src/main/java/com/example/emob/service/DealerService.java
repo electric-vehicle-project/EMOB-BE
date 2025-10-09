@@ -12,7 +12,7 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.DealerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.DealerRepository;
-import com.example.emob.service.iml.IDealer;
+import com.example.emob.service.impl.IDealer;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +44,8 @@ public class DealerService implements IDealer {
                         .findById(id)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        dealerMapper.updateDealer(request, dealer);
-        dealerRepository.save(dealer);
+        Dealer newDealer = dealerMapper.updateDealer(request, dealer);
+        dealerRepository.save(newDealer);
 
         return APIResponse.success(dealerMapper.toDealerResponse(dealer), "Updated successfully");
     }

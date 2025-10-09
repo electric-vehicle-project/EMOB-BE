@@ -18,7 +18,7 @@ import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.DealerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.PromotionRepository;
-import com.example.emob.service.iml.IPromotion;
+import com.example.emob.service.impl.IPromotion;
 import com.example.emob.util.PromotionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;

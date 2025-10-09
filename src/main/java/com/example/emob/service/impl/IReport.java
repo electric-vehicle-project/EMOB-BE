@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.service.iml;
+package com.example.emob.service.impl;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.model.request.report.CreateReportRequest;

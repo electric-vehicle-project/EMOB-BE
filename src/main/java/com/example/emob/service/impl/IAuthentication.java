@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.service.iml;
+package com.example.emob.service.impl;
 
 import com.example.emob.model.request.LoginRequest;
 import com.example.emob.model.request.RegisterRequest;

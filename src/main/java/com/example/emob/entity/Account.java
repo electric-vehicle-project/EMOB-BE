@@ -70,6 +70,10 @@ public class Account implements UserDetails {
     @JsonIgnore
     Set<Promotion> promotions = new HashSet<>();
 
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<Quotation> quotations = new HashSet<>();
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
