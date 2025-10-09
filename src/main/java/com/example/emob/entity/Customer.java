@@ -45,14 +45,16 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     CustomerStatus status;
 
-    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    List<Report> reports;
-
     int loyaltyPoints;
 
     @Enumerated(EnumType.STRING)
     MemberShipLevel memberShipLevel;
+
+    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Report> reports;
+
+
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
