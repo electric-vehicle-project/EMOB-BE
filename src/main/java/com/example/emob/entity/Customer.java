@@ -7,7 +7,9 @@ import com.example.emob.constant.MemberShipLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -43,16 +45,21 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     CustomerStatus status;
 
-    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    List<Report> reports;
-
     int loyaltyPoints;
 
     @Enumerated(EnumType.STRING)
     MemberShipLevel memberShipLevel;
 
+    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    List<Report> reports;
+
+
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     List<TestDrive> customerTest;
+
+    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<Quotation> quotations = new HashSet<>();
 }

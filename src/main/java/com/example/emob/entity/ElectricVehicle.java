@@ -50,5 +50,8 @@ public class ElectricVehicle {
     @ManyToMany(mappedBy = "vehicles")
     Set<Promotion> promotions = new HashSet<>();
     @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
-    Set<VehicleUnit> vehicleUnits;
+    Set<VehicleUnit> vehicleUnits = new HashSet<>();
+
+    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<QuotationItem> quotationItems = new HashSet<>();
 }

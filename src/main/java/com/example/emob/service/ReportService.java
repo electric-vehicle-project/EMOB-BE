@@ -18,7 +18,7 @@ import com.example.emob.model.response.ReportResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ReportRepository;
-import com.example.emob.service.iml.IReport;
+import com.example.emob.service.impl.IReport;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;

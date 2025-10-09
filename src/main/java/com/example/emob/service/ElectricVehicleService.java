@@ -18,7 +18,7 @@ import com.example.emob.model.response.VehicleUnitResponse;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
 import com.example.emob.repository.VehicleUnitRepository;
-import com.example.emob.service.iml.IVehicle;
+import com.example.emob.service.impl.IVehicle;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;

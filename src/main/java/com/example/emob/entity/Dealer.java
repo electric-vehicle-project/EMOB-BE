@@ -35,4 +35,8 @@ public class Dealer {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "inventory_id")
     Inventory inventory;
+
+
+    @OneToMany(mappedBy = "dealer",cascade = CascadeType.ALL,orphanRemoval = true)
+    Set<Quotation> quotations = new HashSet<>();
 }
