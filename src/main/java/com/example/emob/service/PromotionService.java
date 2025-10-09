@@ -62,9 +62,9 @@ public class PromotionService implements IPromotion {
     try {
       Promotion promotion = promotionMapper.toPromotion(request);
       // check promotion status
-      PromotionStatus promotionStatus =
-          PromotionHelper.checkPromotionStatus(request.getStartDate(), request.getEndDate());
-      promotion.setStatus(promotionStatus);
+//      PromotionStatus promotionStatus =
+//          PromotionHelper.checkPromotionStatus(request.getStartDate(), request.getEndDate());
+//      promotion.setStatus(promotionStatus);
       // check role
       if (staffId.getRole().equals(Role.EVM_STAFF)) {
         promotion.setScope(PromotionScope.GLOBAL);

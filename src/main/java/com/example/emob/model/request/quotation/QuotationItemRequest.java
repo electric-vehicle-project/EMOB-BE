@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuotationItemRequest {
   UUID vehicleId;
+  UUID promotionId;
   String color;
   int quantity;
 }

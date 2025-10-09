@@ -2,6 +2,8 @@
 package com.example.emob.model.request.quotation;
 
 import java.util.List;
+import java.util.UUID;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,5 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuotationRequest {
-  List<QuotationItemRequest> requests;
+  List<QuotationItemRequest> items;
+  UUID customerId;
+  UUID dealerId;
 }
