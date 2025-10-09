@@ -30,10 +30,4 @@ public class PromotionRequest {
     @NotNull
     String name;
     String description;
-    PromotionType type;
-    float value;
-    float minValue;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
-    MemberShipLevel memberShipLevel;
 }
