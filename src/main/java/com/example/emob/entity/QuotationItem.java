@@ -1,11 +1,11 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Entity
 @Builder
@@ -15,23 +15,21 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuotationItem {
-    @Id
-    @GeneratedValue
-    UUID id;
+  @Id @GeneratedValue UUID id;
 
-    double unitPrice;
-    double discount;
-    double totalPrice;
-    int quantity;
-    String color;
+  double unitPrice;
+  double discount;
+  double totalPrice;
+  int quantity;
+  String color;
 
-    @ManyToOne
-    @JoinColumn(name = "quotation_id")
-    @JsonIgnore
-    Quotation quotation;
+  @ManyToOne
+  @JoinColumn(name = "quotation_id")
+  @JsonIgnore
+  Quotation quotation;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id")
-    @JsonIgnore
-    ElectricVehicle vehicle;
+  @ManyToOne
+  @JoinColumn(name = "vehicle_id")
+  @JsonIgnore
+  ElectricVehicle vehicle;
 }

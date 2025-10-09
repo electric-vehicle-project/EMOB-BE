@@ -17,14 +17,14 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportResponse {
-    UUID accountId;
-    UUID reportId;
-    String title;
-    String description;
-    ReportType type;
-    ReportStatus status;
-    Customer reportBy;
-    String fullName;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+  UUID accountId;
+  UUID reportId;
+  String title;
+  String description;
+  ReportType type;
+  ReportStatus status;
+  Customer reportBy;
+  String fullName;
+  LocalDateTime createdAt;
+  LocalDateTime updatedAt;
 }

@@ -8,11 +8,11 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 
 public interface IAuthentication {
-    APIResponse<AccountResponse> login(LoginRequest request);
+  APIResponse<AccountResponse> login(LoginRequest request);
 
-    APIResponse<AccountResponse> register(RegisterRequest request);
+  APIResponse<AccountResponse> register(RegisterRequest request);
 
-    public APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
+  public APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
 
-    void logout(TokenRequest refreshRequest);
+  void logout(TokenRequest refreshRequest);
 }

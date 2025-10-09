@@ -13,22 +13,21 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
-    public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException)
-            throws IOException {
-        // Trả 401 khi chưa xác thực hoặc token invalid
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
+  @Override
+  public void commence(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AuthenticationException authException)
+      throws IOException {
+    // Trả 401 khi chưa xác thực hoặc token invalid
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json");
 
-        APIResponse<?> body =
-                APIResponse.error(
-                        ErrorCode.EMPTY_TOKEN.getCode(), ErrorCode.EMPTY_TOKEN.getMessage());
+    APIResponse<?> body =
+        APIResponse.error(ErrorCode.EMPTY_TOKEN.getCode(), ErrorCode.EMPTY_TOKEN.getMessage());
 
-        response.getWriter().write(objectMapper.writeValueAsString(body));
-    }
+    response.getWriter().write(objectMapper.writeValueAsString(body));
+  }
 }

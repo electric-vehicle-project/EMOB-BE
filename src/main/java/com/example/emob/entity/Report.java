@@ -19,25 +19,25 @@ import org.hibernate.annotations.UuidGenerator;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Report")
 public class Report {
-    @Id @UuidGenerator UUID id;
+  @Id @UuidGenerator UUID id;
 
-    String title;
-    String description;
+  String title;
+  String description;
 
-    @Enumerated(EnumType.STRING)
-    ReportType type;
+  @Enumerated(EnumType.STRING)
+  ReportType type;
 
-    @ManyToOne
-    @JoinColumn(name = "reportBy", referencedColumnName = "id")
-    Customer reportBy;
+  @ManyToOne
+  @JoinColumn(name = "reportBy", referencedColumnName = "id")
+  Customer reportBy;
 
-    @Enumerated(EnumType.STRING)
-    ReportStatus status;
+  @Enumerated(EnumType.STRING)
+  ReportStatus status;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+  LocalDateTime createdAt;
+  LocalDateTime updatedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "accountId", referencedColumnName = "id")
-    Account createBy;
+  @ManyToOne
+  @JoinColumn(name = "accountId", referencedColumnName = "id")
+  Account createBy;
 }

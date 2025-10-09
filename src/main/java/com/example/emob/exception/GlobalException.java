@@ -11,10 +11,10 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GlobalException extends RuntimeException {
-    ErrorCode errorCode;
+  ErrorCode errorCode;
 
-    public GlobalException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
-    }
+  public GlobalException(ErrorCode errorCode) {
+    super(errorCode.getMessage());
+    this.errorCode = errorCode;
+  }
 }

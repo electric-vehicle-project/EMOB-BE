@@ -22,61 +22,87 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DealerService implements IDealer {
-    @Autowired DealerRepository dealerRepository;
-    @Autowired DealerMapper dealerMapper;
-    @Autowired PageMapper pageMapper;
 
-    @Override
-    public APIResponse<DealerResponse> create(DealerRequest request) {
-        Dealer dealer = dealerMapper.toDealer(request);
-        dealer.setCreatedAt(LocalDateTime.now());
-        Inventory inventory = new Inventory();
-        dealer.setInventory(inventory);
-        dealerRepository.save(dealer);
-        DealerResponse response = dealerMapper.toDealerResponse(dealer);
-        return APIResponse.success(response, "Created successfully");
+  @Autowired DealerRepository dealerRepository;
+
+  @Autowired DealerMapper dealerMapper;
+
+  @Autowired PageMapper pageMapper;
+
+  @Override
+  public APIResponse<DealerResponse> create(DealerRequest request) {
+    try {
+      Dealer dealer = dealerMapper.toDealer(request);
+      dealer.setCreatedAt(LocalDateTime.now());
+
+      Inventory inventory = new Inventory();
+      dealer.setInventory(inventory);
+
+      dealerRepository.save(dealer);
+
+      DealerResponse response = dealerMapper.toDealerResponse(dealer);
+      return APIResponse.success(response, "Created successfully");
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<DealerResponse> update(UUID id, DealerRequest request) {
-        Dealer dealer =
-                dealerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+  @Override
+  public APIResponse<DealerResponse> update(UUID id, DealerRequest request) {
+    try {
+      Dealer dealer =
+          dealerRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        Dealer newDealer = dealerMapper.updateDealer(request, dealer);
-        dealerRepository.save(newDealer);
+      Dealer newDealer = dealerMapper.updateDealer(request, dealer);
+      dealerRepository.save(newDealer);
 
-        return APIResponse.success(dealerMapper.toDealerResponse(dealer), "Updated successfully");
+      return APIResponse.success(dealerMapper.toDealerResponse(dealer), "Updated successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<DealerResponse> delete(UUID id) {
-        Dealer dealer =
-                dealerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        dealer.setDeleted(true);
-        dealerRepository.save(dealer);
-        DealerResponse response = dealerMapper.toDealerResponse(dealer);
-        return APIResponse.success(response, "Dealer deleted successfully");
+  @Override
+  public APIResponse<DealerResponse> delete(UUID id) {
+    try {
+      Dealer dealer =
+          dealerRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+      dealer.setDeleted(true);
+      dealerRepository.save(dealer);
+
+      DealerResponse response = dealerMapper.toDealerResponse(dealer);
+      return APIResponse.success(response, "Dealer deleted successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<DealerResponse> get(UUID id) {
-        Dealer dealer =
-                dealerRepository
-                        .findById(id)
-                        .orElseThrow(() -> new RuntimeException("Dealer not found"));
+  @Override
+  public APIResponse<DealerResponse> get(UUID id) {
+    try {
+      Dealer dealer =
+          dealerRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        return APIResponse.success(dealerMapper.toDealerResponse(dealer));
+      return APIResponse.success(dealerMapper.toDealerResponse(dealer));
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
-        Page<Dealer> page = dealerRepository.findAll(pageable);
-        PageResponse<DealerResponse> response =
-                pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
-        return APIResponse.success(response);
+  @Override
+  public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
+    try {
+      Page<Dealer> page = dealerRepository.findAll(pageable);
+      PageResponse<DealerResponse> response =
+          pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
+
+      return APIResponse.success(response);
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 }

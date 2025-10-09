@@ -16,13 +16,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class TestDriveResponse {
-    UUID testDriveId;
-    UUID salePersonId;
-    LocalDateTime scheduledAt;
-    int duration;
-    String location;
-    TestStatus status;
-    Customer customer;
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
+  UUID testDriveId;
+  UUID salePersonId;
+  LocalDateTime scheduledAt;
+  int duration;
+  String location;
+  TestStatus status;
+  Customer customer;
+  LocalDateTime createAt;
+  LocalDateTime updateAt;
 }

@@ -11,13 +11,13 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
-    @Mapping(target = "reportId", source = "id")
-    @Mapping(target = "accountId", source = "createBy.id")
-    @Mapping(target = "fullName", source = "createBy.fullName")
-    ReportResponse toReportResponse(Report request);
+  @Mapping(target = "reportId", source = "id")
+  @Mapping(target = "accountId", source = "createBy.id")
+  @Mapping(target = "fullName", source = "createBy.fullName")
+  ReportResponse toReportResponse(Report request);
 
-    Report toReport(CreateReportRequest request);
+  Report toReport(CreateReportRequest request);
 
-    @Mapping(target = "id", ignore = true) // không cho update id
-    void updateReportFromRequest(UpdateReportRequest request, @MappingTarget Report report);
+  @Mapping(target = "id", ignore = true) // không cho update id
+  void updateReportFromRequest(UpdateReportRequest request, @MappingTarget Report report);
 }

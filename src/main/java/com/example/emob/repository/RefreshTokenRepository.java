@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
 
-    List<RefreshToken> findAllByAccountId(String accountId);
+  List<RefreshToken> findAllByAccountId(String accountId);
 }

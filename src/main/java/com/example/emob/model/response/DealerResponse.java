@@ -12,9 +12,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DealerResponse {
-    UUID id;
-    String name;
-    String contactInfo;
-    String country;
-    LocalDateTime createdAt;
+  UUID id;
+  String name;
+  String contactInfo;
+  String country;
+  LocalDateTime createdAt;
 }

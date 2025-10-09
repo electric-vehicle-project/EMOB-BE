@@ -18,10 +18,10 @@ import org.springframework.data.redis.core.TimeToLive;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshToken implements Serializable {
 
-    @Id String token;
+  @Id String token;
 
-    String accountId;
-    Instant issuedAt;
-    boolean isRevoked;
-    @TimeToLive Long ttl;
+  String accountId;
+  Instant issuedAt;
+  boolean isRevoked;
+  @TimeToLive Long ttl;
 }
