@@ -13,17 +13,17 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IVehicle {
-    APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request);
+  APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request);
 
-    APIResponse<ElectricVehicleResponse> update(UUID id, ElectricVehicleRequest request);
+  APIResponse<ElectricVehicleResponse> update(UUID id, ElectricVehicleRequest request);
 
-    APIResponse<ElectricVehicleResponse> delete(UUID id);
+  APIResponse<ElectricVehicleResponse> delete(UUID id);
 
-    APIResponse<ElectricVehicleResponse> get(UUID id);
+  APIResponse<ElectricVehicleResponse> get(UUID id);
 
-    APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable);
 
-    APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
+  APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
-    APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
+  APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
 }

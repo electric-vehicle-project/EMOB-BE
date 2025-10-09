@@ -1,4 +1,4 @@
-
+/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.service.QuotationService;
@@ -12,9 +12,5 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "api")
 public class QuotationAPI {
 
-       @Autowired
-       private QuotationService quotationService;
-
-
-
+  @Autowired private QuotationService quotationService;
 }

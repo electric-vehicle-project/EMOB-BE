@@ -13,11 +13,11 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
-    @Email(message = "INVALID_EMAIL")
-    @Schema(description = "User email")
-    String email;
+  @Email(message = "INVALID_EMAIL")
+  @Schema(description = "User email")
+  String email;
 
-    @Size(min = 6, message = "PASSWORD_TOO_SHORT")
-    @Schema(description = "User password")
-    String password;
+  @Size(min = 6, message = "PASSWORD_TOO_SHORT")
+  @Schema(description = "User password")
+  String password;
 }

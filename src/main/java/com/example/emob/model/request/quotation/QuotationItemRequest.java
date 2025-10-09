@@ -1,9 +1,9 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.quotation;
 
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Data
 @Builder
@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuotationItemRequest {
-    UUID vehicleId;
-    String color;
-    int quantity;
+  UUID vehicleId;
+  String color;
+  int quantity;
 }

@@ -10,9 +10,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DealerRequest {
-    String name;
+  String name;
 
-    String contactInfo;
+  String contactInfo;
 
-    String country;
+  String country;
 }

@@ -25,86 +25,85 @@ import org.springframework.security.core.userdetails.UserDetails;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Account")
 public class Account implements UserDetails {
-    @Id @UuidGenerator UUID id;
+  @Id @UuidGenerator UUID id;
 
-    String fullName;
+  String fullName;
 
-    @Enumerated(EnumType.STRING)
-    Gender gender;
+  @Enumerated(EnumType.STRING)
+  Gender gender;
 
-    @Enumerated(EnumType.STRING)
-    AccountStatus status;
+  @Enumerated(EnumType.STRING)
+  AccountStatus status;
 
-    String address;
+  String address;
 
-    LocalDate dateOfBirth;
+  LocalDate dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    Role role;
+  @Enumerated(EnumType.STRING)
+  Role role;
 
-    @Column(unique = true)
-    String phone;
+  @Column(unique = true)
+  String phone;
 
-    @Column(unique = true)
-    String email;
+  @Column(unique = true)
+  String email;
 
-    String password;
+  String password;
 
-    @Enumerated(EnumType.STRING)
-    MemberShipLevel memberShipLevel;
+  @Enumerated(EnumType.STRING)
+  MemberShipLevel memberShipLevel;
 
-    @ManyToOne
-    @JoinColumn(name = "dealer_id")
-    @JsonIgnore
-    Dealer dealer;
+  @ManyToOne
+  @JoinColumn(name = "dealer_id")
+  @JsonIgnore
+  Dealer dealer;
 
-    @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<Report> reports = new HashSet<>();
+  @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  Set<Report> reports = new HashSet<>();
 
-    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<TestDrive> createTest = new HashSet<>();
+  @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  Set<TestDrive> createTest = new HashSet<>();
 
-    @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<Promotion> promotions = new HashSet<>();
+  @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  Set<Promotion> promotions = new HashSet<>();
 
-    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL,orphanRemoval = true)
-    Set<Quotation> quotations = new HashSet<>();
+  @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Quotation> quotations = new HashSet<>();
 
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        if (this.role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
-        }
-        return authorities;
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+    if (this.role != null) {
+      authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
     }
+    return authorities;
+  }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return UserDetails.super.isAccountNonLocked();
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return UserDetails.super.isCredentialsNonExpired();
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
+  }
 }

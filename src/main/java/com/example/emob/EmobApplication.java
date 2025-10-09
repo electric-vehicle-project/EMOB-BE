@@ -11,13 +11,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @SecurityScheme(
-        name = "api",
-        scheme = "bearer",
-        type = SecuritySchemeType.HTTP,
-        in = SecuritySchemeIn.HEADER)
+    name = "api",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP,
+    in = SecuritySchemeIn.HEADER)
 @OpenAPIDefinition(info = @Info(title = "EMOB", version = "2.0"))
 public class EmobApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(EmobApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(EmobApplication.class, args);
+  }
 }

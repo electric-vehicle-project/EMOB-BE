@@ -9,13 +9,13 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IDealer {
-    APIResponse<DealerResponse> create(DealerRequest request);
+  APIResponse<DealerResponse> create(DealerRequest request);
 
-    APIResponse<DealerResponse> update(UUID id, DealerRequest request);
+  APIResponse<DealerResponse> update(UUID id, DealerRequest request);
 
-    APIResponse<DealerResponse> delete(UUID id);
+  APIResponse<DealerResponse> delete(UUID id);
 
-    APIResponse<DealerResponse> get(UUID id);
+  APIResponse<DealerResponse> get(UUID id);
 
-    APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable);
 }

@@ -11,12 +11,12 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DecodedToken {
-    String iss;
-    Object aud; // có thể là String hoặc List<String>
-    String sub;
-    String jti;
-    String tokenType;
-    String roles;
-    Date iat;
-    Date exp;
+  String iss;
+  Object aud; // có thể là String hoặc List<String>
+  String sub;
+  String jti;
+  String tokenType;
+  String roles;
+  Date iat;
+  Date exp;
 }

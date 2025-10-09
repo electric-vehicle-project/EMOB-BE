@@ -16,13 +16,13 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Inventory {
-    @Id @UuidGenerator UUID id;
-    int quantity;
-    boolean isCompany = false;
+  @Id @UuidGenerator UUID id;
+  int quantity;
+  boolean isCompany = false;
 
-    @OneToOne(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
-    Dealer dealer;
+  @OneToOne(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
+  Dealer dealer;
 
-    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<VehicleUnit> vehicleUnits;
+  @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<VehicleUnit> vehicleUnits;
 }

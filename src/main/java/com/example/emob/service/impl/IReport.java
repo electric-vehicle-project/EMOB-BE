@@ -11,17 +11,17 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IReport {
-    // ghi nhận
-    APIResponse<ReportResponse> createReport(CreateReportRequest request);
+  // ghi nhận
+  APIResponse<ReportResponse> createReport(CreateReportRequest request);
 
-    APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId);
+  APIResponse<ReportResponse> updateReport(UpdateReportRequest request, UUID reportId);
 
-    APIResponse<ReportResponse> deleteReport(UUID reportId);
+  APIResponse<ReportResponse> deleteReport(UUID reportId);
 
-    APIResponse<ReportResponse> viewReport(UUID reportId);
+  APIResponse<ReportResponse> viewReport(UUID reportId);
 
-    APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable);
+  APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable);
 
-    // xử lý
-    APIResponse<ReportResponse> changeStatus(UUID id, ReportStatus status);
+  // xử lý
+  APIResponse<ReportResponse> changeStatus(UUID id, ReportStatus status);
 }

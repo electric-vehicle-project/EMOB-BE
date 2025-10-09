@@ -10,9 +10,9 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Metadata {
-    int page;
-    int size;
-    long totalElements;
-    int totalPages;
-    boolean last;
+  int page;
+  int size;
+  long totalElements;
+  int totalPages;
+  boolean last;
 }

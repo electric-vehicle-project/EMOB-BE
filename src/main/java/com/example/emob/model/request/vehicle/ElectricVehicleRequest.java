@@ -12,14 +12,14 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ElectricVehicleRequest {
-    String brand;
-    String model;
-    Float batteryKwh;
-    Integer rangeKm;
-    Float chargeTimeHr;
-    Float powerKw;
-    List<String> images;
-    Float weightKg;
-    Float topSpeedKmh;
-    VehicleType type;
+  String brand;
+  String model;
+  Float batteryKwh;
+  Integer rangeKm;
+  Float chargeTimeHr;
+  Float powerKw;
+  List<String> images;
+  Float weightKg;
+  Float topSpeedKmh;
+  VehicleType type;
 }
