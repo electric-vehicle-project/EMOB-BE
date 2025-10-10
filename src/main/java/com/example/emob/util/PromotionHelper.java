@@ -25,12 +25,12 @@ public class PromotionHelper {
         promotion.setValue(discount * default_value);
     }
 
-//    public static PromotionStatus checkPromotionStatus (LocalDateTime startDate, LocalDateTime endDate) {
-//        if (startDate.isAfter(LocalDateTime.now())) return PromotionStatus.UPCOMING;
-//        if (endDate.isBefore(LocalDateTime.now()))   return PromotionStatus.EXPIRED;
-//        return PromotionStatus.ACTIVE;
-//    }
-//
+    public static PromotionStatus determinePromotionStatus (LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate.isAfter(LocalDateTime.now())) return PromotionStatus.UPCOMING;
+        if (endDate.isBefore(LocalDateTime.now()))   return PromotionStatus.EXPIRED;
+        return PromotionStatus.ACTIVE;
+    }
+
 //    public static void responseMemberShipLevel(Promotion promotion, PromotionResponse promotionResponse) {
 //        if (promotion.getScope().equals(PromotionScope.GLOBAL)) {
 //            promotionResponse.setMemberShipLevel(MemberShipLevel.NORMAL);

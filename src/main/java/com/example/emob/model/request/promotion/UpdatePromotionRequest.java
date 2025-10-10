@@ -21,8 +21,4 @@ public class UpdatePromotionRequest {
     @NotNull
     String name;
     String description;
-    float value;
-    float minValue;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
 }

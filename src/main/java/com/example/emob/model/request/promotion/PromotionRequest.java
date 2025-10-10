@@ -24,7 +24,6 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionRequest {
-    UUID staffId;
     Set<UUID> dealerId;
     Set<UUID> electricVehiclesId;
     @NotNull

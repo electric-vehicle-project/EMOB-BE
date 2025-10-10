@@ -20,7 +20,10 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ElectricVehicle {
-    @Id @UuidGenerator UUID id;
+    @Id
+    @GeneratedValue
+    @Column(columnDefinition = "BINARY(16)", unique = true)
+    UUID id;
 
     String brand;
     String model;

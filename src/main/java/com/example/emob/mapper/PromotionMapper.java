@@ -20,18 +20,8 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface PromotionMapper {
+    @Mapping(source = "id", target = "id")
     PromotionResponse toPromotionResponse (Promotion promotion);
-//
-//    @Named("dealersToIds")
-//    default Set<UUID> dealersToIds(Set<Dealer> dealers) {
-//        return dealers == null || dealers.isEmpty() ? Collections.emptySet() :
-//                dealers.stream().map(Dealer::getId).collect(Collectors.toSet());
-//    }
-//    @Named("vehiclesToIds")
-//    default Set<UUID> vehiclesToIds(Set<ElectricVehicle> vehicles) {
-//        return vehicles == null || vehicles.isEmpty() ? Collections.emptySet() :
-//                vehicles.stream().map(ElectricVehicle::getId).collect(Collectors.toSet());
-//    }
 
     Promotion toPromotion (PromotionRequest request);
 

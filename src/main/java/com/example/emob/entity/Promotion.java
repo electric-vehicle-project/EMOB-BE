@@ -48,8 +48,6 @@ public class Promotion {
     LocalDateTime createAt;
     LocalDateTime updateAt;
 
-    MemberShipLevel memberShipLevel;
-
     @ManyToOne
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     Account createBy;

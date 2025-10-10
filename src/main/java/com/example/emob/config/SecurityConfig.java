@@ -44,31 +44,30 @@ public class SecurityConfig {
             "/api/auth/reset-password",
             "/api/auth/verify-otp",
             "/api/public/**",
-            "/api/evm-staff/promotion/**",
     };
 
     // ADMIN
     public static final String[] ADMIN = {
             "/api/dealer/**",
-            "/api/evm-staff/promotion/view-global-all"
+            "/api/promotion/view-global-all"
     };
 
     public static final String[] DEALER_STAFF = {
-            "/api/dealer-staff/report/**",
-            "/api/dealer-staff/test-drive/**",
-            "/api/evm-staff/promotion/**",
+            "/api/report/**",
+            "/api/test-drive/**",
+//            "/api/promotion",
     };
 
     public static final String[] EVM_STAFF = {
-            "/api/evm-staff/promotion",
+//            "/api/promotion",
             "/api/vehicle/**"
     };
 
     public static final String[] MANAGER = {
-            "/api/dealer/report/manager/**",
-            "/api/dealer-staff/test-drive/schedules/**",
-            "/api/dealer-staff/report/process-report/**",
-            "/api/dealer-staff/report/view-all/**",
+            "/api/test-drive/schedules/**",
+            "/api/report/process-report/**",
+            "/api/report/view-all",
+            "/api/promotion/view-local-all"
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {

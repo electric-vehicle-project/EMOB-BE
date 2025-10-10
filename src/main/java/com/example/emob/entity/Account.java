@@ -51,9 +51,6 @@ public class Account implements UserDetails {
 
     String password;
 
-    @Enumerated(EnumType.STRING)
-    MemberShipLevel memberShipLevel;
-
     @ManyToOne
     @JoinColumn(name = "dealer_id")
     @JsonIgnore
@@ -65,7 +62,7 @@ public class Account implements UserDetails {
 
     @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    Set<TestDrive> createTest = new HashSet<>();
+    Set<TestDrive> testDrives = new HashSet<>();
 
     @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

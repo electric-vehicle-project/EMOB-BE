@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.service.iml;
 
-import com.example.emob.constant.PromotionScope;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -15,15 +14,15 @@ import java.util.UUID;
 public interface IPromotion {
     APIResponse<PromotionResponse> createPromotion (PromotionRequest request);
 
-//    APIResponse<PromotionResponse> updatePromotion (UpdatePromotionRequest request, UUID id);
-//
-//    APIResponse<PromotionResponse> deletePromotion (UUID id);
-//
-//    APIResponse<PromotionResponse> viewPromotion (UUID id);
-//
-//    APIResponse<PageResponse<PromotionResponse>> viewAllPromotions (Pageable pageable);
-//
-//    APIResponse<PageResponse<PromotionResponse>> viewAllGlobalPromotions (Pageable pageable);
+    APIResponse<PromotionResponse> updatePromotion (UpdatePromotionRequest request, UUID id);
+
+    APIResponse<PromotionResponse> deletePromotion (UUID id);
+
+    APIResponse<PromotionResponse> viewPromotion (UUID id);
+
+    APIResponse<PageResponse<PromotionResponse>> viewAllLocalPromotions (Pageable pageable);
 
     APIResponse<PromotionResponse> createValuePromotion (UUID id, PromotionValueRequest request);
+
+    APIResponse<PageResponse<PromotionResponse>> viewAllGlobalPromotions(Pageable pageable);
 }

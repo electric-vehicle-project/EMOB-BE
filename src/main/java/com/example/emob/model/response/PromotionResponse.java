@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionResponse {
+    UUID id;
     String name;
     String description;
     PromotionType type;
