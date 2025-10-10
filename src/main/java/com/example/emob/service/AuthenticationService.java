@@ -19,6 +19,7 @@ import com.example.emob.repository.OtpRepository;
 import com.example.emob.service.iml.IAuthentication;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.UUID;
 
 import com.example.emob.util.NotificationHelper;
@@ -119,25 +120,23 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
         // xóa otp
         otpRepository.delete(otp);
-        otpRepository.save(otp);
 
         // tạo ra reset token
         OtpResponse otpResponse = new OtpResponse();
         otpResponse.setToken(tokenService.generateResetToken(account));
-         return APIResponse.success(otpResponse, "Verify Successfully");
+        return APIResponse.success(otpResponse, "Verify Successfully");
     }
 
     @Override
-    public void resetPassword(String token, String newPassword) {
+    public APIResponse<Void> resetPassword(String token, String newPassword) {
         Account account = tokenService.verifyResetToken(token);
         if (account == null) {
             throw new GlobalException(ErrorCode.NOT_FOUND);
         }
         account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
-        APIResponse.success("","Reset password successfully");
+        return APIResponse.error(200,"Reset password successfully");
     }
-
 
     @Override
     public APIResponse<AccountResponse> login(LoginRequest request) {

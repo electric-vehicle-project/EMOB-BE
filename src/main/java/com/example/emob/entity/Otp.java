@@ -21,4 +21,5 @@ public class Otp implements Serializable {
     @Indexed
     String accountId;
     @TimeToLive Long ttl;
+    String token;
 }

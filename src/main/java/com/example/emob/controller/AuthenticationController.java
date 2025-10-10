@@ -1,10 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.model.request.LoginRequest;
-import com.example.emob.model.request.OtpRequest;
-import com.example.emob.model.request.RegisterRequest;
-import com.example.emob.model.request.TokenRequest;
+import com.example.emob.model.request.*;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
@@ -42,8 +39,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
-    public void resetPassword (@RequestParam String token, @RequestParam String newPassword) {
-        authenticationService.resetPassword(token, newPassword);
+    public APIResponse<Void> resetPassword (@Valid @RequestBody ResetPasswordRequest request) {
+        return authenticationService.resetPassword(request.getToken(), request.getNewPassword());
     }
 
     @PostMapping("/login")
@@ -77,7 +74,27 @@ public class AuthenticationController {
                       "email": "bob@example.com",
                       "password": "Pass5678"
                     }
-                    """)
+                    """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            description = "Example login for Rook",
+                                                            value =
+                                                                    """
+                        {
+                          "email": "rook@example.com",
+                          "password": "Pass5678"
+                        }
+                        """),
+                                                    @ExampleObject(
+                                                            name = "Account D",
+                                                            description = "Example login for Yob",
+                                                            value =
+                                                                    """
+                        {
+                          "email": "yob@example.com",
+                          "password": "Pass5678"
+                        }
+                        """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> login(
             @Valid @RequestBody LoginRequest request) {
@@ -126,7 +143,39 @@ public class AuthenticationController {
                   "email": "bob@example.com",
                   "password": "Pass5678"
                 }
-                """)
+                """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            value =
+                                                                    """
+                    {
+                      "fullName": "Rook",
+                      "gender": "MALE",
+                      "status": "ACTIVE",
+                      "address": "456 Oak St",
+                      "dateOfBirth": "1992-02-02",
+                      "role": "DEALER_STAFF",
+                      "phone": "012345678912",
+                      "email": "rook@example.com",
+                      "password": "Pass5678"
+                    }
+                    """),
+                                                    @ExampleObject(
+                                                            name = "Account D",
+                                                            value =
+                                                                    """
+                    {
+                      "fullName": "Yob",
+                      "gender": "MALE",
+                      "status": "ACTIVE",
+                      "address": "456 Oak St",
+                      "dateOfBirth": "1992-02-02",
+                      "role": "MANAGER",
+                      "phone": "1012345678912",
+                      "email": "yob@example.com",
+                      "password": "Pass5678"
+                    }
+                    """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> register(
             @Valid @RequestBody RegisterRequest request) {

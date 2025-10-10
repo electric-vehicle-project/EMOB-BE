@@ -21,5 +21,5 @@ public interface IAuthentication {
 
     APIResponse<OtpResponse> verifyOtp (OtpRequest request, String otp);
 
-    void resetPassword (String token, String newPassword);
+    APIResponse<Void> resetPassword (String email, String newPassword);
 }
