@@ -20,24 +20,24 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleUnit {
-    @Id @UuidGenerator UUID id;
-    String color;
+  @Id @UuidGenerator UUID id;
+  String color;
 
-    @Column(name = "vin_number", unique = true, nullable = false, length = 17)
-    String vinNumber;
+  @Column(name = "vin_number", unique = true, nullable = false, length = 17)
+  String vinNumber;
 
-    LocalDateTime purchaseDate;
-    LocalDate warrantyStart;
-    LocalDate warrantyEnd;
-    LocalDate productionYear;
+  LocalDateTime purchaseDate;
+  LocalDate warrantyStart;
+  LocalDate warrantyEnd;
+  LocalDate productionYear;
 
-    @Enumerated(EnumType.STRING)
-    VehicleStatus status;
+  @Enumerated(EnumType.STRING)
+  VehicleStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicle_id")
-    @JsonIgnore
-    ElectricVehicle vehicle;
+  @ManyToOne
+  @JoinColumn(name = "vehicle_id")
+  @JsonIgnore
+  ElectricVehicle vehicle;
 
     @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

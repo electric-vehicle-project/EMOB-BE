@@ -18,26 +18,24 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Dealer {
-    @Id @UuidGenerator UUID id;
+  @Id @UuidGenerator UUID id;
 
-    String name;
-    String contactInfo;
-    String country;
-    LocalDateTime createdAt;
-    boolean isDeleted;
+  String name;
+  String contactInfo;
+  String country;
+  LocalDateTime createdAt;
+  boolean isDeleted;
 
-    @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<Account> accounts = new HashSet<>();
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Account> accounts = new HashSet<>();
 
-    @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
-    Set<Promotion> promotions = new HashSet<>();
+  @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
+  Set<Promotion> promotions = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "inventory_id")
-    Inventory inventory;
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "inventory_id")
+  Inventory inventory;
 
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "orders")
-//    Set<SaleOrder> orders = new HashSet<>();
-
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Quotation> quotations = new HashSet<>();
 }

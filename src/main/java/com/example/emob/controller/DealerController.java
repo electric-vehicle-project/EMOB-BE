@@ -27,82 +27,80 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "api")
 public class DealerController {
 
-    @Autowired private DealerService dealerService;
+  @Autowired private DealerService dealerService;
 
-    @PostMapping
-    @Operation(
-            summary = "Create a new Dealer",
-            requestBody =
-                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                            description = "Dealer creation request",
-                            required = true,
-                            content =
-                                    @Content(
-                                            mediaType = "application/json",
-                                            schema = @Schema(implementation = DealerRequest.class),
-                                            examples = {
-                                                @ExampleObject(
-                                                        name = "Dealer A",
-                                                        value =
-                                                                """
-                {
-                  "name": "Dealer One",
-                  "contactInfo": "dealer1@example.com",
-                  "country": "USA"
-                }
-                """),
-                                                @ExampleObject(
-                                                        name = "Dealer B",
-                                                        value =
-                                                                """
-                {
-                  "name": "Dealer Two",
-                  "contactInfo": "dealer2@example.com",
-                  "country": "Canada"
-                }
-                """)
-                                            })))
-    public ResponseEntity<APIResponse<DealerResponse>> createDealer(
-            @Valid @RequestBody DealerRequest request) {
-        return ResponseEntity.ok(dealerService.create(request));
-    }
+  @PostMapping
+  @Operation(
+      summary = "Create a new Dealer",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "Dealer creation request",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = "application/json",
+                      schema = @Schema(implementation = DealerRequest.class),
+                      examples = {
+                        @ExampleObject(
+                            name = "Dealer A",
+                            value =
+                                """
+                            {
+                              "name": "Dealer One",
+                              "contactInfo": "dealer1@example.com",
+                              "country": "USA"
+                            }
+                            """),
+                        @ExampleObject(
+                            name = "Dealer B",
+                            value =
+                                """
+                            {
+                              "name": "Dealer Two",
+                              "contactInfo": "dealer2@example.com",
+                              "country": "Canada"
+                            }
+                            """)
+                      })))
+  public ResponseEntity<APIResponse<DealerResponse>> createDealer(
+      @Valid @RequestBody DealerRequest request) {
+    return ResponseEntity.ok(dealerService.create(request));
+  }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Get dealer by ID")
-    public ResponseEntity<APIResponse<DealerResponse>> getDealer(@PathVariable UUID id) {
-        return ResponseEntity.ok(dealerService.get(id));
-    }
+  @GetMapping("/{id}")
+  @Operation(summary = "Get dealer by ID")
+  public ResponseEntity<APIResponse<DealerResponse>> getDealer(@PathVariable UUID id) {
+    return ResponseEntity.ok(dealerService.get(id));
+  }
 
-    @GetMapping
-    @Operation(summary = "Get all dealers")
-    public ResponseEntity<APIResponse<PageResponse<DealerResponse>>> getAllDealers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(dealerService.getAll(pageable));
-    }
+  @GetMapping
+  @Operation(summary = "Get all dealers")
+  public ResponseEntity<APIResponse<PageResponse<DealerResponse>>> getAllDealers(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(dealerService.getAll(pageable));
+  }
 
-    @PutMapping("/{id}")
-    @Operation(
-            summary = "Update dealer by ID",
-            requestBody =
-                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                            description = "Dealer update request",
-                            required = true,
-                            content =
-                                    @Content(
-                                            mediaType = "application/json",
-                                            schema =
-                                                    @Schema(implementation = DealerRequest.class))))
-    public ResponseEntity<APIResponse<DealerResponse>> updateDealer(
-            @PathVariable UUID id, @Valid @RequestBody DealerRequest request) {
-        return ResponseEntity.ok(dealerService.update(id, request));
-    }
+  @PutMapping("/{id}")
+  @Operation(
+      summary = "Update dealer by ID",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "Dealer update request",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = "application/json",
+                      schema = @Schema(implementation = DealerRequest.class))))
+  public ResponseEntity<APIResponse<DealerResponse>> updateDealer(
+      @PathVariable UUID id, @Valid @RequestBody DealerRequest request) {
+    return ResponseEntity.ok(dealerService.update(id, request));
+  }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete dealer by ID")
-    public ResponseEntity<APIResponse<DealerResponse>> deleteDealer(@PathVariable UUID id) {
-        dealerService.delete(id);
-        return ResponseEntity.ok(dealerService.delete(id));
-    }
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete dealer by ID")
+  public ResponseEntity<APIResponse<DealerResponse>> deleteDealer(@PathVariable UUID id) {
+    dealerService.delete(id);
+    return ResponseEntity.ok(dealerService.delete(id));
+  }
 }

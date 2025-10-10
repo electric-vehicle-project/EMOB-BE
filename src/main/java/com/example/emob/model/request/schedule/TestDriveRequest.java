@@ -12,10 +12,10 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestDriveRequest {
-    UUID customerId;
-    UUID accountId;
-    String location;
-    TestStatus status;
-    int duration;
-    LocalDateTime scheduledAt;
+  UUID customerId;
+  UUID accountId;
+  String location;
+  TestStatus status;
+  int duration;
+  LocalDateTime scheduledAt;
 }

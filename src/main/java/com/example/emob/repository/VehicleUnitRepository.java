@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> {
-    long countVehicleUnitByVehicle(ElectricVehicle vehicle);
+  long countVehicleUnitByVehicle(ElectricVehicle vehicle);
 }

@@ -12,24 +12,23 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ElectricVehicleMapper {
-    ElectricVehicle toVehicle(ElectricVehicleRequest request);
+  ElectricVehicle toVehicle(ElectricVehicleRequest request);
 
-    ElectricVehicleResponse toVehicleResponse(ElectricVehicle vehicle);
+  ElectricVehicleResponse toVehicleResponse(ElectricVehicle vehicle);
 
-    VehicleUnitResponse toVehicleUnitResponse(VehicleUnit unit);
+  VehicleUnitResponse toVehicleUnitResponse(VehicleUnit unit);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateVehicle(ElectricVehicleRequest request, @MappingTarget ElectricVehicle vehicle);
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateVehicle(ElectricVehicleRequest request, @MappingTarget ElectricVehicle vehicle);
 
-    @Mapping(target = "vinNumber", expression = "java(generateVin(vehicle.getModel()))")
-    @Mapping(target = "vehicle", source = "vehicle")
-    VehicleUnit toVehicleUnit(VehicleUnitRequest request, ElectricVehicle vehicle);
+  @Mapping(target = "vinNumber", expression = "java(generateVin(vehicle.getModel()))")
+  @Mapping(target = "vehicle", source = "vehicle")
+  VehicleUnit toVehicleUnit(VehicleUnitRequest request, ElectricVehicle vehicle);
 
-    default String generateVin(String model) {
-        String prefix = model.substring(0, Math.min(model.length(), 3)).toUpperCase();
-        String randomPart =
-                UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+  default String generateVin(String model) {
+    String prefix = model.substring(0, Math.min(model.length(), 3)).toUpperCase();
+    String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
-        return prefix + "-" + randomPart;
-    }
+    return prefix + "-" + randomPart;
+  }
 }

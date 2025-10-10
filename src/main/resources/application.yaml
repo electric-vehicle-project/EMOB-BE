@@ -1,10 +1,18 @@
 server:
   port: 8080
+  address: 0.0.0.0
 spring:
 
   application: ElectricVehicleSystem
   datasource:
+<<<<<<< HEAD
     url: jdbc:mysql://localhost:3306/Test
+=======
+#    url: jdbc:mysql://34.56.57.56:3306/emob
+#    username: root
+#    password: 12345678@
+    url: jdbc:mysql://localhost:3306/test
+>>>>>>> e893f2e7f9704e0db134863547e3e82d2a957e1d
     username: root
     password: root
   jpa:

@@ -1,4 +1,4 @@
-package com.example.emob.service.iml;
+package com.example.emob.service.impl;
 
 import com.example.emob.model.request.contract.CreateContractRequest;
 import com.example.emob.model.response.APIResponse;

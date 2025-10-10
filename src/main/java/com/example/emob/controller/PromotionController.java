@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "api")
 @Tag(name = "Promotion Controller", description = "Endpoints for managing promotions")
 public class PromotionController {
-    @Autowired PromotionService promotionService;
+  @Autowired PromotionService promotionService;
 
     @PostMapping
     @Operation(

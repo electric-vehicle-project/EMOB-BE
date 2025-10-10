@@ -16,13 +16,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterRequest {
 
-    String fullName;
-    Gender gender;
-    AccountStatus status;
-    String address;
-    LocalDate dateOfBirth;
-    Role role;
-    String phone;
-    @Email String email;
-    String password;
+  String fullName;
+  Gender gender;
+  AccountStatus status;
+  String address;
+  LocalDate dateOfBirth;
+  Role role;
+  String phone;
+  @Email String email;
+  String password;
 }
