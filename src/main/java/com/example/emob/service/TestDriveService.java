@@ -1,4 +1,3 @@
-/* EMOB-2025 */
 package com.example.emob.service;
 
 import com.example.emob.constant.AccountStatus;
@@ -18,7 +17,7 @@ import com.example.emob.model.response.TestDriveResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.TestDriveRepository;
-import com.example.emob.service.iml.ITestDrive;
+import com.example.emob.service.impl.ITestDrive;
 import com.example.emob.util.NotificationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -34,7 +33,8 @@ import java.util.UUID;
 @Service
 public class TestDriveService implements ITestDrive {
 
-  @Autowired private CustomerRepository customerRepository;
+  @Autowired
+  private CustomerRepository customerRepository;
 
   @Autowired private AccountRepository accountRepository;
 
@@ -106,16 +106,6 @@ public class TestDriveService implements ITestDrive {
             throw new GlobalException(ErrorCode.DB_ERROR);
         }
     }
-    // kiểm tra staff có bị trùng giờ hay bận không ?
-    // so sánh trong khoảng 1h
-    LocalDateTime startTime = date.minusMinutes(59);
-    LocalDateTime endTime = date.plusMinutes(59);
-    long busy = testDriveRepository.existsOverlap(salePerson.getId(), startTime, endTime);
-
-    System.out.println("Busy: " + busy);
-    if (busy >= 1) {
-      throw new GlobalException(ErrorCode.STAFF_BUSY);
-    }
 
     @Override
     public APIResponse<TestDriveResponse> updateSchedule(UpdateTestDriveRequest request, UUID id) {
@@ -159,86 +149,42 @@ public class TestDriveService implements ITestDrive {
             throw new GlobalException(ErrorCode.OTHER);
         }
     }
-  }
 
-  @Override
-  public APIResponse<TestDriveResponse> viewSchedule(UUID id) {
-    TestDrive testDrive =
-        testDriveRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
-    return APIResponse.success(testDriveResponse, "View Schedule Test Drive Successfully");
-  }
-
-  @Override
-  public APIResponse<TestDriveResponse> updateSchedule(UpdateTestDriveRequest request, UUID id) {
-    LocalDateTime date = request.getScheduleDate();
-    LocalTime time = date.toLocalTime();
-    TestDrive testDrive =
-        testDriveRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-
-    Account salePerson =
-        accountRepository
-            .findById(request.getSalePersonId())
-            .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-
-    if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
-      throw new GlobalException(ErrorCode.INVALID_DATE);
+    @Override
+    public APIResponse<TestDriveResponse> viewSchedule(UUID id) {
+        TestDrive testDrive =
+                testDriveRepository
+                        .findById(id)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
+        return APIResponse.success(testDriveResponse, "View Schedule Test Drive Successfully");
     }
-    // kiểm tra staff có bị trùng giờ hay bận không ?
-    // so sánh trong khoảng 1h
-    LocalDateTime startTime = date.minusMinutes(59);
-    LocalDateTime endTime = date.plusMinutes(59);
-    long busy = testDriveRepository.existsOverlap(salePerson.getId(), startTime, endTime);
 
-    System.out.println("Busy: " + busy);
-    if (busy >= 1) {
-      throw new GlobalException(ErrorCode.STAFF_BUSY);
+    @Override
+    public APIResponse<TestDriveResponse> cancelSchedule(UUID id) {
+        TestDrive testDrive =
+                testDriveRepository
+                        .findById(id)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        try {
+            testDrive.setStatus(TestStatus.CANCELLED);
+            testDriveRepository.save(testDrive);
+            TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
+            return APIResponse.success(testDriveResponse, "Create schedule successfully");
+        } catch (DataIntegrityViolationException ex) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+        } catch (DataAccessException ex) {
+            throw new GlobalException(ErrorCode.DB_ERROR);
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
     }
-    try {
-      testDriveMapper.updateScheduleFromRequest(request, testDrive);
-      testDriveRepository.save(testDrive);
-      notificationService.sendTestDriveConfirmation(testDrive);
-      TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
-      return APIResponse.success(testDriveResponse, "Update schedule successfully");
-    } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
-    } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
+
+    @Override
+    public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
+        Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
+        PageResponse<TestDriveResponse> testDriveResponsePageResponse =
+                pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
+        return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
     }
   }
-
-  @Override
-  public APIResponse<TestDriveResponse> cancelSchedule(UUID id) {
-    TestDrive testDrive =
-        testDriveRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    try {
-      testDrive.setStatus(TestStatus.CANCELLED);
-      testDriveRepository.save(testDrive);
-      TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
-      return APIResponse.success(testDriveResponse, "Create schedule successfully");
-    } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
-    } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
-    }
-  }
-
-  @Override
-  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
-    Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
-    PageResponse<TestDriveResponse> testDriveResponsePageResponse =
-        pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
-    return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
-  }
-}

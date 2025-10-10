@@ -1,8 +1,13 @@
-/* EMOB-2025 */
 package com.example.emob.service;
 
-import com.example.emob.constant.*;
-import com.example.emob.entity.*;
+import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
+import com.example.emob.constant.Role;
+import com.example.emob.entity.Account;
+import com.example.emob.entity.Dealer;
+import com.example.emob.entity.ElectricVehicle;
+import com.example.emob.entity.Promotion;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.PromotionMapper;
@@ -12,12 +17,13 @@ import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.PromotionResponse;
-import com.example.emob.repository.*;
+import com.example.emob.repository.AccountRepository;
+import com.example.emob.repository.DealerRepository;
+import com.example.emob.repository.ElectricVehicleRepository;
+import com.example.emob.repository.PromotionRepository;
 import com.example.emob.service.iml.IPromotion;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.PromotionHelper;
-import java.time.LocalDateTime;
-import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,20 +33,28 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 @Service
 public class PromotionService implements IPromotion {
 
-  @Autowired DealerRepository dealerRepository;
+    @Autowired
+    DealerRepository dealerRepository;
 
-  @Autowired PromotionRepository promotionRepository;
+    @Autowired
+    PromotionRepository promotionRepository;
 
-  @Autowired PromotionMapper promotionMapper;
+    @Autowired
+    PromotionMapper promotionMapper;
 
-  @Autowired AccountRepository accountRepository;
+    @Autowired
+    AccountRepository accountRepository;
 
-  @Autowired PageMapper pageMapper;
-
-  @Autowired ElectricVehicleRepository electricVehicleRepository;
+    @Autowired
+    PageMapper pageMapper;
 
     @Autowired
     ElectricVehicleRepository electricVehicleRepository;
@@ -66,11 +80,11 @@ public class PromotionService implements IPromotion {
             if (staff.getRole().equals(Role.EVM_STAFF)) {
                 promotion.setScope(PromotionScope.GLOBAL);
                 // chon dealer nao dc sao promotion
-                if(request.getDealerId() != null){
+                if (request.getDealerId() != null) {
                     Set<Dealer> dealers = new HashSet<>(dealerRepository
                             .findAllById(request.getDealerId()));
                     promotion.setDealers(dealers);
-                }else{
+                } else {
                     promotion.setDealers(new HashSet<>(dealerRepository.findAll()));
                 }
             } else if (staff.getRole().equals(Role.DEALER_STAFF)) {
@@ -95,7 +109,7 @@ public class PromotionService implements IPromotion {
             }
             // check status
             PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(),
-                                promotion.getEndDate());
+                    promotion.getEndDate());
             if (status == null) {
                 throw new NullPointerException();
             }
@@ -176,16 +190,6 @@ public class PromotionService implements IPromotion {
             throw new GlobalException(ErrorCode.OTHER);
         }
     }
-  }
-
-    @Override
-    public APIResponse<PromotionResponse> viewPromotion(UUID id) {
-        Promotion promotion = promotionRepository.findById(id)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-        return APIResponse.success(promotionResponse, "View Promotion Successfully");
-    }
-  }
 
     @Override
     @PreAuthorize("hasRole('MANAGER')")
@@ -201,5 +205,13 @@ public class PromotionService implements IPromotion {
         Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
         PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
         return APIResponse.success(promotionResponsePageResponse, "View All Global Promotions Successfully");
+    }
+
+    @Override
+    public APIResponse<PromotionResponse> viewPromotion(UUID id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
+        return APIResponse.success(promotionResponse, "View Promotion Successfully");
     }
 }

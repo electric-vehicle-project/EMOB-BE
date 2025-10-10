@@ -16,15 +16,13 @@ import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.OtpRepository;
-import com.example.emob.service.iml.IAuthentication;
 
 import java.security.SecureRandom;
 import java.util.UUID;
 
+import com.example.emob.service.impl.IAuthentication;
 import com.example.emob.util.NotificationHelper;
 import lombok.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -190,7 +188,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     } catch (Exception e) {
       // Kiểm tra lỗi từ database
       String errorMessage = e.getMessage().toLowerCase();
-      AuthenticationService.log.info(errorMessage);
+//      AuthenticationService.log.info(errorMessage);
       if (errorMessage.contains("email")) {
         throw new GlobalException(ErrorCode.EMAIL_EXISTED);
       } else if (errorMessage.contains("phone")) {
