@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
-    AccountResponse toAccountResponse(Account account);
+  AccountResponse toAccountResponse(Account account);
 
-    Account toAccount(RegisterRequest request);
+  Account toAccount(RegisterRequest request);
 }

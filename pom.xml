@@ -151,6 +151,7 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<finalName>be</finalName>
 		<plugins>
 			<!-- Compiler plugin for MapStruct and Lombok -->
 			<plugin>
@@ -179,45 +180,39 @@
 				<artifactId>spotless-maven-plugin</artifactId>
 				<version>2.43.0</version>
 				<configuration>
-					<!-- optional: limit format enforcement to just the files changed by this feature branch -->
+					<java>
+						<!-- Google Java Format sẽ tự quản lý indent 4 spaces -->
+						<googleJavaFormat>
+							<version>1.17.0</version>
+							<style>GOOGLE</style>
+							<reflowLongStrings>true</reflowLongStrings>
+							<formatJavadoc>true</formatJavadoc>
+						</googleJavaFormat>
+
+						<licenseHeader>
+							<content>/* EMOB-$YEAR */</content>
+						</licenseHeader>
+
+						<trimTrailingWhitespace/>
+						<endWithNewline/>
+					</java>
+
 					<formats>
-						<!-- you can define as many formats as you want, each is independent -->
 						<format>
-							<!-- define the files to apply to -->
 							<includes>
 								<include>.gitattributes</include>
 								<include>.gitignore</include>
 							</includes>
-							<!-- define the steps to apply to those files -->
 							<trimTrailingWhitespace/>
 							<endWithNewline/>
-							<indent>
-								<tabs>true</tabs>
-								<spacesPerTab>4</spacesPerTab>
-							</indent>
 						</format>
 					</formats>
-					<!-- define a language-specific format -->
-					<java>
-						<!-- no need to specify files, inferred automatically, but you can if you want -->
-
-						<!-- apply a specific flavor of google-java-format and reflow long strings -->
-						<googleJavaFormat>
-							<version>1.17.0</version>
-							<style>AOSP</style>
-							<reflowLongStrings>true</reflowLongStrings>
-							<formatJavadoc>false</formatJavadoc>
-						</googleJavaFormat>
-
-						<!-- make sure every file has the following copyright header.
-                          optionally, Spotless can set copyright years by digging
-                          through git history (see "license" section below) -->
-						<licenseHeader>
-							<content>/* EMOB-$YEAR */</content>  <!-- or <file>${project.basedir}/license-header</file> -->
-						</licenseHeader>
-					</java>
 				</configuration>
 			</plugin>
+
+
+
+
 			<!-- Spring Boot Maven Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

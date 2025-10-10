@@ -16,6 +16,8 @@ import com.example.emob.repository.*;
 import com.example.emob.service.iml.IPromotion;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.PromotionHelper;
+import java.time.LocalDateTime;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,24 +27,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
-
 @Service
 public class PromotionService implements IPromotion {
 
-    @Autowired DealerRepository dealerRepository;
+  @Autowired DealerRepository dealerRepository;
 
-    @Autowired PromotionRepository promotionRepository;
+  @Autowired PromotionRepository promotionRepository;
 
-    @Autowired PromotionMapper promotionMapper;
+  @Autowired PromotionMapper promotionMapper;
 
+  @Autowired AccountRepository accountRepository;
 
-    @Autowired
-    AccountRepository accountRepository;
+  @Autowired PageMapper pageMapper;
 
-    @Autowired
-    PageMapper pageMapper;
+  @Autowired ElectricVehicleRepository electricVehicleRepository;
 
     @Autowired
     ElectricVehicleRepository electricVehicleRepository;
@@ -178,6 +176,7 @@ public class PromotionService implements IPromotion {
             throw new GlobalException(ErrorCode.OTHER);
         }
     }
+  }
 
     @Override
     public APIResponse<PromotionResponse> viewPromotion(UUID id) {
@@ -186,6 +185,7 @@ public class PromotionService implements IPromotion {
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
         return APIResponse.success(promotionResponse, "View Promotion Successfully");
     }
+  }
 
     @Override
     @PreAuthorize("hasRole('MANAGER')")

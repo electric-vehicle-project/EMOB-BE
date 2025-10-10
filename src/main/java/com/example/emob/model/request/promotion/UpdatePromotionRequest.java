@@ -1,15 +1,11 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.promotion;
 
-import com.example.emob.constant.PromotionScope;
-import com.example.emob.constant.PromotionStatus;
-import com.example.emob.entity.Dealer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor

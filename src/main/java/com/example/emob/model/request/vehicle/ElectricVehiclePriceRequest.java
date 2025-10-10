@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ElectricVehiclePriceRequest {
-    float importPrice;
-    float retailPrice;
+  float importPrice;
+  float retailPrice;
 }

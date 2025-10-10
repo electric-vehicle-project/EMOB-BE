@@ -10,5 +10,6 @@ import java.util.List;
 
 @Repository
 public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
-    List<RefreshToken> findAllByAccountId(String accountId);
+
+  List<RefreshToken> findAllByAccountId(String accountId);
 }

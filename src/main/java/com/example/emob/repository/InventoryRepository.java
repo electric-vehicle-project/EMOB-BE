@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface InventoryRepository extends JpaRepository<Inventory, UUID> {
-    Optional<Inventory> findInventoryByIsCompanyTrue();
+  Optional<Inventory> findInventoryByIsCompanyTrue();
 
-    long countByIsCompanyTrue();
-
+  long countByIsCompanyTrue();
 }

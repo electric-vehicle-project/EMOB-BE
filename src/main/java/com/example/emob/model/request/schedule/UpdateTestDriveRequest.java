@@ -13,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateTestDriveRequest {
-    UUID salePersonId;
-    String location;
-    int duration;
-    LocalDateTime scheduleDate;
-    TestStatus status;
+  UUID salePersonId;
+  String location;
+  int duration;
+  LocalDateTime scheduleDate;
+  TestStatus status;
 }

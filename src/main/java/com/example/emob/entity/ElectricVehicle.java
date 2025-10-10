@@ -25,33 +25,35 @@ public class ElectricVehicle {
     @Column(columnDefinition = "BINARY(16)", unique = true)
     UUID id;
 
-    String brand;
-    String model;
-    float importPrice;
-    float retailPrice;
-    Float batteryKwh;
-    Integer rangeKm;
-    Float chargeTimeHr;
-    Float powerKw;
-    boolean isDeleted = false;
+  String brand;
+  String model;
+  float importPrice;
+  float retailPrice;
+  Float batteryKwh;
+  Integer rangeKm;
+  Float chargeTimeHr;
+  Float powerKw;
+  boolean isDeleted = false;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "electric_vehicle_images",
-            joinColumns = @JoinColumn(name = "vehicle_id"))
-    @Column(name = "image_url")
-    List<String> images;
+  @ElementCollection
+  @CollectionTable(name = "electric_vehicle_images", joinColumns = @JoinColumn(name = "vehicle_id"))
+  @Column(name = "image_url")
+  List<String> images;
 
-    Float weightKg;
-    Float topSpeedKmh;
+  Float weightKg;
+  Float topSpeedKmh;
 
-    @Enumerated(EnumType.STRING)
-    VehicleType type;
+  @Enumerated(EnumType.STRING)
+  VehicleType type;
 
-    LocalDate createdAt;
+  LocalDate createdAt;
 
-    @ManyToMany(mappedBy = "vehicles")
-    Set<Promotion> promotions = new HashSet<>();
-    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
-    Set<VehicleUnit> vehicleUnits;
+  @ManyToMany(mappedBy = "vehicles")
+  Set<Promotion> promotions = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<VehicleUnit> vehicleUnits = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<QuotationItem> quotationItems = new HashSet<>();
 }

@@ -36,10 +36,10 @@ public enum ErrorCode {
     NOT_FOUND_ENUM("Field enum not found",HttpStatus.NOT_FOUND),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
 
-    final String message;
-    final HttpStatus status;
+  final String message;
+  final HttpStatus status;
 
-    public int getCode() {
-        return status.value();
-    }
+  public int getCode() {
+    return status.value();
+  }
 }

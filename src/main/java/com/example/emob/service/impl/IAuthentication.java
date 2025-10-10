@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.service.iml;
+package com.example.emob.service.impl;
 
 import com.example.emob.model.request.LoginRequest;
 import com.example.emob.model.request.OtpRequest;
@@ -10,9 +10,9 @@ import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
 
 public interface IAuthentication {
-    APIResponse<AccountResponse> login(LoginRequest request);
+  APIResponse<AccountResponse> login(LoginRequest request);
 
-    APIResponse<AccountResponse> register(RegisterRequest request);
+  APIResponse<AccountResponse> register(RegisterRequest request);
 
     APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
     void logout(TokenRequest refreshRequest);
@@ -22,4 +22,6 @@ public interface IAuthentication {
     APIResponse<OtpResponse> verifyOtp (OtpRequest request, String otp);
 
     void resetPassword (String token, String newPassword);
+  public APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
+
 }
