@@ -22,7 +22,6 @@ import org.hibernate.annotations.UuidGenerator;
 public class ElectricVehicle {
     @Id
     @GeneratedValue
-    @Column(columnDefinition = "BINARY(16)", unique = true)
     UUID id;
 
   String brand;

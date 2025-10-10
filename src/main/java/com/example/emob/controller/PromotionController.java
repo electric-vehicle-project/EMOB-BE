@@ -60,8 +60,7 @@ public class PromotionController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Promotion")
-  public ResponseEntity<APIResponse<PromotionResponse>> deletePromotion(
-      @PathVariable("id") UUID id) {
+  public ResponseEntity<APIResponse<Void>> deletePromotion(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.deletePromotion(id));
   }
 

@@ -21,7 +21,7 @@ import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.DealerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.PromotionRepository;
-import com.example.emob.service.iml.IPromotion;
+import com.example.emob.service.impl.IPromotion;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.PromotionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +29,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,18 +53,37 @@ public class PromotionService implements IPromotion {
     PromotionMapper promotionMapper;
 
     @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
     PageMapper pageMapper;
 
     @Autowired
     ElectricVehicleRepository electricVehicleRepository;
 
 
+    // tự động cập nhật status promotion sau 1p
+    @Scheduled(fixedRate =  60000)
+    public void autoUpdatePromotionStatus() {
+        try {
+                List<Promotion> promotions = promotionRepository.findAll();
+                for (Promotion p : promotions) {
+//                     nếu bị xóa rồi thì bỏ qua
+                    if (p.getStatus().equals(PromotionStatus.INACTIVE)) {
+                        continue;
+                    }
+                    PromotionStatus newStatus = PromotionHelper.determinePromotionStatus(p.getStartDate(), p.getEndDate());
+                    if (newStatus != p.getStatus()) {
+                        p.setStatus(newStatus);
+                        promotionRepository.save(p);
+                    }
+            }
+        } catch (Exception ex) {
+            System.out.println("Lỗi: " + ex.getMessage());
+        }
+
+    }
+
     @Override
     @Transactional
-    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+//    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
     public APIResponse<PromotionResponse> createPromotion(PromotionRequest request) {
         //tim staff
         Account staff = AccountUtil.getCurrentUser();
@@ -107,15 +128,9 @@ public class PromotionService implements IPromotion {
                 Set<Dealer> dealerSet = Set.of(dealer);
                 promotion.setDealers(dealerSet);
             }
-            // check status
-            PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(),
-                    promotion.getEndDate());
-            if (status == null) {
-                throw new NullPointerException();
-            }
-            promotion.setStatus(status);
             promotion.setCreateAt(LocalDateTime.now());
             promotion.setCreateBy(staff);
+//            autoUpdatePromotionStatus();
             promotionRepository.save(promotion);
             PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
             return APIResponse.success(promotionResponse, "Create promotion for local successfully");
@@ -175,7 +190,7 @@ public class PromotionService implements IPromotion {
 
 
     @Override
-    public APIResponse<PromotionResponse> deletePromotion(UUID id) {
+    public APIResponse<Void> deletePromotion(UUID id) {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
         try {

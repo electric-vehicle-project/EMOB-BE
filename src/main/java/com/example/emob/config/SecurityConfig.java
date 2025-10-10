@@ -40,12 +40,13 @@ public class SecurityConfig {
             "/api/auth/reset-password",
             "/api/auth/verify-otp",
             "/api/public/**",
+
     };
 
     // ADMIN
     public static final String[] ADMIN = {
             "/api/dealer/**",
-            "/api/promotion/view-global-all"
+//            "/api/promotion/view-global-all"
     };
 
     public static final String[] DEALER_STAFF = {
@@ -55,7 +56,7 @@ public class SecurityConfig {
     };
 
     public static final String[] EVM_STAFF = {
-//            "/api/promotion",
+            "/api/promotion/**",
             "/api/vehicle/**"
     };
 
@@ -63,7 +64,7 @@ public class SecurityConfig {
             "/api/test-drive/schedules/**",
             "/api/report/process-report/**",
             "/api/report/view-all",
-            "/api/promotion/view-local-all"
+//            "/api/promotion/view-local-all"
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
