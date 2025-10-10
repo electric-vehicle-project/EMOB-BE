@@ -23,47 +23,56 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-  @Autowired Filter filter;
-  @Autowired private AuthenticationService authenticationService;
+    @Autowired Filter filter;
+    @Autowired private AuthenticationService authenticationService;
 
-  @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
-  @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
+    @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
+    @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-  // Public
-  public static final String[] PUBLIC = {
-    "/api/auth/login",
-    "/api/auth/register",
-    "/api/auth/logout",
-    "/api/auth/refresh",
-    "/api/auth/refresh-token",
-    "/api/public/**",
-    "/api/dealer/promotion/**",
-  };
+    // Public
+    public static final String[] PUBLIC = {
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/refresh",
+            "/api/auth/refresh-token",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth/verify-otp",
+            "/api/public/**",
 
-  // ADMIN
-  public static final String[] ADMIN = {
-    "/api/dealer/**",
-  };
+    };
 
-  public static final String[] DEALER_STAFF = {
-    "/api/dealer-staff/report/**", "/api/dealer-staff/test-drive/**", "/api/customers/**"
-  };
+    // ADMIN
+    public static final String[] ADMIN = {
+            "/api/dealer/**",
+//            "/api/promotion/view-global-all"
+    };
 
-  public static final String[] EVM_STAFF = {"/api/vehicle/**", "/api/promotion"};
+    public static final String[] DEALER_STAFF = {
+            "/api/report/**",
+            "/api/test-drive/**",
+//            "/api/promotion",
+    };
 
-  public static final String[] MANAGER = {
-    "/api/dealer/report/manager/**",
-    "/api/dealer-staff/test-drive/schedules/**",
-    "/api/dealer-staff/report/process-report/**",
-    "/api/dealer-staff/report/view-all/**",
-  };
-  // Authenticated chung
-  public static final String[] AUTHENTICATED = {
-    "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
-  };
-  public static final String[] SWAGGER = {
-    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
-  };
+    public static final String[] EVM_STAFF = {
+            "/api/promotion/**",
+            "/api/vehicle/**"
+    };
+
+    public static final String[] MANAGER = {
+            "/api/test-drive/schedules/**",
+            "/api/report/process-report/**",
+            "/api/report/view-all",
+//            "/api/promotion/view-local-all"
+    };
+    // Authenticated chung
+    public static final String[] AUTHENTICATED = {
+            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
+    };
+    public static final String[] SWAGGER = {
+            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+    };
 
   @Bean
   public PasswordEncoder encoder() {

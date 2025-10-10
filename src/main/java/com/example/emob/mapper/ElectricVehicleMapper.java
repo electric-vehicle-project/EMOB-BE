@@ -10,6 +10,8 @@ import com.example.emob.model.response.VehicleUnitResponse;
 import java.util.UUID;
 import org.mapstruct.*;
 
+import java.util.UUID;
+
 @Mapper(componentModel = "spring")
 public interface ElectricVehicleMapper {
   ElectricVehicle toVehicle(ElectricVehicleRequest request);

@@ -5,6 +5,7 @@ import com.example.emob.entity.Dealer;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Promotion;
 import com.example.emob.model.request.promotion.PromotionRequest;
+import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.PromotionResponse;
 import java.util.Collections;
@@ -18,27 +19,10 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface PromotionMapper {
-  @Mapping(source = "id", target = "promotionId")
-  @Mapping(source = "createBy.id", target = "staffId")
-  PromotionResponse toPromotionResponse(Promotion promotion);
+    @Mapping(source = "id", target = "id")
+    PromotionResponse toPromotionResponse (Promotion promotion);
 
-  @Named("dealersToIds")
-  default Set<UUID> dealersToIds(Set<Dealer> dealers) {
-    return dealers == null || dealers.isEmpty()
-        ? Collections.emptySet()
-        : dealers.stream().map(Dealer::getId).collect(Collectors.toSet());
-  }
+    Promotion toPromotion (PromotionRequest request);
 
-  @Named("vehiclesToIds")
-  default Set<UUID> vehiclesToIds(Set<ElectricVehicle> vehicles) {
-    return vehicles == null || vehicles.isEmpty()
-        ? Collections.emptySet()
-        : vehicles.stream().map(ElectricVehicle::getId).collect(Collectors.toSet());
-  }
-
-  @Mapping(target = "id", ignore = true)
-  Promotion toPromotion(PromotionRequest request);
-
-  void updatePromotionFromRequest(
-      UpdatePromotionRequest request, @MappingTarget Promotion promotion);
+    void updatePromotionFromRequest (UpdatePromotionRequest request, @MappingTarget Promotion promotion);
 }

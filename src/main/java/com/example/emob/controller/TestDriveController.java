@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/dealer-staff/test-drive")
+@RequestMapping("/api/test-drive")
 @SecurityRequirement(name = "api")
 @Tag(name = "Test Drive Controller", description = "Endpoints for managing schedule test drive")
 public class TestDriveController {

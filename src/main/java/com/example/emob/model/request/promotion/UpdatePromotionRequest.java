@@ -14,10 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdatePromotionRequest {
-  @NotNull String name;
-  String description;
-  float value;
-  float minValue;
-  LocalDateTime startDate;
-  LocalDateTime endDate;
+    @NotNull
+    String name;
+    String description;
 }
