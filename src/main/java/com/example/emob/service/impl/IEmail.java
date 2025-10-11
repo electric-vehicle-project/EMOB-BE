@@ -1,4 +1,4 @@
-package com.example.emob.service.iml;
+package com.example.emob.service.impl;
 
 public interface IEmail {
     void sendEmail (String headerType, String title, String subTitle, String icon, String greeting, String buttonUrl,

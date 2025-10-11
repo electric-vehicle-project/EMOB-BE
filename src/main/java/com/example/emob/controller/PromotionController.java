@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.PromotionScope;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -64,21 +65,15 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.deletePromotion(id));
   }
 
-    @GetMapping("/view-local-all")
+    @GetMapping("/view-all/{scope}")
     @Operation(summary = "View All Promotion")
     public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions (@RequestParam(defaultValue = "0") int page,
-                                                                                           @RequestParam(defaultValue = "10") int size) {
+                                                                                                @RequestParam(defaultValue = "10") int size,
+                                                                                                @RequestParam @PathVariable("scope") PromotionScope scope) {
         Pageable pageResponse = PageRequest.of(page, size);
-        return ResponseEntity.ok(promotionService.viewAllLocalPromotions(pageResponse));
+        return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
     }
 
-    @GetMapping("/view-global-all")
-    @Operation(summary = "View All Global Promotion")
-    public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllGlobalPromotions (@RequestParam(defaultValue = "0") int page,
-                                                                                           @RequestParam(defaultValue = "10") int size) {
-        Pageable pageResponse = PageRequest.of(page, size);
-        return ResponseEntity.ok(promotionService.viewAllGlobalPromotions(pageResponse));
-    }
     @PutMapping("/value/{id}")
         public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion (@RequestBody @Valid PromotionValueRequest request,
                                                                                        @PathVariable("id") UUID id) {
