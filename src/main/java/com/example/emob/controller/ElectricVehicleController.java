@@ -1,4 +1,3 @@
-/* EMOB-2025 */
 package com.example.emob.controller;
 
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;

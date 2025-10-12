@@ -70,36 +70,36 @@ public class AuthenticationController {
                             description = "Example login for Bob",
                             value =
                                 """
-        {
-          "email": "bob@example.com",
-          "password": "Pass5678"
-        }
-        """),
-                        @ExampleObject(
-                            name = "Account C",
-                            description = "Example login for Rook",
-                            value =
-                                """
-        {
-          "email": "rook@example.com",
-          "password": "Pass5678"
-        }
-        """),
-                        @ExampleObject(
-                            name = "Account D",
-                            description = "Example login for Yob",
-                            value =
-                                """
-        {
-          "email": "yob@example.com",
-          "password": "Pass5678"
-        }
-        """)
-                      })))
-  public ResponseEntity<APIResponse<AccountResponse>> login(
-      @Valid @RequestBody LoginRequest request) {
-    return ResponseEntity.ok(authenticationService.login(request));
-  }
+                    {
+                      "email": "bob@example.com",
+                      "password": "Pass5678"
+                    }
+                    """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            description = "Example login for Alice",
+                                                            value =
+                                                                    """
+                                                                            {
+                                                                              "email": "alice123@example.com",
+                                                                              "password": "Pass1234"
+                                                                            }
+                        """),
+                              @ExampleObject(
+                                      name = "Account D",
+                                      description = "Example login for Yob",
+                                      value =
+                                              """
+                      {
+                        "email": "yob@example.com",
+                        "password": "Pass5678"
+                      }
+                      """)
+                                            })))
+    public ResponseEntity<APIResponse<AccountResponse>> login(
+            @Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authenticationService.login(request));
+    }
 
   @PostMapping("/register")
   @Operation(
@@ -131,55 +131,55 @@ public class AuthenticationController {
                             name = "Account B",
                             value =
                                 """
-    {
-      "fullName": "Bob",
-      "gender": "MALE",
-      "status": "ACTIVE",
-      "address": "456 Oak St",
-      "dateOfBirth": "1992-02-02",
-      "role": "EVM_STAFF",
-      "phone": "0123456789",
-      "email": "bob@example.com",
-      "password": "Pass5678"
+                {
+                  "fullName": "Bob",
+                  "gender": "MALE",
+                  "status": "ACTIVE",
+                  "address": "456 Oak St",
+                  "dateOfBirth": "1992-02-02",
+                  "role": "EVM_STAFF",
+                  "phone": "0123456789",
+                  "email": "bob@example.com",
+                  "password": "Pass5678"
+                }
+                """),
+                                                    @ExampleObject(
+                                                            name = "Account C",
+                                                            value =
+                                                                    """
+                    {
+                      "fullName": "Alice",
+                      "gender": "FEMALE",
+                      "status": "ACTIVE",
+                      "address": "123 Elm St",
+                      "dateOfBirth": "1990-01-01",
+                      "role": "DEALER_STAFF",
+                      "phone": "09876543211",
+                      "email": "alice123@example.com",
+                      "password": "Pass1234"
+                    }
+                    """),
+                              @ExampleObject(
+                                      name = "Account D",
+                                      value =
+                                              """
+                  {
+                    "fullName": "Yob",
+                    "gender": "MALE",
+                    "status": "ACTIVE",
+                    "address": "456 Oak St",
+                    "dateOfBirth": "1992-02-02",
+                    "role": "MANAGER",
+                    "phone": "1012345678912",
+                    "email": "yob@example.com",
+                    "password": "Pass5678"
+                  }
+                  """)
+                                            })))
+    public ResponseEntity<APIResponse<AccountResponse>> register(
+            @Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authenticationService.register(request));
     }
-    """),
-                        @ExampleObject(
-                            name = "Account C",
-                            value =
-                                """
-    {
-      "fullName": "Rook",
-      "gender": "MALE",
-      "status": "ACTIVE",
-      "address": "456 Oak St",
-      "dateOfBirth": "1992-02-02",
-      "role": "DEALER_STAFF",
-      "phone": "012345678912",
-      "email": "rook@example.com",
-      "password": "Pass5678"
-    }
-    """),
-                        @ExampleObject(
-                            name = "Account D",
-                            value =
-                                """
-    {
-      "fullName": "Yob",
-      "gender": "MALE",
-      "status": "ACTIVE",
-      "address": "456 Oak St",
-      "dateOfBirth": "1992-02-02",
-      "role": "MANAGER",
-      "phone": "1012345678912",
-      "email": "yob@example.com",
-      "password": "Pass5678"
-    }
-    """)
-                      })))
-  public ResponseEntity<APIResponse<AccountResponse>> register(
-      @Valid @RequestBody RegisterRequest request) {
-    return ResponseEntity.ok(authenticationService.register(request));
-  }
 
   @PostMapping("/logout")
   @Operation(summary = "Logout a account")

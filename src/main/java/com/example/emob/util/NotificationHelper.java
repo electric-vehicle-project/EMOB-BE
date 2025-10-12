@@ -2,8 +2,10 @@
 package com.example.emob.util;
 
 public interface NotificationHelper {
-  String CONFIRM_TEST_DRIVE = "✅";
-  String REMIND_TEST_DRIVE = "🔔";
-  String EMAIL = "📩";
-  String OTP = "🛡️";
+    String CONFIRM_TEST_DRIVE = "✅";
+    String REMIND_TEST_DRIVE = "🔔";
+    String EMAIL = "📩";
+    String OTP = "🛡️";
+    String REMIND_CONTRACT = "📝";
+    String SIGN_CONTRACT = "🎉";
 }
