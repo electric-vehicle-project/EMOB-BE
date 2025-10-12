@@ -1,10 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.model.request.LoginRequest;
-import com.example.emob.model.request.OtpRequest;
-import com.example.emob.model.request.RegisterRequest;
-import com.example.emob.model.request.TokenRequest;
+import com.example.emob.model.request.*;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
@@ -28,23 +25,23 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication Controller", description = "Endpoints for user registration and login")
 @SecurityRequirement(name = "api")
 public class AuthenticationController {
-    @Autowired
-    AuthenticationService authenticationService;
+  @Autowired AuthenticationService authenticationService;
 
-    @PostMapping("/forgot-password")
-    public void forgotPassword (@Valid @RequestBody OtpRequest request) {
-        authenticationService.forgotPassword(request);
-    }
+  @PostMapping("/forgot-password")
+  public void forgotPassword(@Valid @RequestBody OtpRequest request) {
+    authenticationService.forgotPassword(request);
+  }
 
-    @PostMapping("/verify-otp")
-    public ResponseEntity<APIResponse<OtpResponse>> verifyOtp (@Valid @RequestBody OtpRequest request, String otp) {
-        return ResponseEntity.ok(authenticationService.verifyOtp(request, otp));
-    }
+  @PostMapping("/verify-otp")
+  public ResponseEntity<APIResponse<OtpResponse>> verifyOtp(
+      @Valid @RequestBody OtpRequest request, String otp) {
+    return ResponseEntity.ok(authenticationService.verifyOtp(request, otp));
+  }
 
-    @PostMapping("/reset-password")
-    public void resetPassword (@RequestParam String token, @RequestParam String newPassword) {
-        authenticationService.resetPassword(token, newPassword);
-    }
+  @PostMapping("/reset-password")
+  public APIResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    return authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+  }
 
   @PostMapping("/login")
   @Operation(
@@ -63,11 +60,11 @@ public class AuthenticationController {
                             description = "Example login for Alice",
                             value =
                                 """
-                    {
-                      "email": "alice@example.com",
-                      "password": "Pass1234"
-                    }
-                    """),
+        {
+          "email": "alice@example.com",
+          "password": "Pass1234"
+        }
+        """),
                         @ExampleObject(
                             name = "Account B",
                             description = "Example login for Bob",
@@ -87,7 +84,17 @@ public class AuthenticationController {
                                                                               "email": "alice123@example.com",
                                                                               "password": "Pass1234"
                                                                             }
-                        """)
+                        """),
+                              @ExampleObject(
+                                      name = "Account D",
+                                      description = "Example login for Yob",
+                                      value =
+                                              """
+                      {
+                        "email": "yob@example.com",
+                        "password": "Pass5678"
+                      }
+                      """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> login(
             @Valid @RequestBody LoginRequest request) {
@@ -108,18 +115,18 @@ public class AuthenticationController {
                             name = "Account A",
                             value =
                                 """
-                {
-                  "fullName": "Alice",
-                  "gender": "FEMALE",
-                  "status": "ACTIVE",
-                  "address": "123 Elm St",
-                  "dateOfBirth": "1990-01-01",
-                  "role": "ADMIN",
-                  "phone": "0987654321",
-                  "email": "alice@example.com",
-                  "password": "Pass1234"
-                }
-                """),
+    {
+      "fullName": "Alice",
+      "gender": "FEMALE",
+      "status": "ACTIVE",
+      "address": "123 Elm St",
+      "dateOfBirth": "1990-01-01",
+      "role": "ADMIN",
+      "phone": "0987654321",
+      "email": "alice@example.com",
+      "password": "Pass1234"
+    }
+    """),
                         @ExampleObject(
                             name = "Account B",
                             value =
@@ -151,7 +158,23 @@ public class AuthenticationController {
                       "email": "alice123@example.com",
                       "password": "Pass1234"
                     }
-                    """)
+                    """),
+                              @ExampleObject(
+                                      name = "Account D",
+                                      value =
+                                              """
+                  {
+                    "fullName": "Yob",
+                    "gender": "MALE",
+                    "status": "ACTIVE",
+                    "address": "456 Oak St",
+                    "dateOfBirth": "1992-02-02",
+                    "role": "MANAGER",
+                    "phone": "1012345678912",
+                    "email": "yob@example.com",
+                    "password": "Pass5678"
+                  }
+                  """)
                                             })))
     public ResponseEntity<APIResponse<AccountResponse>> register(
             @Valid @RequestBody RegisterRequest request) {

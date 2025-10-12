@@ -30,25 +30,22 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
   @Autowired ReportService reportService;
 
-    @PostMapping
-    @Operation(
-            summary = "Generate Report",
-            requestBody =
-                    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                            description = "Generate Report",
-                            required = true,
-                            content =
-                                    @Content(
-                                            mediaType = "application/json",
-                                            schema =
-                                                    @Schema(
-                                                            implementation =
-                                                                    CreateReportRequest.class),
-                                            examples = {
-                                                @ExampleObject(
-                                                        name = "Feedback Report",
-                                                        value =
-                                                                """
+  @PostMapping
+  @Operation(
+      summary = "Generate Report",
+      requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              description = "Generate Report",
+              required = true,
+              content =
+                  @Content(
+                      mediaType = "application/json",
+                      schema = @Schema(implementation = CreateReportRequest.class),
+                      examples = {
+                        @ExampleObject(
+                            name = "Feedback Report",
+                            value =
+                                """
                                                                    {
                                                        "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
                                                          "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",

@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.util;
 
 import com.example.emob.entity.Account;
@@ -10,21 +11,19 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-
 @Component
 @RequiredArgsConstructor
 public class AccountUtil implements ApplicationContextAware {
 
-    @Autowired
-    private static AccountRepository accountRepository;
+  @Autowired private static AccountRepository accountRepository;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        accountRepository = applicationContext.getBean(AccountRepository.class);
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    accountRepository = applicationContext.getBean(AccountRepository.class);
+  }
 
-    public static Account getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return accountRepository.findAccountByEmail(email);
-    }
+  public static Account getCurrentUser() {
+    String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    return accountRepository.findAccountByEmail(email);
+  }
 }

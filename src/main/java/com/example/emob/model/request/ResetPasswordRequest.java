@@ -1,14 +1,15 @@
 /* EMOB-2025 */
-package com.example.emob.model.response;
+package com.example.emob.model.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class OtpResponse {
+public class ResetPasswordRequest {
   String token;
+  String newPassword;
 }
