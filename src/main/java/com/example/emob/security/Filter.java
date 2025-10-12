@@ -57,12 +57,12 @@ public class Filter extends OncePerRequestFilter {
       try {
 
         Account account = tokenService.verifyTokenToAccount(token);
-        System.out.println(account.getAuthorities());
+
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        System.out.println("Authorities: " + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
       } catch (ExpiredJwtException e) {
         resolver.resolveException(
             request, response, null, new GlobalException(ErrorCode.EXPIRED_TOKEN));

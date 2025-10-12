@@ -3,6 +3,8 @@ package com.example.emob.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +24,7 @@ public class QuotationItem {
   double totalPrice;
   int quantity;
   String color;
+  LocalDate expiryDate;
 
   @ManyToOne
   @JoinColumn(name = "quotation_id")

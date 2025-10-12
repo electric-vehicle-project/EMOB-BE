@@ -3,9 +3,10 @@ package com.example.emob.config;
 
 import com.example.emob.security.CustomAccessDeniedHandler;
 import com.example.emob.security.CustomAuthenticationEntryPoint;
+import com.example.emob.security.Filter;
 import com.example.emob.service.AuthenticationService;
 
-import jakarta.servlet.Filter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    @Autowired Filter filter;
+    @Autowired
+    Filter filter;
     @Autowired private AuthenticationService authenticationService;
 
     @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
@@ -52,14 +54,14 @@ public class SecurityConfig {
     };
 
     public static final String[] DEALER_STAFF = {
-        "/api/dealer-staff/report/**",
-            "/api/dealer-staff/test-drive/**",
-            "/api/contract/**"
+            "/api/report/**",
+            "/api/test-drive/**",
     };
 
     public static final String[] EVM_STAFF = {
-        "/api/vehicle/**",
-        "/api/promotion"
+
+            "/api/vehicle/**",
+
     };
 
     public static final String[] MANAGER = {
@@ -68,10 +70,10 @@ public class SecurityConfig {
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
-            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
+            "/api/notifications/**","/api/promotion/**",
     };
     public static final String[] SWAGGER = {
-            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
     };
 
   @Bean

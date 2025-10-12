@@ -2,7 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.PromotionStatus;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.QuotationMapper;
@@ -10,11 +9,10 @@ import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
-import com.example.emob.model.response.QuotationResponse;
+import com.example.emob.model.response.quotation.QuotationResponse;
 import com.example.emob.repository.*;
 import com.example.emob.service.impl.IQuotation;
 
-import java.util.List;
 import java.util.UUID;
 
 import com.example.emob.util.PromotionHelper;
@@ -58,7 +56,7 @@ public class QuotationService implements IQuotation {
         //check promotion valid
         PromotionHelper.checkPromotionValid(promotion);
         //set discount
-
+        items.setDiscount(price );
 
 
 
@@ -67,7 +65,7 @@ public class QuotationService implements IQuotation {
 
       return null;
     }catch (Exception e){
-      throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+      throw new GlobalException(ErrorCode.INVALID_CODE, e.getMessage());
     }
 
   }
