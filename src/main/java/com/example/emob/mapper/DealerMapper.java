@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.mapper;
 
 import com.example.emob.entity.Dealer;
@@ -10,10 +11,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface DealerMapper {
-    DealerResponse toDealerResponse(Dealer dealer);
+  DealerResponse toDealerResponse(Dealer dealer);
 
-    Dealer toDealer(DealerRequest request);
+  Dealer toDealer(DealerRequest request);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Dealer updateDealer(DealerRequest request, @MappingTarget Dealer dealer);
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  Dealer updateDealer(DealerRequest request, @MappingTarget Dealer dealer);
 }

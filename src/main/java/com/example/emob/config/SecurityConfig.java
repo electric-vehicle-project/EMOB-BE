@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     @Autowired Filter filter;
     @Autowired private AuthenticationService authenticationService;
@@ -32,13 +34,16 @@ public class SecurityConfig {
 
     // Public
     public static final String[] PUBLIC = {
-        "/api/auth/login",
-        "/api/auth/register",
-        "/api/auth/logout",
-        "/api/auth/refresh",
-        "/api/auth/refresh-token",
-        "/api/public/**",
-        "/api/dealer/promotion/**",
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/logout",
+            "/api/auth/refresh",
+            "/api/auth/refresh-token",
+            "/api/auth/forgot-password",
+            "/api/auth/reset-password",
+            "/api/auth/verify-otp",
+            "/api/public/**",
+
     };
 
     // ADMIN
@@ -58,29 +63,27 @@ public class SecurityConfig {
     };
 
     public static final String[] MANAGER = {
-        "/api/dealer/report/manager/**",
-        "/api/dealer-staff/test-drive/schedules/**",
-        "/api/dealer-staff/report/process-report/**",
-        "/api/dealer-staff/report/view-all/**",
+            "/api/test-drive/schedules/**",
+            "/api/report/process-report/**",
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
-        "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
+            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
     };
     public static final String[] SWAGGER = {
-        "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
     };
 
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder encoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
+    return configuration.getAuthenticationManager();
+  }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

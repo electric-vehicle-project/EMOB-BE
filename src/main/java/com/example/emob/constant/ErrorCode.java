@@ -38,10 +38,10 @@ public enum ErrorCode {
     EXPIRED_CONTRACT("Contract is expired", HttpStatus.BAD_REQUEST),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
 
-    final String message;
-    final HttpStatus status;
+  final String message;
+  final HttpStatus status;
 
-    public int getCode() {
-        return status.value();
-    }
+  public int getCode() {
+    return status.value();
+  }
 }

@@ -9,15 +9,15 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface TestDriveMapper {
-    @Mapping(source = "id", target = "testDriveId")
-    @Mapping(source = "salesperson.id", target = "salePersonId")
-    TestDriveResponse toTestDriveResponse(TestDrive request);
+  @Mapping(source = "id", target = "testDriveId")
+  @Mapping(source = "salesperson.id", target = "salePersonId")
+  TestDriveResponse toTestDriveResponse(TestDrive request);
 
-    @Mapping(target = "id", ignore = true)
-    TestDrive toTestDrive(TestDriveRequest request);
+  @Mapping(target = "id", ignore = true)
+  TestDrive toTestDrive(TestDriveRequest request);
 
-    @Mapping(target = "id", ignore = true)
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateScheduleFromRequest(
-            UpdateTestDriveRequest request, @MappingTarget TestDrive testDrive);
+  @Mapping(target = "id", ignore = true)
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  void updateScheduleFromRequest(
+      UpdateTestDriveRequest request, @MappingTarget TestDrive testDrive);
 }

@@ -17,10 +17,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionResponse {
-    UUID promotionId;
-    UUID staffId;
-    Set<UUID> dealerId;
-    Set<UUID> vehicleId;
+    UUID id;
     String name;
     String description;
     PromotionType type;
@@ -31,5 +28,4 @@ public class PromotionResponse {
     PromotionScope scope;
     PromotionStatus status;
     LocalDateTime createAt;
-    MemberShipLevel memberShipLevel;
 }

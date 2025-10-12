@@ -18,7 +18,7 @@ import com.example.emob.model.response.VehicleUnitResponse;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
 import com.example.emob.repository.VehicleUnitRepository;
-import com.example.emob.service.iml.IVehicle;
+import com.example.emob.service.impl.IVehicle;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -31,125 +31,163 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ElectricVehicleService implements IVehicle {
-    @Autowired ElectricVehicleRepository vehicleRepository;
-    @Autowired ElectricVehicleMapper vehicleMapper;
-    @Autowired PageMapper pageMapper;
-    @Autowired InventoryRepository inventoryRepository;
-    @Autowired VehicleUnitRepository vehicleUnitRepository;
 
-    @Override
-    public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
-        try {
-            ElectricVehicle vehicle = vehicleMapper.toVehicle(request);
-            vehicle.setCreatedAt(LocalDate.now());
-            vehicleRepository.save(vehicle);
+  @Autowired ElectricVehicleRepository vehicleRepository;
 
-            return APIResponse.success(
-                    vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new GlobalException(ErrorCode.DATA_INVALID);
-        }
+  @Autowired ElectricVehicleMapper vehicleMapper;
+
+  @Autowired PageMapper pageMapper;
+
+  @Autowired InventoryRepository inventoryRepository;
+
+  @Autowired VehicleUnitRepository vehicleUnitRepository;
+
+  @Override
+  public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
+    try {
+      ElectricVehicle vehicle = vehicleMapper.toVehicle(request);
+      vehicle.setCreatedAt(LocalDate.now());
+      vehicleRepository.save(vehicle);
+
+      return APIResponse.success(
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<ElectricVehicleResponse> update(UUID id, ElectricVehicleRequest request) {
-        ElectricVehicle vehicle =
-                vehicleRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        vehicleMapper.updateVehicle(request, vehicle);
-        vehicleRepository.save(vehicle);
+  @Override
+  public APIResponse<ElectricVehicleResponse> update(UUID id, ElectricVehicleRequest request) {
+    try {
+      ElectricVehicle vehicle =
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        return APIResponse.success(
-                vehicleMapper.toVehicleResponse(vehicle), "Vehicle updated successfully");
+      vehicleMapper.updateVehicle(request, vehicle);
+      vehicleRepository.save(vehicle);
+
+      return APIResponse.success(
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle updated successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<ElectricVehicleResponse> delete(UUID id) {
-        ElectricVehicle vehicle =
-                vehicleRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        vehicle.setDeleted(true);
-        vehicleRepository.save(vehicle); // hoặc set deleted flag nếu có field deleted
-        return APIResponse.success(
-                vehicleMapper.toVehicleResponse(vehicle), "Vehicle deleted successfully");
+  @Override
+  public APIResponse<ElectricVehicleResponse> delete(UUID id) {
+    try {
+      ElectricVehicle vehicle =
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+      vehicle.setDeleted(true);
+      vehicleRepository.save(vehicle);
+
+      return APIResponse.success(
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle deleted successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<ElectricVehicleResponse> get(UUID id) {
-        ElectricVehicle vehicle =
-                vehicleRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        return APIResponse.success(vehicleMapper.toVehicleResponse(vehicle));
+  @Override
+  public APIResponse<ElectricVehicleResponse> get(UUID id) {
+    try {
+      ElectricVehicle vehicle =
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+
+      return APIResponse.success(vehicleMapper.toVehicleResponse(vehicle));
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable) {
-        Page<ElectricVehicle> page = vehicleRepository.findAll(pageable);
-        PageResponse<ElectricVehicleResponse> response =
-                pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
-        return APIResponse.success(response);
+  @Override
+  public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable) {
+    try {
+      Page<ElectricVehicle> page = vehicleRepository.findAll(pageable);
+      PageResponse<ElectricVehicleResponse> response =
+          pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
+      return APIResponse.success(response);
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
-    @Override
-    @Transactional
-    public APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request) {
-        // Tìm mẫu xe
-        ElectricVehicle vehicle =
-                vehicleRepository
-                        .findById(request.getVehicleId())
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+  @Override
+  @Transactional
+  public APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request) {
+    try {
+      // Tìm mẫu xe
+      ElectricVehicle vehicle =
+          vehicleRepository
+              .findById(request.getVehicleId())
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        // Tìm kho của hãng
-        Inventory inventory =
-                inventoryRepository
-                        .findInventoryByIsCompanyTrue()
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+      // Tìm kho của hãng
+      Inventory inventory =
+          inventoryRepository
+              .findInventoryByIsCompanyTrue()
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-        // Tạo danh sách VehicleUnit
-        List<VehicleUnit> units =
-                IntStream.range(0, request.getQuantity())
-                        .mapToObj(
-                                i -> {
-                                    VehicleUnit unit =
-                                            vehicleMapper.toVehicleUnit(request, vehicle);
-                                    unit.setInventory(inventory);
-                                    unit.setStatus(request.getStatus());
-                                    return unit;
-                                })
-                        .toList();
+      // Tạo danh sách VehicleUnit
+      List<VehicleUnit> units =
+          IntStream.range(0, request.getQuantity())
+              .mapToObj(
+                  i -> {
+                    VehicleUnit unit = vehicleMapper.toVehicleUnit(request, vehicle);
+                    unit.setInventory(inventory);
+                    unit.setStatus(request.getStatus());
+                    return unit;
+                  })
+              .toList();
 
-        // Lưu tất cả VehicleUnit
-        List<VehicleUnit> savedUnits = vehicleUnitRepository.saveAll(units);
+      // Lưu tất cả VehicleUnit
+      List<VehicleUnit> savedUnits = vehicleUnitRepository.saveAll(units);
 
-        // Cập nhật tổng số lượng trong kho
-        inventory.setQuantity(inventory.getQuantity() + savedUnits.size());
-        inventoryRepository.save(inventory);
+      // Cập nhật tổng số lượng trong kho
+      inventory.setQuantity(inventory.getQuantity() + savedUnits.size());
+      inventoryRepository.save(inventory);
 
-        // Mapping sang Response
-        List<VehicleUnitResponse> responses =
-                savedUnits.stream().map(vehicleMapper::toVehicleUnitResponse).toList();
+      // Mapping sang Response
+      List<VehicleUnitResponse> responses =
+          savedUnits.stream().map(vehicleMapper::toVehicleUnitResponse).toList();
 
-        return APIResponse.success(
-                responses,
-                "Created " + savedUnits.size() + " vehicle units and linked to company inventory.");
+      return APIResponse.success(
+          responses,
+          "Created " + savedUnits.size() + " vehicle units and linked to company inventory.");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 
+  @Override
+  public APIResponse<ElectricVehicleResponse> updatePrices(
+      UUID id, ElectricVehiclePriceRequest request) {
+    try {
+      ElectricVehicle vehicle =
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-    @Override
-    public APIResponse<ElectricVehicleResponse> updatePrices(
-            UUID id, ElectricVehiclePriceRequest request) {
-        ElectricVehicle vehicle =
-                vehicleRepository
-                        .findById(id)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-        vehicle.setImportPrice(request.getImportPrice());
-        vehicle.setRetailPrice(request.getRetailPrice());
-        vehicleRepository.save(vehicle);
-        ElectricVehicleResponse response = vehicleMapper.toVehicleResponse(vehicle);
-        return APIResponse.success(response, "update price successfully");
+      vehicle.setImportPrice(request.getImportPrice());
+      vehicle.setRetailPrice(request.getRetailPrice());
+      vehicleRepository.save(vehicle);
+
+      ElectricVehicleResponse response = vehicleMapper.toVehicleResponse(vehicle);
+      return APIResponse.success(response, "Update price successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
 }

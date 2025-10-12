@@ -7,6 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EmobApplicationTests {
 
-    @Test
-    void contextLoads() {}
+  @Test
+  void contextLoads() {}
 }

@@ -14,12 +14,12 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleUnitRequest {
-    UUID vehicleId;
-    int quantity;
-    String color;
-    LocalDateTime purchaseDate;
-    LocalDate warrantyStart;
-    LocalDate warrantyEnd;
-    LocalDate productionYear;
-    VehicleStatus status;
+  UUID vehicleId;
+  int quantity;
+  String color;
+  LocalDateTime purchaseDate;
+  LocalDate warrantyStart;
+  LocalDate warrantyEnd;
+  LocalDate productionYear;
+  VehicleStatus status;
 }

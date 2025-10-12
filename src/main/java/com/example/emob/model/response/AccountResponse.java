@@ -17,15 +17,15 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountResponse {
-    UUID id;
-    String fullName;
-    Gender gender;
-    AccountStatus status;
-    String address;
-    LocalDate dateOfBirth;
-    Role role;
-    String phone;
-    String email;
-    String token;
-    String refreshToken;
+  UUID id;
+  String fullName;
+  Gender gender;
+  AccountStatus status;
+  String address;
+  LocalDate dateOfBirth;
+  Role role;
+  String phone;
+  String email;
+  String token;
+  String refreshToken;
 }

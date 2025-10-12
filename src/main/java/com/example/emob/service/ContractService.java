@@ -11,7 +11,7 @@ import com.example.emob.model.response.ContractResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.SaleContractRepository;
 import com.example.emob.repository.SaleOrderRepository;
-import com.example.emob.service.iml.IContract;
+import com.example.emob.service.impl.IContract;
 import com.example.emob.util.NotificationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

@@ -18,15 +18,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionRequest {
-    UUID staffId;
     Set<UUID> dealerId;
     Set<UUID> electricVehiclesId;
     @NotNull String name;
     String description;
-    PromotionType type;
-    float value;
-    float minValue;
-    LocalDateTime startDate;
-    LocalDateTime endDate;
-    MemberShipLevel memberShipLevel;
 }
