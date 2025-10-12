@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
-import com.example.emob.service.iml.IEmail;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import com.example.emob.service.impl.IEmail;
 
 import java.io.UnsupportedEncodingException;
 

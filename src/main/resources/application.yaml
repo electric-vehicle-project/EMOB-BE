@@ -5,14 +5,10 @@ spring:
 
   application: ElectricVehicleSystem
   datasource:
-<<<<<<< HEAD
+    #    url: jdbc:mysql://34.56.57.56:3306/emob
+    #    username: root
+    #    password: 12345678@
     url: jdbc:mysql://localhost:3306/Test
-=======
-#    url: jdbc:mysql://34.56.57.56:3306/emob
-#    username: root
-#    password: 12345678@
-    url: jdbc:mysql://localhost:3306/test
->>>>>>> e893f2e7f9704e0db134863547e3e82d2a957e1d
     username: root
     password: root
   jpa:
@@ -31,19 +27,19 @@ spring:
     username: cn100705@gmail.com
     password: kiyk opth gbpu agre
     properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
-              required: true
-#            connectiontimeout: 5000
-#            timeout: 5000
-#            writetimeout: 5000
-#            socketFactory:
-#              port: 587
-#              class: javax.net.ssl.SSLSocketFactory
-#              fallback: false
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  #            connectiontimeout: 5000
+  #            timeout: 5000
+  #            writetimeout: 5000
+  #            socketFactory:
+  #              port: 587
+  #              class: javax.net.ssl.SSLSocketFactory
+  #              fallback: false
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -58,14 +54,14 @@ spring:
       - /api/auth/login
       - /api/auth/register
       - /websocket/**
-#Redis
+  #Redis
   data:
     redis:
       host: localhost
       port: 6379
       password: 12345678
       database: 0
-#JWT
+  #JWT
   jwt:
     secretkey: yxzHhwvD3gfwENyU95c1VUb2iH5manykVOuPwj1WTy4=
     duration: 30

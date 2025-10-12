@@ -39,6 +39,7 @@ public class SecurityConfig {
     "/api/auth/refresh-token",
     "/api/public/**",
     "/api/dealer/promotion/**",
+          "/api/delivery/**"
   };
 
   // ADMIN

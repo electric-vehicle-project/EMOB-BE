@@ -47,4 +47,7 @@ public class VehicleUnit {
     @JoinColumn(name = "inventory_id")
     @JsonIgnore
     Inventory inventory;
+
+    @OneToOne(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    DeliveryItem deliveryItem;
 }
