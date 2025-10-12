@@ -7,7 +7,9 @@ import com.example.emob.constant.MemberShipLevel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,39 +22,42 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class Customer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(columnDefinition = "BINARY(16)", unique = true, updatable = false, nullable = false)
-    UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(columnDefinition = "BINARY(16)", unique = true, updatable = false, nullable = false)
+  UUID id;
 
-    String fullName;
+  String fullName;
 
-    @Column(unique = true)
-    String email;
+  @Column(unique = true)
+  String email;
 
-    @Column(unique = true)
-    String phoneNumber;
+  @Column(unique = true)
+  String phoneNumber;
 
-    String address;
-    String note;
-    LocalDate dateOfBirth;
+  String address;
+  String note;
+  LocalDate dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    Gender gender;
+  @Enumerated(EnumType.STRING)
+  Gender gender;
 
-    @Enumerated(EnumType.STRING)
-    CustomerStatus status;
+  @Enumerated(EnumType.STRING)
+  CustomerStatus status;
 
-    @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    List<Report> reports;
+  int loyaltyPoints;
 
-    int loyaltyPoints;
+  @Enumerated(EnumType.STRING)
+  MemberShipLevel memberShipLevel;
 
-    @Enumerated(EnumType.STRING)
-    MemberShipLevel memberShipLevel;
+  @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  List<Report> reports;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    List<TestDrive> customerTest;
+  @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  List<TestDrive> customerTest;
+
+  @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Quotation> quotations = new HashSet<>();
 }

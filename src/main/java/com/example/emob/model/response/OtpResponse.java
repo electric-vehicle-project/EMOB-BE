@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
 
 import lombok.*;
@@ -9,5 +10,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OtpResponse {
-    String token;
+  String token;
 }

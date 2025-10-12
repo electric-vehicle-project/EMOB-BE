@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -20,35 +19,37 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ElectricVehicle {
-    @Id @UuidGenerator UUID id;
+  @Id @GeneratedValue UUID id;
 
-    String brand;
-    String model;
-    float importPrice;
-    float retailPrice;
-    Float batteryKwh;
-    Integer rangeKm;
-    Float chargeTimeHr;
-    Float powerKw;
-    boolean isDeleted = false;
+  String brand;
+  String model;
+  float importPrice;
+  float retailPrice;
+  Float batteryKwh;
+  Integer rangeKm;
+  Float chargeTimeHr;
+  Float powerKw;
+  boolean isDeleted = false;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "electric_vehicle_images",
-            joinColumns = @JoinColumn(name = "vehicle_id"))
-    @Column(name = "image_url")
-    List<String> images;
+  @ElementCollection
+  @CollectionTable(name = "electric_vehicle_images", joinColumns = @JoinColumn(name = "vehicle_id"))
+  @Column(name = "image_url")
+  List<String> images;
 
-    Float weightKg;
-    Float topSpeedKmh;
+  Float weightKg;
+  Float topSpeedKmh;
 
-    @Enumerated(EnumType.STRING)
-    VehicleType type;
+  @Enumerated(EnumType.STRING)
+  VehicleType type;
 
-    LocalDate createdAt;
+  LocalDate createdAt;
 
-    @ManyToMany(mappedBy = "vehicles")
-    Set<Promotion> promotions = new HashSet<>();
-    @OneToMany(mappedBy = "vehicle",cascade = CascadeType.ALL,orphanRemoval = true)
-    Set<VehicleUnit> vehicleUnits;
+  @ManyToMany(mappedBy = "vehicles")
+  Set<Promotion> promotions = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<VehicleUnit> vehicleUnits = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<QuotationItem> quotationItems = new HashSet<>();
 }

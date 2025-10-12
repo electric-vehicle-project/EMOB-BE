@@ -17,32 +17,32 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "TestDrive")
 public class TestDrive {
-    @Id
-    @GeneratedValue
-    @Column(columnDefinition = "BINARY(16)", unique = true)
-    UUID id;
+  @Id
+  @GeneratedValue
+  @Column(columnDefinition = "BINARY(16)", unique = true)
+  UUID id;
 
-    String location;
+  String location;
 
-    @Enumerated(EnumType.STRING)
-    TestStatus status;
+  @Enumerated(EnumType.STRING)
+  TestStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "salesperson", referencedColumnName = "id")
-    Account salesperson;
+  @ManyToOne
+  @JoinColumn(name = "salesperson", referencedColumnName = "id")
+  Account salesperson;
 
-    @ManyToOne
-    @JoinColumn(name = "customer", referencedColumnName = "id")
-    Customer customer;
+  @ManyToOne
+  @JoinColumn(name = "customer", referencedColumnName = "id")
+  Customer customer;
 
-    int duration;
+  int duration;
 
-    LocalDateTime scheduledAt;
+  LocalDateTime scheduledAt;
 
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
+  LocalDateTime createAt;
+  LocalDateTime updateAt;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicleUnit", referencedColumnName = "id")
-    VehicleUnit vehicleUnit;
+  @ManyToOne
+  @JoinColumn(name = "vehicleUnit", referencedColumnName = "id")
+  VehicleUnit vehicleUnit;
 }

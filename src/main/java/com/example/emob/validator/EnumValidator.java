@@ -10,11 +10,11 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = {EnumValidatorClass.class})
 public @interface EnumValidator {
 
-    Class<? extends Enum<?>> enumClass();
+  Class<? extends Enum<?>> enumClass();
 
-    String message() default "Enum is not match";
+  String message() default "Enum is not match";
 
-    Class<?>[] groups() default {};
+  Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+  Class<? extends Payload>[] payload() default {};
 }

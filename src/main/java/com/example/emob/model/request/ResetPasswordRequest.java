@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.model.request;
 
 import lombok.*;
@@ -9,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ResetPasswordRequest {
-    String token;
-    String newPassword;
+  String token;
+  String newPassword;
 }
