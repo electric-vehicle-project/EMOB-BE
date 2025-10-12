@@ -1,7 +1,9 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.PromotionScope;
 import com.example.emob.model.request.promotion.PromotionRequest;
+import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/evm-staff/promotion")
+@RequestMapping("/api/promotion")
 @SecurityRequirement(name = "api")
 @Tag(name = "Promotion Controller", description = "Endpoints for managing promotions")
 public class PromotionController {
@@ -44,12 +46,12 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createPromotion(request));
   }
 
-  @PutMapping("/{id}")
-  @Operation(summary = "Update Promotion")
-  public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion(
-      @RequestBody @Valid UpdatePromotionRequest request, @PathVariable("id") UUID id) {
-    return ResponseEntity.ok(promotionService.updatePromotion(request, id));
-  }
+    @PutMapping("/{id}")
+    @Operation(summary = "Update Promotion")
+    public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion (@RequestBody @Valid UpdatePromotionRequest request,
+                                                                            @PathVariable("id") UUID id) {
+        return ResponseEntity.ok(promotionService.updatePromotion(request, id));
+    }
 
   @GetMapping("/{id}")
   @Operation(summary = "View Promotion")
@@ -59,16 +61,22 @@ public class PromotionController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Promotion")
-  public ResponseEntity<APIResponse<PromotionResponse>> deletePromotion(
-      @PathVariable("id") UUID id) {
+  public ResponseEntity<APIResponse<Void>> deletePromotion(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.deletePromotion(id));
   }
 
-  @GetMapping("/view-all")
-  @Operation(summary = "View All Promotion")
-  public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllPromotions(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageResponse = PageRequest.of(page, size);
-    return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse));
-  }
+    @GetMapping("/view-all/{scope}")
+    @Operation(summary = "View All Promotion")
+    public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions (@RequestParam(defaultValue = "0") int page,
+                                                                                                @RequestParam(defaultValue = "10") int size,
+                                                                                                @RequestParam @PathVariable("scope") PromotionScope scope) {
+        Pageable pageResponse = PageRequest.of(page, size);
+        return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
+    }
+
+    @PutMapping("/value/{id}")
+        public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion (@RequestBody @Valid PromotionValueRequest request,
+                                                                                       @PathVariable("id") UUID id) {
+        return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
+    }
 }
