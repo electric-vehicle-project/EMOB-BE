@@ -53,7 +53,7 @@ public class EmailService implements IEmail {
             // thông tin người gửi
             helper.setFrom("cn100705@gmail.com", "Showroom EMOB");
             helper.setTo(toEmail);
-                helper.setSubject(headerType);
+            helper.setSubject(headerType);
             helper.setText(htmlContent, true); // true = HTML
 
             mailSender.send(message);

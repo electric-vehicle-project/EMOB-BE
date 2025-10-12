@@ -4,6 +4,7 @@ package com.example.emob.config;
 import com.example.emob.security.CustomAccessDeniedHandler;
 import com.example.emob.security.CustomAuthenticationEntryPoint;
 import com.example.emob.service.AuthenticationService;
+
 import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -47,19 +48,18 @@ public class SecurityConfig {
 
     // ADMIN
     public static final String[] ADMIN = {
-            "/api/dealer/**",
+        "/api/dealer/**",
     };
 
     public static final String[] DEALER_STAFF = {
-            "/api/report/**",
-            "/api/test-drive/**",
-//            "/api/promotion/**",
+        "/api/dealer-staff/report/**",
+            "/api/dealer-staff/test-drive/**",
+            "/api/contract/**"
     };
 
     public static final String[] EVM_STAFF = {
-            "/api/promotion/**",
-            "/api/vehicle/**",
-//            "/api/promotion/**",
+        "/api/vehicle/**",
+        "/api/promotion"
     };
 
     public static final String[] MANAGER = {
@@ -85,36 +85,36 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http.cors(Customizer.withDefaults()) // bật cors ở security
-        .csrf(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
-            req ->
-                req.requestMatchers(PUBLIC)
-                    .permitAll()
-                    .requestMatchers(SWAGGER)
-                    .permitAll()
-                    .requestMatchers(DEALER_STAFF)
-                    .hasRole("DEALER_STAFF")
-                    .requestMatchers(EVM_STAFF)
-                    .hasRole("EVM_STAFF")
-                    .requestMatchers(MANAGER)
-                    .hasRole("MANAGER")
-                    .requestMatchers(ADMIN)
-                    .hasRole("ADMIN")
-                    .requestMatchers(AUTHENTICATED)
-                    .authenticated()
-                    .anyRequest()
-                    .denyAll())
-        .exceptionHandling(
-            ex ->
-                ex.authenticationEntryPoint(authenticationEntryPoint)
-                    .accessDeniedHandler(accessDeniedHandler))
-        .userDetailsService(authenticationService)
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
-        .build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.cors(Customizer.withDefaults()) // bật cors ở security
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(
+                        req ->
+                                req.requestMatchers(PUBLIC)
+                                        .permitAll()
+                                        .requestMatchers(SWAGGER)
+                                        .permitAll()
+                                        .requestMatchers(DEALER_STAFF)
+                                        .hasRole("DEALER_STAFF")
+                                        .requestMatchers(EVM_STAFF)
+                                        .hasRole("EVM_STAFF")
+                                        .requestMatchers(MANAGER)
+                                        .hasRole("MANAGER")
+                                        .requestMatchers(ADMIN)
+                                        .hasRole("ADMIN")
+                                        .requestMatchers(AUTHENTICATED)
+                                        .authenticated()
+                                        .anyRequest()
+                                        .denyAll())
+                .exceptionHandling(
+                        ex ->
+                                ex.authenticationEntryPoint(authenticationEntryPoint)
+                                        .accessDeniedHandler(accessDeniedHandler))
+                .userDetailsService(authenticationService)
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 }

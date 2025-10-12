@@ -6,4 +6,6 @@ public interface NotificationHelper {
     String REMIND_TEST_DRIVE = "🔔";
     String EMAIL = "📩";
     String OTP = "🛡️";
+    String REMIND_CONTRACT = "📝";
+    String SIGN_CONTRACT = "🎉";
 }

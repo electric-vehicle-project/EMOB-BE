@@ -1,8 +1,6 @@
-/* EMOB-2025 */
 package com.example.emob.model.request.schedule;
 
 import com.example.emob.constant.TestStatus;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
