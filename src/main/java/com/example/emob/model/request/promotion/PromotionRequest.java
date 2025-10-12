@@ -20,7 +20,6 @@ import lombok.experimental.FieldDefaults;
 public class PromotionRequest {
     Set<UUID> dealerId;
     Set<UUID> electricVehiclesId;
-    @NotNull
-    String name;
+    @NotNull String name;
     String description;
 }

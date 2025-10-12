@@ -1,4 +1,4 @@
-/* EMOB-2025 */
+
 package com.example.emob.repository;
 
 import com.example.emob.entity.ElectricVehicle;
