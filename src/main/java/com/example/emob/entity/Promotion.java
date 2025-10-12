@@ -45,10 +45,8 @@ public class Promotion {
   @Enumerated(EnumType.STRING)
   PromotionStatus status;
 
-  LocalDateTime createAt;
-  LocalDateTime updateAt;
-
-  MemberShipLevel memberShipLevel;
+    LocalDateTime createAt;
+    LocalDateTime updateAt;
 
   @ManyToOne
   @JoinColumn(name = "created_by", referencedColumnName = "id")

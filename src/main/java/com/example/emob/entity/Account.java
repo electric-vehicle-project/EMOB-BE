@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 @Entity
 @Builder
 @Getter
@@ -48,10 +49,7 @@ public class Account implements UserDetails {
   @Column(unique = true)
   String email;
 
-  String password;
-
-  @Enumerated(EnumType.STRING)
-  MemberShipLevel memberShipLevel;
+    String password;
 
   @ManyToOne
   @JoinColumn(name = "dealer_id")
@@ -62,9 +60,9 @@ public class Account implements UserDetails {
   @JsonIgnore
   Set<Report> reports = new HashSet<>();
 
-  @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
-  @JsonIgnore
-  Set<TestDrive> createTest = new HashSet<>();
+    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<TestDrive> testDrives = new HashSet<>();
 
   @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore

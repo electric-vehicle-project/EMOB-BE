@@ -1,7 +1,9 @@
-/* EMOB-2025 */
 package com.example.emob.service;
 
-import com.example.emob.constant.*;
+import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
+import com.example.emob.constant.Role;
 import com.example.emob.entity.Account;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.ElectricVehicle;
@@ -10,6 +12,7 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.PromotionMapper;
 import com.example.emob.model.request.promotion.PromotionRequest;
+import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
@@ -19,32 +22,67 @@ import com.example.emob.repository.DealerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.PromotionRepository;
 import com.example.emob.service.impl.IPromotion;
+import com.example.emob.util.AccountUtil;
 import com.example.emob.util.PromotionHelper;
-import java.time.LocalDateTime;
-import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class PromotionService implements IPromotion {
 
-  @Autowired DealerRepository dealerRepository;
+    @Autowired
+    DealerRepository dealerRepository;
 
-  @Autowired PromotionRepository promotionRepository;
+    @Autowired
+    PromotionRepository promotionRepository;
 
-  @Autowired PromotionMapper promotionMapper;
+    @Autowired
+    PromotionMapper promotionMapper;
 
-  @Autowired AccountRepository accountRepository;
+    @Autowired
+    PageMapper pageMapper;
 
-  @Autowired PageMapper pageMapper;
+    @Autowired
+    ElectricVehicleRepository electricVehicleRepository;
 
-  @Autowired ElectricVehicleRepository electricVehicleRepository;
+
+    // tự động cập nhật status promotion sau 1p
+    @Scheduled(fixedRate =  300000)
+    public void autoUpdatePromotionStatus() {
+        try {
+                List<Promotion> promotions = promotionRepository.findAll();
+                for (Promotion p : promotions) {
+//                     nếu bị xóa rồi thì bỏ qua
+                    if (p.getStatus().equals(PromotionStatus.INACTIVE)) {
+                        continue;
+                    }
+                    PromotionStatus newStatus = PromotionHelper.determinePromotionStatus(p.getStartDate(), p.getEndDate());
+                    if (newStatus != p.getStatus()) {
+                        p.setStatus(newStatus);
+                        promotionRepository.save(p);
+                    }
+            }
+        } catch (Exception ex) {
+            System.out.println("Lỗi: " + ex.getMessage());
+        }
+
+    }
 
   @Override
   @Transactional
@@ -117,84 +155,116 @@ public class PromotionService implements IPromotion {
     }
   }
 
-  @Override
-  public APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id) {
-    if (request.getStartDate().isAfter(request.getEndDate())) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    }
-    if (request.getValue() < request.getMinValue()) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    }
-    Promotion promotion =
-        promotionRepository
-            .findById(id)
-            .filter((item) -> !(item.getStatus().equals(PromotionStatus.INACTIVE)))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    if (request.getStartDate().isAfter(LocalDateTime.now())) {
-      promotion.setStatus(PromotionStatus.UPCOMING);
-    } else if (request.getEndDate().isBefore(LocalDateTime.now())) {
-      promotion.setStatus(PromotionStatus.EXPIRED);
-    } else {
-      promotion.setStatus(PromotionStatus.ACTIVE);
+    @Override
+    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+    public APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id) {
+        Promotion promotion = promotionRepository.findById(id).filter((item) ->
+                        (item.getStatus().equals(PromotionStatus.UPCOMING)))
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        try {
+            // mapper
+            promotion.setUpdateAt(LocalDateTime.now());
+            promotion.setName(request.getName());
+            promotion.setDescription(request.getDescription());
+            promotionRepository.save(promotion);
+            PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
+            return APIResponse.success(promotionResponse, "Update promotion successfully");
+        } catch (DataIntegrityViolationException ex) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+        } catch (DataAccessException ex) {
+            throw new GlobalException(ErrorCode.DB_ERROR);
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
     }
 
-    try {
-      Set<UUID> vehiclesToIds = promotionMapper.vehiclesToIds(promotion.getVehicles());
-      Set<UUID> dealersToIds = promotionMapper.dealersToIds(promotion.getDealers());
-      promotionMapper.updatePromotionFromRequest(request, promotion);
-      promotion.setUpdateAt(LocalDateTime.now());
-      promotionRepository.save(promotion);
-      PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-      promotionResponse.setDealerId(dealersToIds);
-      promotionResponse.setVehicleId(vehiclesToIds);
-      return APIResponse.success(promotionResponse, "Update promotion successfully");
-    } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
-    } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
+    public void updatePromotionDetail (PromotionValueRequest request,
+                                       Promotion promotion) {
+        promotion.setValue(request.getValue());
+        promotion.setMinValue(request.getMinPrice());
+        promotion.setStartDate(request.getStartDate());
+        promotion.setEndDate(request.getEndDate());
+        promotion.setType(request.getType());
     }
-  }
-
-  @Override
-  public APIResponse<PromotionResponse> deletePromotion(UUID id) {
-    Promotion promotion =
-        promotionRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    try {
-      promotion.setStatus(PromotionStatus.INACTIVE);
-      promotionRepository.save(promotion);
-      return APIResponse.error(200, "Delete promotion successfully");
-    } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
-    } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
-    } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public APIResponse<PromotionResponse> createValuePromotion(UUID id, PromotionValueRequest request) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        try {
+            if (promotion.getScope().equals(PromotionScope.GLOBAL) &&
+                    AccountUtil.getCurrentUser().getRole().equals(Role.ADMIN)) {
+                updatePromotionDetail(request, promotion);
+                promotionRepository.save(promotion);
+                PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
+                return APIResponse.success(promotionResponse, "Create promotion for global successfully");
+            } else if (promotion.getScope().equals(PromotionScope.LOCAL) &&
+                    Role.MANAGER.equals(AccountUtil.getCurrentUser().getRole())) {
+                updatePromotionDetail(request, promotion);
+                promotionRepository.save(promotion);
+                PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
+                return APIResponse.success(promotionResponse, "Create promotion for local successfully");
+            } else {
+                throw new GlobalException(ErrorCode.UNAUTHORIZED);
+            }
+        } catch (DataIntegrityViolationException ex) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+        } catch (DataAccessException ex) {
+            throw new GlobalException(ErrorCode.DB_ERROR);
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
     }
-  }
 
-  @Override
-  public APIResponse<PromotionResponse> viewPromotion(UUID id) {
-    Promotion promotion =
-        promotionRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    Set<UUID> uuids = promotionMapper.dealersToIds(promotion.getDealers());
-    Set<UUID> vehiclesToIds = promotionMapper.vehiclesToIds(promotion.getVehicles());
-    PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
-    promotionResponse.setDealerId(uuids);
-    promotionResponse.setVehicleId(vehiclesToIds);
-    return APIResponse.success(promotionResponse, "View Promotion Successfully");
-  }
 
-  @Override
-  public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(Pageable pageable) {
-    Page<Promotion> promotions = promotionRepository.findAll(pageable);
-    PageResponse<PromotionResponse> promotionResponsePageResponse =
-        pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
-    return APIResponse.success(promotionResponsePageResponse, "View All Promotions Successfully");
-  }
+    @Override
+    public APIResponse<Void> deletePromotion(UUID id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        try {
+            if (promotion.getScope().equals(PromotionScope.GLOBAL) &&
+                    AccountUtil.getCurrentUser().getRole().equals(Role.ADMIN)) {
+                promotion.setStatus(PromotionStatus.INACTIVE);
+                promotionRepository.save(promotion);
+            } else if (promotion.getScope().equals(PromotionScope.LOCAL) &&
+                    Role.MANAGER.equals(AccountUtil.getCurrentUser().getRole())) {
+                promotion.setStatus(PromotionStatus.INACTIVE);
+                promotionRepository.save(promotion);
+            } else {
+                throw new GlobalException(ErrorCode.UNAUTHORIZED);
+            }
+            return APIResponse.success(null, "Delete promotion successfully");
+        } catch (DataIntegrityViolationException ex) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+        } catch (DataAccessException ex) {
+            throw new GlobalException(ErrorCode.DB_ERROR);
+        } catch (Exception ex) {
+            throw new GlobalException(ErrorCode.OTHER);
+        }
+    }
+
+    @Override
+    public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(Pageable pageable, PromotionScope scope) {
+        if (scope.equals(PromotionScope.LOCAL)) {
+            Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.LOCAL, pageable);
+            PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
+            return APIResponse.success(promotionResponsePageResponse, "View All Lccal Promotions Successfully");
+        } else if (scope.equals(PromotionScope.GLOBAL)) {
+            Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
+            PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
+            return APIResponse.success(promotionResponsePageResponse, "View All Global Promotions Successfully");
+        } else {
+            Page<Promotion> promotions = promotionRepository.findAll(pageable);
+            PageResponse<PromotionResponse> promotionResponsePageResponse = pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
+            return APIResponse.success(promotionResponsePageResponse, "View All Promotions Successfully");
+        }
+    }
+
+    @Override
+    public APIResponse<PromotionResponse> viewPromotion(UUID id) {
+        Promotion promotion = promotionRepository.findById(id)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
+        return APIResponse.success(promotionResponse, "View Promotion Successfully");
+    }
 }
