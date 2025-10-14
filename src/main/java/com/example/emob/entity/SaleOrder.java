@@ -53,7 +53,4 @@ public class SaleOrder {
 //    @JoinColumn(name = "account", referencedColumnName = "id")
 //    Account account;
 //
-//    @ManyToOne
-//    @JoinColumn(name = "dealer", referencedColumnName = "id")
-//    Dealer dealer;
 }

@@ -4,6 +4,7 @@ package com.example.emob.controller;
 import com.example.emob.model.request.DealerRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.DealerResponse;
+import com.example.emob.model.response.OrderHistoryDealerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.service.DealerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -102,5 +105,11 @@ public class DealerController {
   public ResponseEntity<APIResponse<DealerResponse>> deleteDealer(@PathVariable UUID id) {
     dealerService.delete(id);
     return ResponseEntity.ok(dealerService.delete(id));
+  }
+
+  @GetMapping("/history/{id}")
+  @Operation(summary = "View Order History Dealer")
+  public ResponseEntity<APIResponse<List<OrderHistoryDealerResponse>>> viewOrderHistory(@PathVariable("id") @RequestParam UUID id) {
+    return ResponseEntity.ok(dealerService.viewOrderHistory(id));
   }
 }

@@ -4,16 +4,20 @@ package com.example.emob.service;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Inventory;
+import com.example.emob.entity.SaleOrder;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.DealerRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.DealerResponse;
+import com.example.emob.model.response.OrderHistoryDealerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.DealerRepository;
+import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IDealer;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,9 @@ public class DealerService implements IDealer {
   @Autowired DealerMapper dealerMapper;
 
   @Autowired PageMapper pageMapper;
+
+  @Autowired
+  SaleOrderRepository orderRepository;
 
   @Override
   public APIResponse<DealerResponse> create(DealerRequest request) {
@@ -105,4 +112,26 @@ public class DealerService implements IDealer {
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
+
+  @Override
+  public APIResponse<List<OrderHistoryDealerResponse>> viewOrderHistory(UUID id) {
+    Dealer dealer = dealerRepository.findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    List<SaleOrder> orders = orderRepository.findAllByDealerId(dealer.getId());
+
+    List<OrderHistoryDealerResponse> responses = orders.stream()
+            .map(item ->
+                    OrderHistoryDealerResponse.builder()
+                            .orderId(item.getId())
+                            .orderDate(item.getCreateAt())
+                            .orderStatus(item.getOrderStatus())
+                            .paymentStatus(item.getPaymentStatus())
+                            .price(item.getSalePrice())
+                            .contractNumber(item.getContract().getContractNumber())
+                            .signDate(item.getContract().getSignDate())
+                            .build()
+                    ).toList();
+    return APIResponse.success(responses, "View Order History Dealer Successfully");
+  }
 }
+/*                            .deliveryStatus(item.getContract().getDelivery().getStatus()) */
