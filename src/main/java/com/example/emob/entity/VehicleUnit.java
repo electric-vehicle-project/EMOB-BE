@@ -25,7 +25,7 @@ public class VehicleUnit {
 
   @Column(name = "vin_number", unique = true, nullable = false, length = 17)
   String vinNumber;
-
+  double price;
   LocalDateTime purchaseDate;
   LocalDate warrantyStart;
   LocalDate warrantyEnd;

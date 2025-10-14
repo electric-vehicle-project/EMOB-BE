@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VehicleUnitResponse {
   String vinNumber;
-
+  double price;
   LocalDateTime purchaseDate;
   LocalDate warrantyStart;
   LocalDate warrantyEnd;
