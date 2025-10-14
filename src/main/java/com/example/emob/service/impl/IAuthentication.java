@@ -14,13 +14,13 @@ public interface IAuthentication {
 
   APIResponse<AccountResponse> register(RegisterRequest request);
 
-    APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
-    void logout(TokenRequest refreshRequest);
+  APIResponse<AccountResponse> refresh(TokenRequest refreshRequest);
 
-    void forgotPassword (OtpRequest request);
+  void logout(TokenRequest refreshRequest);
 
-    APIResponse<OtpResponse> verifyOtp (OtpRequest request, String otp);
+  void forgotPassword(OtpRequest request);
 
-    void resetPassword (String token, String newPassword);
+  APIResponse<OtpResponse> verifyOtp(OtpRequest request, String otp);
 
+  APIResponse<Void> resetPassword(String token, String newPassword);
 }

@@ -3,7 +3,6 @@ package com.example.emob.model.request.promotion;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

@@ -8,21 +8,20 @@ import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.PromotionResponse;
-
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IPromotion {
-  APIResponse<PromotionResponse> createPromotion (PromotionRequest request);
+  APIResponse<PromotionResponse> createPromotion(PromotionRequest request);
 
-  APIResponse<PromotionResponse> updatePromotion (UpdatePromotionRequest request, UUID id);
+  APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id);
 
-  APIResponse<Void> deletePromotion (UUID id);
+  APIResponse<Void> deletePromotion(UUID id);
 
-  APIResponse<PromotionResponse> viewPromotion (UUID id);
+  APIResponse<PromotionResponse> viewPromotion(UUID id);
 
-  APIResponse<PromotionResponse> createValuePromotion (UUID id, PromotionValueRequest request);
+  APIResponse<PromotionResponse> createValuePromotion(UUID id, PromotionValueRequest request);
 
-  APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(Pageable pageable, PromotionScope scope);
+  APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
+      Pageable pageable, PromotionScope scope);
 }

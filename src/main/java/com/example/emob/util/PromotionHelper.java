@@ -8,12 +8,9 @@ import com.example.emob.constant.PromotionType;
 import com.example.emob.entity.Promotion;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PromotionMapper;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.example.emob.repository.PromotionRepository;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 
 public class PromotionHelper {
     public static PromotionStatus determinePromotionStatus (LocalDateTime startDate, LocalDateTime endDate) {

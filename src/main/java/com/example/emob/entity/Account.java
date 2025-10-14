@@ -3,7 +3,6 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
-import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -15,7 +14,6 @@ import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 
 @Entity
 @Builder
@@ -49,7 +47,7 @@ public class Account implements UserDetails {
   @Column(unique = true)
   String email;
 
-    String password;
+  String password;
 
   @ManyToOne
   @JoinColumn(name = "dealer_id")
@@ -60,9 +58,9 @@ public class Account implements UserDetails {
   @JsonIgnore
   Set<Report> reports = new HashSet<>();
 
-    @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<TestDrive> testDrives = new HashSet<>();
+  @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  Set<TestDrive> testDrives = new HashSet<>();
 
   @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore
