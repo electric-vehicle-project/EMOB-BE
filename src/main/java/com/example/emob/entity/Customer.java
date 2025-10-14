@@ -49,6 +49,7 @@ public class Customer {
 
   @Enumerated(EnumType.STRING)
   MemberShipLevel memberShipLevel;
+
   @OneToMany(mappedBy = "reportBy", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore
   List<Report> reports;
