@@ -36,6 +36,9 @@ public enum ErrorCode {
     NOT_FOUND_ENUM("Field enum not found", HttpStatus.NOT_FOUND),
     INVALID_STATUS("Invalid status", HttpStatus.BAD_REQUEST),
     EXPIRED_CONTRACT("Contract is expired", HttpStatus.BAD_REQUEST),
+    INVENTORY_INVALID("Inventory is invalid", HttpStatus.BAD_REQUEST),
+    INVALID_QUANTITY("Quantity is invalid", HttpStatus.BAD_REQUEST),
+    VEHICLE_DUPLICATED("Vehicle is duplicated", HttpStatus.BAD_REQUEST),
     VEHICLE_PRICE_NOT_SET("Vehicle price not set", HttpStatus.BAD_REQUEST),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
 

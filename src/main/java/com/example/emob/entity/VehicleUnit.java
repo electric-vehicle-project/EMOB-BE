@@ -39,8 +39,15 @@ public class VehicleUnit {
   @JsonIgnore
   ElectricVehicle vehicle;
 
-  @ManyToOne
-  @JoinColumn(name = "inventory_id")
-  @JsonIgnore
-  Inventory inventory;
+    @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    Set<TestDrive> testDrive;
+
+    @ManyToOne
+    @JoinColumn(name = "inventory_id")
+    @JsonIgnore
+    Inventory inventory;
+
+    @OneToOne(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    DeliveryItem deliveryItem;
 }

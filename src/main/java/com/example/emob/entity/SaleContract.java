@@ -38,4 +38,7 @@ public class SaleContract {
     @ManyToOne
     @JoinColumn(name = "created_by", referencedColumnName = "id")
     Account account;
+
+    @OneToOne(mappedBy = "saleContract", cascade = CascadeType.ALL)
+    Delivery delivery;
 }

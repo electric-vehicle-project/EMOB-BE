@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/api/auth/reset-password",
             "/api/auth/verify-otp",
             "/api/public/**",
+            "/api/delivery/**"
 
     };
 
@@ -54,7 +55,8 @@ public class SecurityConfig {
     public static final String[] DEALER_STAFF = {
         "/api/dealer-staff/report/**",
             "/api/dealer-staff/test-drive/**",
-            "/api/contract/**"
+            "/api/contract/**",
+            "/api/customers/**"
     };
 
     public static final String[] EVM_STAFF = {
