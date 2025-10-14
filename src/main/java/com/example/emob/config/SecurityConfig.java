@@ -48,7 +48,7 @@ public class SecurityConfig {
 
     // ADMIN
     public static final String[] ADMIN = {
-        "/api/dealer/**",
+        "/api/dealer/**","/api/vehicle-price-rules"
     };
 
     public static final String[] DEALER_STAFF = {
