@@ -25,8 +25,6 @@ public class DeliveryItem {
     DeliveryItemStatus status;
     String remarks;
 
-    int quantity;
-
     LocalDateTime createAt;
     LocalDateTime updateAt;
 
@@ -37,7 +35,7 @@ public class DeliveryItem {
     @JsonIgnore
     Delivery delivery;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vehicle_unit_id")
     @JsonIgnore
     VehicleUnit vehicleUnit;

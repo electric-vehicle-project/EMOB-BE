@@ -1,6 +1,5 @@
 package com.example.emob.service.impl;
 
-import com.example.emob.model.request.contract.CreateContractRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.ContractResponse;
 import com.example.emob.model.response.PageResponse;

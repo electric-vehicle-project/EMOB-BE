@@ -38,7 +38,4 @@ public class Dealer {
 
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Quotation> quotations = new HashSet<>();
-
-  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
-  Set<SaleOrder> saleOrders = new HashSet<>();
 }

@@ -1,7 +1,9 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.PromotionScope;
 import com.example.emob.model.request.promotion.PromotionRequest;
+import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
@@ -14,9 +16,12 @@ public interface IPromotion {
 
   APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id);
 
-  APIResponse<PromotionResponse> deletePromotion(UUID id);
+  APIResponse<Void> deletePromotion(UUID id);
 
   APIResponse<PromotionResponse> viewPromotion(UUID id);
 
-  APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(Pageable pageable);
+  APIResponse<PromotionResponse> createValuePromotion(UUID id, PromotionValueRequest request);
+
+  APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
+      Pageable pageable, PromotionScope scope);
 }

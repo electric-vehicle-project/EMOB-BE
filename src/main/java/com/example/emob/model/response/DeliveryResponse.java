@@ -1,7 +1,6 @@
 package com.example.emob.model.response;
 
-import com.example.emob.constant.PromotionStatus;
-import com.example.emob.entity.DeliveryItem;
+import com.example.emob.constant.DeliveryStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,8 +15,8 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeliveryResponse {
     UUID id;
-    Set<DeliveryItem> deliveryItems;
+    Set<DeliveryItemResponse> deliveryItems;
     LocalDateTime deliveryDate;
     int quantity;
-    PromotionStatus status;
+    DeliveryStatus status;
 }

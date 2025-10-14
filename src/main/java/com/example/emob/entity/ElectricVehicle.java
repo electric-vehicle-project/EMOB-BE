@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -20,7 +19,7 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ElectricVehicle {
-  @Id @UuidGenerator UUID id;
+  @Id @GeneratedValue UUID id;
 
   String brand;
   String model;

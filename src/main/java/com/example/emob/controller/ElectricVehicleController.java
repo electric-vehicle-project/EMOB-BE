@@ -1,7 +1,5 @@
-/* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.entity.VehicleUnit;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -55,8 +53,6 @@ public class ElectricVehicleController {
                                         {
                                           "brand": "Tesla",
                                           "model": "Model S Plaid",
-                                          "importPrice": 90000,
-                                          "retailPrice": 120000,
                                           "batteryKwh": 100,
                                           "rangeKm": 650,
                                           "chargeTimeHr": 1.5,
@@ -64,7 +60,7 @@ public class ElectricVehicleController {
                                           "images": ["https://example.com/tesla-models-front.jpg", "https://example.com/tesla-models-side.jpg"],
                                           "weightKg": 2200,
                                           "topSpeedKmh": 322,
-                                          "type": "CAR"
+                                          "type": "TRUCK"
                                         }
                                         """),
                         @ExampleObject(
@@ -74,8 +70,6 @@ public class ElectricVehicleController {
                                         {
                                           "brand": "Yadea",
                                           "model": "G5",
-                                          "importPrice": 900,
-                                          "retailPrice": 1500,
                                           "batteryKwh": 2.5,
                                           "rangeKm": 70,
                                           "chargeTimeHr": 3.5,
@@ -83,7 +77,7 @@ public class ElectricVehicleController {
                                           "images": ["https://example.com/yadea-g5-front.png", "https://example.com/yadea-g5-side.png"],
                                           "weightKg": 88,
                                           "topSpeedKmh": 65,
-                                          "type": "SCOOTER"
+                                          "type": "HATCHBACK"
                                         }
                                         """),
                         @ExampleObject(
@@ -93,8 +87,6 @@ public class ElectricVehicleController {
                                         {
                                           "brand": "Niu",
                                           "model": "MQi+ Sport",
-                                          "importPrice": 1200,
-                                          "retailPrice": 1800,
                                           "batteryKwh": 1.6,
                                           "rangeKm": 80,
                                           "chargeTimeHr": 4,
@@ -102,7 +94,7 @@ public class ElectricVehicleController {
                                           "images": ["https://example.com/niu-mqi-sport.png"],
                                           "weightKg": 70,
                                           "topSpeedKmh": 45,
-                                          "type": "BIKE"
+                                          "type": "MOTORBIKE"
                                         }
                                         """)
                       })))

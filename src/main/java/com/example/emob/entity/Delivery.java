@@ -24,20 +24,23 @@ public class Delivery {
     UUID id;
 
     LocalDateTime deliveryDate;
+
     int quantity;
 
     boolean isDeleted;
 
     @Enumerated(EnumType.STRING)
     DeliveryStatus status;
+
     LocalDateTime createAt;
 
     LocalDateTime updateAt;
 
+    LocalDateTime confirmAt;
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "saleContract_id")
     SaleContract saleContract;
 
     @OneToMany(mappedBy =  "delivery", orphanRemoval = true, cascade = CascadeType.ALL)
-    Set<DeliveryItem> deliveryItem = new HashSet<>();
+    Set<DeliveryItem> deliveryItems = new HashSet<>();
 }

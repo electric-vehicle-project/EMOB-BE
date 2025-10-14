@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/api/dealer-staff/report")
+@RequestMapping("/api/report")
 @SecurityRequirement(name = "api")
 @Tag(name = "Report Controller", description = "Endpoints for managing reports")
 public class ReportController {
   @Autowired ReportService reportService;
 
-  @PostMapping()
+  @PostMapping
   @Operation(
       summary = "Generate Report",
       requestBody =

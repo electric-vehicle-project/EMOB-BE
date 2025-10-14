@@ -3,7 +3,6 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
-import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -50,9 +49,6 @@ public class Account implements UserDetails {
 
   String password;
 
-  @Enumerated(EnumType.STRING)
-  MemberShipLevel memberShipLevel;
-
   @ManyToOne
   @JoinColumn(name = "dealer_id")
   @JsonIgnore
@@ -64,7 +60,7 @@ public class Account implements UserDetails {
 
   @OneToMany(mappedBy = "salesperson", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore
-  Set<TestDrive> createTest = new HashSet<>();
+  Set<TestDrive> testDrives = new HashSet<>();
 
   @OneToMany(mappedBy = "createBy", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore

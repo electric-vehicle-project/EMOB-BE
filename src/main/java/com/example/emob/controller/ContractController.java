@@ -81,7 +81,7 @@ public class ContractController {
     }
 
     @PostMapping()
-    public ResponseEntity<APIResponse<ContractResponse>> create (@RequestParam UUID id) {
+    public ResponseEntity<APIResponse<ContractResponse>> create (UUID id) {
         return ResponseEntity.ok(contractService.createContract(id));
     }
 }

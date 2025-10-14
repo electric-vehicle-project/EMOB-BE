@@ -38,6 +38,7 @@ public enum ErrorCode {
     EXPIRED_CONTRACT("Contract is expired", HttpStatus.BAD_REQUEST),
     INVENTORY_INVALID("Inventory is invalid", HttpStatus.BAD_REQUEST),
     INVALID_QUANTITY("Quantity is invalid", HttpStatus.BAD_REQUEST),
+    VEHICLE_DUPLICATED("Vehicle is duplicated", HttpStatus.BAD_REQUEST),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
 
   final String message;

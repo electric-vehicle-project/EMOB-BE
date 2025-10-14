@@ -39,10 +39,10 @@ public class TestDrive {
 
   LocalDateTime scheduledAt;
 
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
+  LocalDateTime createAt;
+  LocalDateTime updateAt;
 
-    @ManyToOne
-    @JoinColumn(name = "vehicleUnit", referencedColumnName = "id")
-    VehicleUnit vehicleUnit;
+  @ManyToOne
+  @JoinColumn(name = "vehicleUnit", referencedColumnName = "id")
+  VehicleUnit vehicleUnit;
 }

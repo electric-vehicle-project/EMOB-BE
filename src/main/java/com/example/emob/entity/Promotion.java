@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.entity;
 
-import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionStatus;
 import com.example.emob.constant.PromotionType;
@@ -47,8 +46,6 @@ public class Promotion {
 
   LocalDateTime createAt;
   LocalDateTime updateAt;
-
-  MemberShipLevel memberShipLevel;
 
   @ManyToOne
   @JoinColumn(name = "created_by", referencedColumnName = "id")
