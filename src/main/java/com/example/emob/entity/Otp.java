@@ -17,8 +17,11 @@ import org.springframework.data.redis.core.index.Indexed;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Otp implements Serializable {
-  @Id String otp;
-  @Indexed String accountId;
+  @Id
+  @Indexed
+  String accountId;
+  String otp;
   @TimeToLive Long ttl;
   String token;
+  int resendCount; // số lần gửi lại otp
 }

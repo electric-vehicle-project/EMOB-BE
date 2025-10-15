@@ -23,4 +23,6 @@ public interface IAuthentication {
   APIResponse<OtpResponse> verifyOtp(OtpRequest request, String otp);
 
   APIResponse<Void> resetPassword(String token, String newPassword);
-}
+
+  void resendOtp ();
+ }

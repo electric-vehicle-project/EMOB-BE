@@ -17,8 +17,10 @@ import com.example.emob.model.response.OtpResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.OtpRepository;
 import com.example.emob.service.impl.IAuthentication;
+import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
 import java.security.SecureRandom;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   private final SecureRandom secureRandom = new SecureRandom();
 
-  final long DURATION = 5;
+  final long DURATION = 300L;
 
   @Override
   public void forgotPassword(OtpRequest request) {
@@ -65,9 +67,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     String otpCode = String.format("%05d", secureRandom.nextInt(100_000));
     // lưu vào redis và sẽ hết hạn 5p
     otp.setOtp(otpCode);
-    otp.setTtl(System.currentTimeMillis() + DURATION * 60 * 1000);
+    otp.setTtl(DURATION);
     otp.setAccountId(account.getId().toString());
-
     otpRepository.save(otp);
 
     // gửi email
@@ -101,10 +102,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             .findFirst()
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     if (otp == null) {
-      throw new RuntimeException("No OTP set");
-    }
-    if (otp.getTtl() < System.currentTimeMillis()) {
-      throw new RuntimeException("OTP expired");
+      throw new RuntimeException("No OTP set or expired");
     }
     if (!otp.getOtp().equals(otpCode)) {
       throw new RuntimeException("Invalid OTP");
@@ -129,6 +127,50 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     accountRepository.save(account);
     return APIResponse.success(null, "Reset password successfully");
   }
+
+  public boolean checkSpamOtp (String accountId) {
+    Optional<Otp> otpToken = otpRepository.findById(accountId);
+    if (otpToken.isEmpty()) return true;
+    Otp otp = otpToken.get();
+    return otp.getResendCount() < 3;
+  }
+
+  @Override
+  public void resendOtp() {
+    Account account = AccountUtil.getCurrentUser();
+    if (account == null) {
+      throw new GlobalException(ErrorCode.NOT_FOUND);
+    }
+    if (checkSpamOtp(account.getId().toString())) {
+      throw new GlobalException(ErrorCode.TOO_MANY_OTP);
+    }
+    String newOtpCode = String.format("%05d", secureRandom.nextInt(100_000));
+    Otp newOtp = new Otp();
+    newOtp.setOtp(newOtpCode);
+    newOtp.setTtl(DURATION);
+    newOtp.setAccountId(account.getId().toString());
+    // check spam otp
+    newOtp.setResendCount(newOtp.getResendCount() + 1);
+    otpRepository.save(newOtp);
+    // Gửi lại email
+    emailService.sendEmail(
+            "Mã OTP mới của bạn",
+            "Gửi lại OTP",
+            "Mã OTP xác thực tài khoản",
+            NotificationHelper.OTP,
+            "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!",
+            "chưa truyền",
+            """
+                            Mã OTP mới của bạn là: %s
+                            Mã này sẽ hết hạn sau 5 phút.
+                            """.formatted(newOtpCode),
+            "Nếu bạn không yêu cầu gửi lại, vui lòng bỏ qua email này.",
+            account.getFullName(),
+            "Xác thực ngay",
+            account.getEmail()
+    );
+  }
+
 
   @Override
   public APIResponse<AccountResponse> login(LoginRequest request) {

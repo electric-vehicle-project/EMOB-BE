@@ -43,6 +43,10 @@ public class AuthenticationController {
     return authenticationService.resetPassword(request.getToken(), request.getNewPassword());
   }
 
+  @PostMapping("/resend-otp")
+  public void resendOtp () {
+      authenticationService.resendOtp();
+  }
   @PostMapping("/login")
   @Operation(
       summary = "Login Account",
