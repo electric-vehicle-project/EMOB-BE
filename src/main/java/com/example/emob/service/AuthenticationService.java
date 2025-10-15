@@ -87,7 +87,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             + "Tài khoản của bạn vẫn an toàn.",
         account.getFullName(),
         "Đặt lại mật khẩu ngay",
-        "zuongm52@gmail.com");
+            account.getEmail());
   }
 
   @Override
