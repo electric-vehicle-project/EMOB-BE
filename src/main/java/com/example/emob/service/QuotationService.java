@@ -28,6 +28,7 @@ public class QuotationService implements IQuotation {
   @Autowired private PromotionRepository promotionRepository;
   @Autowired private CustomerRepository customerRepository;
   @Autowired private DealerRepository dealerRepository;
+  @Autowired private VehiclePriceRuleService vehiclePriceRuleService;
 
   @Override
   public APIResponse<QuotationResponse> create(QuotationRequest request) {
@@ -43,20 +44,27 @@ public class QuotationService implements IQuotation {
 
 
       for(QuotationItemRequest itemRequest : request.getItems()){
-          QuotationItem items = createQuotationItem(itemRequest);
+          QuotationItem item = createQuotationItem(itemRequest);
+          VehiclePriceRule priceRule = vehiclePriceRuleService.getRule(item.getVehicleStatus());
+          //hệ số giá
+          double multiplier = priceRule.getMultiplier();
+
+
+
           if(dealer == null){
             //báo giá cho customer - giá bán
-            price = items.getVehicle().getRetailPrice();
+            price = item.getVehicle().getRetailPrice() * multiplier;
           }else{
             //báo giá cho dealer - giá nhập
-            price = items.getVehicle().getImportPrice();
+            price = item.getVehicle().getImportPrice() * multiplier;
           }
         //check khuyến mãi
         Promotion promotion = promotionRepository.findById(itemRequest.getPromotionId()) .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "promotion not found"));
         //check promotion valid
         PromotionHelper.checkPromotionValid(promotion);
-        //set discount
-        items.setDiscount(price );
+        //set unit price
+            item.setUnitPrice(price);
+            item.setTotalPrice(price * item.getQuantity());
 
 
 
@@ -95,11 +103,14 @@ public class QuotationService implements IQuotation {
     ElectricVehicle vehicle = electricVehicleRepository
             .findById(request.getVehicleId())
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle not found"));
+
+
+
     return QuotationItem.builder()
             .color(request.getColor())
             .quantity(request.getQuantity())
+            .vehicleStatus(request.getVehicleStatus())
             .vehicle(vehicle)
-            .totalPrice(request.getQuantity() * vehicle.getRetailPrice())
             .build();
   }
 

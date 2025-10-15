@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuotationItemResponse {
     ElectricVehicleResponse vehicle;
-    PromotionResponse promotion;
+    List<UUID> promotionIds;
     String color;
     int quantity;
 }

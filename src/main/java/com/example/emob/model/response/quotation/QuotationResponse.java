@@ -20,7 +20,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuotationResponse {
-  List<QuotationItemRequest> items;
-  CustomerResponse customer;
+  List<QuotationItemResponse> items;
+  UUID customerId;
   Dealer dealer;
 }

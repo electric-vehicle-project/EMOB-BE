@@ -2,6 +2,8 @@
 package com.example.emob.model.request.quotation;
 
 import java.util.UUID;
+
+import com.example.emob.constant.VehicleStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 public class QuotationItemRequest {
   UUID vehicleId;
   UUID promotionId;
+  VehicleStatus vehicleStatus;
   String color;
   int quantity;
 }

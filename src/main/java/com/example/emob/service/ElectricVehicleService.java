@@ -180,6 +180,7 @@ public class ElectricVehicleService implements IVehicle {
       List<VehicleUnitResponse> responses = savedUnits.stream()
               .map(unit -> {
                 VehicleUnitResponse resp = vehicleMapper.toVehicleUnitResponse(unit);
+                resp.setVehicleUnitId(unit.getId());
                 resp.setColor(unit.getColor()); // lấy color trực tiếp từ entity
                 return resp;
               })
