@@ -214,7 +214,7 @@ public class ElectricVehicleController {
                                       "warrantyStart": "2025-10-10",
                                       "warrantyEnd": "2028-10-10",
                                       "productionYear": "2025-01-01",
-                                      "status": "IN_STOCK"
+                                      "status": "NORMAL"
                                     }
                                     """),
                         @ExampleObject(
