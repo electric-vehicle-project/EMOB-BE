@@ -17,6 +17,7 @@ import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.PromotionHistoryDealerResponse;
 import com.example.emob.model.response.PromotionResponse;
 import com.example.emob.repository.DealerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
@@ -76,17 +77,12 @@ public class PromotionService implements IPromotion {
 
   @Override
   @Transactional
-  //    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
   public APIResponse<PromotionResponse> createPromotion(PromotionRequest request) {
     // tim staff
     Account staff = AccountUtil.getCurrentUser();
-    System.out.println("vào chưa: " + staff.getId());
-
     // tìm mẫu xe
-    System.out.println("re: " + request.getElectricVehiclesId());
     Set<ElectricVehicle> electricVehicles =
         new HashSet<>(electricVehicleRepository.findAllById(request.getElectricVehiclesId()));
-    System.out.println("vào chưa: " + electricVehicles);
     if (electricVehicles.isEmpty()) throw new GlobalException(ErrorCode.NOT_FOUND);
     try {
       Promotion promotion = promotionMapper.toPromotion(request);
@@ -138,7 +134,7 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
-  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+
   public APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id) {
     Promotion promotion =
         promotionRepository
@@ -171,7 +167,6 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public APIResponse<PromotionResponse> createValuePromotion(
       UUID id, PromotionValueRequest request) {
     Promotion promotion =
@@ -252,6 +247,29 @@ public class PromotionService implements IPromotion {
           pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
       return APIResponse.success(promotionResponsePageResponse, "View All Promotions Successfully");
     }
+  }
+
+  @Override
+  public APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId) {
+    Dealer dealer = dealerRepository.findById(dealerId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    List<Promotion> promotions = promotionRepository.findAllByDealersId(dealer.getId());
+    List<PromotionResponse> responses = promotions
+            .stream().map((promotion) ->
+                    PromotionResponse.builder().id(promotion.getId())
+                      .name(promotion.getName())
+                      .description(promotion.getDescription())
+                      .type(promotion.getType())
+                      .value(promotion.getValue())
+                      .minValue(promotion.getMinValue())
+                      .startDate(promotion.getStartDate())
+                      .endDate(promotion.getEndDate())
+                      .scope(promotion.getScope())
+                      .status(promotion.getStatus())
+                      .createAt(promotion.getCreateAt())
+                      .build())
+            .toList();
+    return APIResponse.success(responses, "View History Dealer Promotion Successfully");
   }
 
   @Override

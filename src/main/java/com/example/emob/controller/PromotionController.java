@@ -15,11 +15,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class PromotionController {
   @Autowired PromotionService promotionService;
 
+  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
   @PostMapping
   @Operation(
       summary = "Generate Promotion",
@@ -46,6 +50,7 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createPromotion(request));
   }
 
+  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
   @PutMapping("/{id}")
   @Operation(summary = "Update Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion(
@@ -53,12 +58,14 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.updatePromotion(request, id));
   }
 
+  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
   @GetMapping("/{id}")
   @Operation(summary = "View Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> viewPromotion(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.viewPromotion(id));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Promotion")
   public ResponseEntity<APIResponse<Void>> deletePromotion(@PathVariable("id") UUID id) {
@@ -75,9 +82,17 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/value/{id}")
   public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
       @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
+  }
+
+  @PreAuthorize("hasRole('DEALER_STAFF') or hasRole('MANAGER')")
+  @GetMapping("/history")
+  @Operation(summary = "View History Dealer Promotion")
+  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion (UUID id) {
+    return ResponseEntity.ok(promotionService.viewHistoryDealerPromotion(id));
   }
 }

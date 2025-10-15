@@ -40,11 +40,11 @@ public class SecurityConfig {
             "/api/auth/refresh",
             "/api/auth/refresh-token",
             "/api/auth/forgot-password",
-            "/api/auth/reset-password",
+//            "/api/auth/reset-password",
             "/api/auth/verify-otp",
+            "/api/auth/resend-otp",
             "/api/public/**",
             "/api/delivery/**"
-
     };
 
     // ADMIN
@@ -70,7 +70,8 @@ public class SecurityConfig {
     };
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
-            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**"
+            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**", "/api/auth/reset-password",
+            "/api/promotion/**"
     };
     public static final String[] SWAGGER = {
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

@@ -17,6 +17,7 @@ import com.example.emob.model.response.OtpResponse;
 import com.example.emob.repository.AccountRepository;
 import com.example.emob.repository.OtpRepository;
 import com.example.emob.service.impl.IAuthentication;
+import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
 import java.security.SecureRandom;
 import java.util.UUID;
@@ -121,7 +122,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   public APIResponse<Void> resetPassword(String token, String newPassword) {
-    Account account = tokenService.verifyResetToken(token);
+    Account account = AccountUtil.getCurrentUser();
     if (account == null) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
