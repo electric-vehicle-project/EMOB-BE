@@ -18,7 +18,8 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Dealer {
-  @Id @UuidGenerator UUID id;
+  @Id @UuidGenerator
+  UUID id;
 
   String name;
   String contactInfo;
@@ -38,4 +39,7 @@ public class Dealer {
 
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Quotation> quotations = new HashSet<>();
+
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<SaleOrder> saleOrders = new HashSet<>();
 }
