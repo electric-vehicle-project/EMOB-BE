@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     ErrorCode errorCode = exception.getErrorCode();
     APIResponse<Object> apiResponse = new APIResponse<>();
     apiResponse.setCode(errorCode.getCode());
-    apiResponse.setMessage(errorCode.getMessage());
+    apiResponse.setMessage(exception.getMessage());
 
     return ResponseEntity.status(errorCode.getStatus()).body(apiResponse);
   }
@@ -76,6 +76,7 @@ public class GlobalExceptionHandler {
       HttpMessageNotReadableException exception) {
     APIResponse<Object> apiResponse = new APIResponse<>();
     apiResponse.setCode(ErrorCode.NOT_FOUND_ENUM.getCode());
+    log.info(exception.getMessage());
     apiResponse.setMessage(ErrorCode.NOT_FOUND_ENUM.getMessage());
     return ResponseEntity.status(ErrorCode.NOT_FOUND_ENUM.getStatus()).body(apiResponse);
   }
@@ -85,7 +86,7 @@ public class GlobalExceptionHandler {
       IllegalArgumentException exception) {
     APIResponse<Object> apiResponse = new APIResponse<>();
     apiResponse.setCode(ErrorCode.FIELDS_EMPTY.getCode());
-    apiResponse.setMessage(ErrorCode.FIELDS_EMPTY.getMessage());
+    apiResponse.setMessage(exception.getMessage());
     return ResponseEntity.status(ErrorCode.FIELDS_EMPTY.getStatus()).body(apiResponse);
   }
 }

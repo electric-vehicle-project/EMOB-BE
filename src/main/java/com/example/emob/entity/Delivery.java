@@ -1,15 +1,15 @@
+/* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.DeliveryStatus;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.UuidGenerator;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -19,28 +19,27 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Delivery {
-    @Id
-    @UuidGenerator
-    UUID id;
+  @Id @UuidGenerator UUID id;
 
-    LocalDateTime deliveryDate;
+  LocalDateTime deliveryDate;
 
-    int quantity;
+  int quantity;
 
-    boolean isDeleted;
+  boolean isDeleted;
 
-    @Enumerated(EnumType.STRING)
-    DeliveryStatus status;
+  @Enumerated(EnumType.STRING)
+  DeliveryStatus status;
 
-    LocalDateTime createAt;
+  LocalDateTime createAt;
 
-    LocalDateTime updateAt;
+  LocalDateTime updateAt;
 
-    LocalDateTime confirmAt;
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "saleContract_id")
-    SaleContract saleContract;
+  LocalDateTime confirmAt;
 
-    @OneToMany(mappedBy =  "delivery", orphanRemoval = true, cascade = CascadeType.ALL)
-    Set<DeliveryItem> deliveryItems = new HashSet<>();
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "saleContract_id")
+  SaleContract saleContract;
+
+  @OneToMany(mappedBy = "delivery", orphanRemoval = true, cascade = CascadeType.ALL)
+  Set<DeliveryItem> deliveryItems = new HashSet<>();
 }

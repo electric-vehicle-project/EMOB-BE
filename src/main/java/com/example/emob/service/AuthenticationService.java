@@ -88,7 +88,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             + "Tài khoản của bạn vẫn an toàn.",
         account.getFullName(),
         "Đặt lại mật khẩu ngay",
-            account.getEmail());
+        account.getEmail());
   }
 
   @Override
@@ -128,7 +128,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     return APIResponse.success(null, "Reset password successfully");
   }
 
-  public boolean checkSpamOtp (String accountId) {
+  public boolean checkSpamOtp(String accountId) {
     Optional<Otp> otpToken = otpRepository.findById(accountId);
     if (otpToken.isEmpty()) return true;
     Otp otp = otpToken.get();
@@ -154,23 +154,22 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     otpRepository.save(newOtp);
     // Gửi lại email
     emailService.sendEmail(
-            "Mã OTP mới của bạn",
-            "Gửi lại OTP",
-            "Mã OTP xác thực tài khoản",
-            NotificationHelper.OTP,
-            "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!",
-            "chưa truyền",
-            """
+        "Mã OTP mới của bạn",
+        "Gửi lại OTP",
+        "Mã OTP xác thực tài khoản",
+        NotificationHelper.OTP,
+        "Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!",
+        "chưa truyền",
+        """
                             Mã OTP mới của bạn là: %s
                             Mã này sẽ hết hạn sau 5 phút.
-                            """.formatted(newOtpCode),
-            "Nếu bạn không yêu cầu gửi lại, vui lòng bỏ qua email này.",
-            account.getFullName(),
-            "Xác thực ngay",
-            account.getEmail()
-    );
+                            """
+            .formatted(newOtpCode),
+        "Nếu bạn không yêu cầu gửi lại, vui lòng bỏ qua email này.",
+        account.getFullName(),
+        "Xác thực ngay",
+        account.getEmail());
   }
-
 
   @Override
   public APIResponse<AccountResponse> login(LoginRequest request) {
@@ -214,7 +213,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     try {
       // Mã hóa mật khẩu trước khi lưu
       account.setPassword(passwordEncoder.encode(request.getPassword()));
-
       // Lưu tài khoản vào DB
       Account newAccount = accountRepository.save(account);
 

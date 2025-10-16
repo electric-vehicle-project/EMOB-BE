@@ -23,6 +23,7 @@ public class Dealer {
   String name;
   String contactInfo;
   String country;
+  String address;
   LocalDateTime createdAt;
   boolean isDeleted;
 
@@ -38,4 +39,10 @@ public class Dealer {
 
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Quotation> quotations = new HashSet<>();
+
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<DealerDiscountPolicy> discountPolicies = new HashSet<>();
+
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Customer> customers = new HashSet<>();
 }

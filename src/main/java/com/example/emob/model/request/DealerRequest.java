@@ -15,4 +15,5 @@ public class DealerRequest {
   String contactInfo;
 
   String country;
+  String address;
 }

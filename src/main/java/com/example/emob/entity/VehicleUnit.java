@@ -1,10 +1,10 @@
-
 /* EMOB-2025 */
 package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -26,7 +26,8 @@ public class VehicleUnit {
 
   @Column(name = "vin_number", unique = true, nullable = false, length = 17)
   String vinNumber;
-  double price;
+
+  BigDecimal price;
   LocalDateTime purchaseDate;
   LocalDate warrantyStart;
   LocalDate warrantyEnd;
@@ -40,15 +41,15 @@ public class VehicleUnit {
   @JsonIgnore
   ElectricVehicle vehicle;
 
-    @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    Set<TestDrive> testDrive;
+  @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  Set<TestDrive> testDrive;
 
-    @ManyToOne
-    @JoinColumn(name = "inventory_id")
-    @JsonIgnore
-    Inventory inventory;
+  @ManyToOne
+  @JoinColumn(name = "inventory_id")
+  @JsonIgnore
+  Inventory inventory;
 
-    @OneToOne(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    DeliveryItem deliveryItem;
+  @OneToOne(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+  DeliveryItem deliveryItem;
 }

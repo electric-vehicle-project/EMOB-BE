@@ -15,8 +15,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PromotionRequest {
-    Set<UUID> dealerId;
-    Set<UUID> electricVehiclesId;
-    @NotNull String name;
-    String description;
+  Set<UUID> dealerId;
+  Set<UUID> electricVehiclesId;
+  @NotNull String name;
+  String description;
 }

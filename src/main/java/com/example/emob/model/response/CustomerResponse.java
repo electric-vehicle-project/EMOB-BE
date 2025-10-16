@@ -5,7 +5,6 @@ import com.example.emob.constant.Gender;
 import com.example.emob.constant.MemberShipLevel;
 import java.time.LocalDate;
 import java.util.UUID;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

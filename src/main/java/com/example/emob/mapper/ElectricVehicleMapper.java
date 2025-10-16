@@ -16,7 +16,6 @@ public interface ElectricVehicleMapper {
 
   ElectricVehicleResponse toVehicleResponse(ElectricVehicle vehicle);
 
-
   VehicleUnitResponse toVehicleUnitResponse(VehicleUnit unit);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

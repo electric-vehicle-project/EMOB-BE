@@ -17,9 +17,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Otp implements Serializable {
-  @Id
-  @Indexed
-  String accountId;
+  @Id @Indexed String accountId;
   String otp;
   @TimeToLive Long ttl;
   String token;
