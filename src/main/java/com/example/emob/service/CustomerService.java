@@ -5,16 +5,22 @@ import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.Customer;
+import com.example.emob.entity.SaleOrder;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.CustomerRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.CustomerResponse;
+import com.example.emob.model.response.OrderCustomerHistoryResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.CustomerRepository;
+import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.ICustomer;
+
+import java.util.List;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +34,9 @@ public class CustomerService implements ICustomer {
   @Autowired CustomerMapper customerMapper;
 
   @Autowired PageMapper pageMapper;
+
+  @Autowired
+  SaleOrderRepository orderRepository;
 
   @Override
   public APIResponse<CustomerResponse> create(CustomerRequest request) {
@@ -116,5 +125,23 @@ public class CustomerService implements ICustomer {
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
+  }
+
+  @Override
+  public APIResponse<List<OrderCustomerHistoryResponse>> viewOrderHistoryCustomer(UUID id) {
+    // tìm customer mún view
+    Customer customer = customerRepository.findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    // lấy danh sách orders
+    List<SaleOrder> saleOrders = orderRepository.findAllByCustomerId(customer.getId());
+    List<OrderCustomerHistoryResponse> responses = saleOrders.stream()
+            .map(order -> OrderCustomerHistoryResponse.builder()
+                    .orderId(order.getId())
+                    .orderDate(order.getSaleDate())
+                    .orderStatus(order.getOrderStatus())
+                    .paymentStatus(order.getPaymentStatus())
+                    .build())
+            .toList();
+    return APIResponse.success(responses, "View History Order Successfully");
   }
 }

@@ -4,6 +4,7 @@ package com.example.emob.controller;
 import com.example.emob.model.request.CustomerRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.CustomerResponse;
+import com.example.emob.model.response.OrderCustomerHistoryResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -102,5 +105,11 @@ public class CustomerController {
     customerService.delete(id);
     return ResponseEntity.ok(
         APIResponse.<Void>builder().code(200).message("Deleted successfully").build());
+  }
+
+  @GetMapping("/history/{id}")
+  @Operation(summary = "Delete Customer by ID")
+  public ResponseEntity<APIResponse<List<OrderCustomerHistoryResponse>>> viewOrderHistory(@RequestParam @PathVariable("id") UUID id) {
+    return ResponseEntity.ok(customerService.viewOrderHistoryCustomer(id));
   }
 }
