@@ -1,9 +1,9 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.delivery;
 
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.UUID;
 
 @Data
 @Builder
@@ -11,6 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateDeliveryItemRequest {
-    UUID vehicleId;
-    String remarks;
+  UUID vehicleId;
+  String remarks;
 }

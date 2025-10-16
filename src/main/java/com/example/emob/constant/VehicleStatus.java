@@ -2,10 +2,10 @@
 package com.example.emob.constant;
 
 public enum VehicleStatus {
-    SPECIAL,
-    TEST_DRIVE,
-    RESERVED,
-    OLD_STOCK,
-    NORMAL,
-    SOLD
+  SPECIAL,
+  TEST_DRIVE,
+  RESERVED,
+  OLD_STOCK,
+  NORMAL,
+  SOLD
 }

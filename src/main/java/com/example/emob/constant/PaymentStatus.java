@@ -1,7 +1,8 @@
+/* EMOB-2025 */
 package com.example.emob.constant;
 
 public enum PaymentStatus {
-    PENDING, // chờ
-    PAID, // đã thanh toán
-    FAIL // thanh toán lỗi
+  PENDING, // chờ
+  PAID, // đã thanh toán
+  FAIL // thanh toán lỗi
 }

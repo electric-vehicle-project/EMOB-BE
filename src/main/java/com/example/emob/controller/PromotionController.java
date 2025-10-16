@@ -75,10 +75,11 @@ public class PromotionController {
     Pageable pageResponse = PageRequest.of(page, size);
     return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
   }
-    @PutMapping("/value/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-        public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion (@RequestBody @Valid PromotionValueRequest request,
-                                                                                       @PathVariable("id") UUID id) {
-        return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
-    }
+
+  @PutMapping("/value/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
+      @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
+    return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
+  }
 }

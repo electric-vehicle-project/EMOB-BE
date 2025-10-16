@@ -17,20 +17,20 @@ import org.hibernate.annotations.UuidGenerator;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InventoryItem {
-    @Id @UuidGenerator UUID id;
+  @Id @UuidGenerator UUID id;
 
-    int quantity;
+  int quantity;
 
-    @Enumerated(EnumType.STRING)
-    InventoryStatus status;
+  @Enumerated(EnumType.STRING)
+  InventoryStatus status;
 
-    @ManyToOne
-    @JoinColumn(name = "inventory_id")
-    @JsonIgnore
-    Inventory inventory;
+  @ManyToOne
+  @JoinColumn(name = "inventory_id")
+  @JsonIgnore
+  Inventory inventory;
 
-    @OneToOne
-    @JoinColumn(name = "vehicle_id")
-    @JsonIgnore
-    ElectricVehicle vehicle;
+  @OneToOne
+  @JoinColumn(name = "vehicle_id")
+  @JsonIgnore
+  ElectricVehicle vehicle;
 }

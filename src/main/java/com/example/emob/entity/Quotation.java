@@ -4,6 +4,7 @@ package com.example.emob.entity;
 import com.example.emob.constant.QuotationStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +22,7 @@ import org.hibernate.annotations.UuidGenerator;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Quotation {
   @Id @UuidGenerator UUID id;
-  double totalPrice;
+  BigDecimal totalPrice;
   int totalQuantity;
   int validUntil;
 

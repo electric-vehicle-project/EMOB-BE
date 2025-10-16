@@ -60,4 +60,8 @@ public class Customer {
 
   @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Quotation> quotations = new HashSet<>();
+
+  @ManyToOne
+  @JoinColumn(name = "dealer_id")
+  Dealer dealer;
 }

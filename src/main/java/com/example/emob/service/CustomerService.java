@@ -14,6 +14,7 @@ import com.example.emob.model.response.CustomerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.service.impl.ICustomer;
+import com.example.emob.util.AccountUtil;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,13 +30,15 @@ public class CustomerService implements ICustomer {
 
   @Autowired PageMapper pageMapper;
 
+  @Autowired DealerPointRuleService dealerPointRuleService;
+
   @Override
   public APIResponse<CustomerResponse> create(CustomerRequest request) {
     try {
       Customer customer = customerMapper.toCustomer(request);
       customer.setStatus(CustomerStatus.ACTIVE);
-      MemberShipLevel memberShipLevel = MemberShipLevel.fromPoints(request.getLoyaltyPoints());
-      customer.setMemberShipLevel(memberShipLevel);
+      customer.setDealer(AccountUtil.getCurrentUser().getDealer());
+      customer.setMemberShipLevel(MemberShipLevel.NORMAL);
       customerRepository.save(customer);
       CustomerResponse response = customerMapper.toCustomerResponse(customer);
       return APIResponse.success(response, "Created successfully");

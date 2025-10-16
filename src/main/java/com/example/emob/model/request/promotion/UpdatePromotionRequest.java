@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdatePromotionRequest {
-    @NotNull String name;
-    String description;
+  @NotNull String name;
+  String description;
 }

@@ -5,7 +5,6 @@ import com.example.emob.constant.VehicleStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

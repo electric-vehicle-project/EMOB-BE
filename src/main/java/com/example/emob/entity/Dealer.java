@@ -42,4 +42,7 @@ public class Dealer {
 
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<DealerDiscountPolicy> discountPolicies = new HashSet<>();
+
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Customer> customers = new HashSet<>();
 }

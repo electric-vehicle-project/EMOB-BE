@@ -1,9 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.model.request.quotation;
 
-import java.util.UUID;
-
 import com.example.emob.constant.VehicleStatus;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

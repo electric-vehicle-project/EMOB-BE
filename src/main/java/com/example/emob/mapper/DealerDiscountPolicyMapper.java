@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.mapper;
 
 import com.example.emob.entity.DealerDiscountPolicy;
@@ -7,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface DealerDiscountPolicyMapper {
-    @Mapping(target = "dealerId", source = "dealer.id")
-    @Mapping(target = "vehicleId", source = "vehicle.id")
-    DealerDiscountPolicyResponse toResponse(DealerDiscountPolicy policy);
+  @Mapping(target = "dealerId", source = "dealer.id")
+  @Mapping(target = "vehicleId", source = "vehicle.id")
+  DealerDiscountPolicyResponse toResponse(DealerDiscountPolicy policy);
 }

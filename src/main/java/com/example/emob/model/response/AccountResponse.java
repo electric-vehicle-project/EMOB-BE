@@ -18,6 +18,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountResponse {
   UUID id;
+  UUID dealerId;
   String fullName;
   Gender gender;
   AccountStatus status;

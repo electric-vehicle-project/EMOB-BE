@@ -2,7 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehiclePriceRule;
@@ -19,9 +18,9 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.VehicleUnitResponse;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
-import com.example.emob.repository.VehiclePriceRuleRepository;
 import com.example.emob.repository.VehicleUnitRepository;
 import com.example.emob.service.impl.IVehicle;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -35,22 +34,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ElectricVehicleService implements IVehicle {
 
-  @Autowired
-  ElectricVehicleRepository vehicleRepository;
+  @Autowired ElectricVehicleRepository vehicleRepository;
 
-  @Autowired
-  ElectricVehicleMapper vehicleMapper;
+  @Autowired ElectricVehicleMapper vehicleMapper;
 
-  @Autowired
-  PageMapper pageMapper;
+  @Autowired PageMapper pageMapper;
 
-  @Autowired
-  InventoryRepository inventoryRepository;
+  @Autowired InventoryRepository inventoryRepository;
 
-  @Autowired
-  VehicleUnitRepository vehicleUnitRepository;
-  @Autowired
-  VehiclePriceRuleService vehiclePriceRuleService;
+  @Autowired VehicleUnitRepository vehicleUnitRepository;
+  @Autowired VehiclePriceRuleService vehiclePriceRuleService;
 
   @Override
   public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
@@ -60,7 +53,7 @@ public class ElectricVehicleService implements IVehicle {
       vehicleRepository.save(vehicle);
 
       return APIResponse.success(
-              vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
 
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
@@ -71,15 +64,15 @@ public class ElectricVehicleService implements IVehicle {
   public APIResponse<ElectricVehicleResponse> update(UUID id, ElectricVehicleRequest request) {
     try {
       ElectricVehicle vehicle =
-              vehicleRepository
-                      .findById(id)
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
       vehicleMapper.updateVehicle(request, vehicle);
       vehicleRepository.save(vehicle);
 
       return APIResponse.success(
-              vehicleMapper.toVehicleResponse(vehicle), "Vehicle updated successfully");
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle updated successfully");
 
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
@@ -90,15 +83,15 @@ public class ElectricVehicleService implements IVehicle {
   public APIResponse<ElectricVehicleResponse> delete(UUID id) {
     try {
       ElectricVehicle vehicle =
-              vehicleRepository
-                      .findById(id)
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
       vehicle.setDeleted(true);
       vehicleRepository.save(vehicle);
 
       return APIResponse.success(
-              vehicleMapper.toVehicleResponse(vehicle), "Vehicle deleted successfully");
+          vehicleMapper.toVehicleResponse(vehicle), "Vehicle deleted successfully");
 
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
@@ -109,9 +102,9 @@ public class ElectricVehicleService implements IVehicle {
   public APIResponse<ElectricVehicleResponse> get(UUID id) {
     try {
       ElectricVehicle vehicle =
-              vehicleRepository
-                      .findById(id)
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
       return APIResponse.success(vehicleMapper.toVehicleResponse(vehicle));
 
@@ -125,7 +118,7 @@ public class ElectricVehicleService implements IVehicle {
     try {
       Page<ElectricVehicle> page = vehicleRepository.findAll(pageable);
       PageResponse<ElectricVehicleResponse> response =
-              pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
+          pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
       return APIResponse.success(response);
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
@@ -135,74 +128,71 @@ public class ElectricVehicleService implements IVehicle {
   @Override
   @Transactional
   public APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request) {
-    try {
-      // Tìm mẫu xe
-      ElectricVehicle vehicle =
-              vehicleRepository
-                      .findById(request.getVehicleId())
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-      if(vehicle.getRetailPrice() == 0 || vehicle.getImportPrice() == 0){
-        throw new GlobalException(ErrorCode.VEHICLE_PRICE_NOT_SET);
-      }
-      // Tìm kho của hãng
-      Inventory inventory =
-              inventoryRepository
-                      .findInventoryByIsCompanyTrue()
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-      //tìm VehiclePriceRule
 
-
-
-      // Tạo danh sách VehicleUnit
-      List<VehicleUnit> units =
-              IntStream.range(0, request.getQuantity())
-                      .mapToObj(
-                              i -> {
-                                VehiclePriceRule rule = vehiclePriceRuleService.getRule(request.getStatus());
-                                double multiplier = rule.getMultiplier();
-                                VehicleUnit unit = vehicleMapper.toVehicleUnit(request, vehicle);
-                                unit.setInventory(inventory);
-                                unit.setColor(request.getColor());
-                                unit.setStatus(request.getStatus());
-                                unit.setPrice(vehicle.getImportPrice() * multiplier);
-                                return unit;
-                              })
-                      .toList();
-
-      // Lưu tất cả VehicleUnit
-      List<VehicleUnit> savedUnits = vehicleUnitRepository.saveAll(units);
-
-      // Cập nhật tổng số lượng trong kho
-      inventory.setQuantity(inventory.getQuantity() + savedUnits.size());
-      inventoryRepository.save(inventory);
-
-      // Mapping sang Response
-      List<VehicleUnitResponse> responses = savedUnits.stream()
-              .map(unit -> {
-                VehicleUnitResponse resp = vehicleMapper.toVehicleUnitResponse(unit);
-                resp.setVehicleUnitId(unit.getId());
-                resp.setColor(unit.getColor()); // lấy color trực tiếp từ entity
-                return resp;
-              })
-              .toList();
-
-      return APIResponse.success(
-              responses,
-              "Created " + savedUnits.size() + " vehicle units and linked to company inventory.");
-
-    } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+    // Tìm mẫu xe
+    ElectricVehicle vehicle =
+        vehicleRepository
+            .findById(request.getVehicleId())
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    if (vehicle.getRetailPrice().compareTo(BigDecimal.ZERO) == 0
+        || vehicle.getImportPrice().compareTo(BigDecimal.ZERO) == 0) {
+      throw new GlobalException(ErrorCode.VEHICLE_PRICE_NOT_SET);
     }
+    // Tìm kho của hãng
+    Inventory inventory =
+        inventoryRepository
+            .findInventoryByIsCompanyTrue()
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    // tìm VehiclePriceRule
+
+    // Tạo danh sách VehicleUnit
+    List<VehicleUnit> units =
+        IntStream.range(0, request.getQuantity())
+            .mapToObj(
+                i -> {
+                  VehiclePriceRule rule = vehiclePriceRuleService.getRule(request.getStatus());
+                  double multiplier = rule.getMultiplier();
+                  VehicleUnit unit = vehicleMapper.toVehicleUnit(request, vehicle);
+                  unit.setInventory(inventory);
+                  unit.setColor(request.getColor());
+                  unit.setStatus(request.getStatus());
+                  unit.setPrice(vehicle.getImportPrice().multiply(BigDecimal.valueOf(multiplier)));
+                  return unit;
+                })
+            .toList();
+
+    // Lưu tất cả VehicleUnit
+    List<VehicleUnit> savedUnits = vehicleUnitRepository.saveAll(units);
+
+    // Cập nhật tổng số lượng trong kho
+    inventory.setQuantity(inventory.getQuantity() + savedUnits.size());
+    inventoryRepository.save(inventory);
+
+    // Mapping sang Response
+    List<VehicleUnitResponse> responses =
+        savedUnits.stream()
+            .map(
+                unit -> {
+                  VehicleUnitResponse resp = vehicleMapper.toVehicleUnitResponse(unit);
+                  resp.setVehicleUnitId(unit.getId());
+                  resp.setColor(unit.getColor()); // lấy color trực tiếp từ entity
+                  return resp;
+                })
+            .toList();
+
+    return APIResponse.success(
+        responses,
+        "Created " + savedUnits.size() + " vehicle units and linked to company inventory.");
   }
 
   @Override
   public APIResponse<ElectricVehicleResponse> updatePrices(
-          UUID id, ElectricVehiclePriceRequest request) {
+      UUID id, ElectricVehiclePriceRequest request) {
     try {
       ElectricVehicle vehicle =
-              vehicleRepository
-                      .findById(id)
-                      .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+          vehicleRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
       vehicle.setImportPrice(request.getImportPrice());
       vehicle.setRetailPrice(request.getRetailPrice());
@@ -216,22 +206,23 @@ public class ElectricVehicleService implements IVehicle {
     }
   }
 
-  @Transactional
-  @Override
-  public void autoUpdateVehiclePrices(Double basePrice) {
-    List<VehicleUnit> vehicles = vehicleUnitRepository.findAll();
-    for (VehicleUnit v : vehicles) {
-      // Lấy rule theo enum
-      if(v.getStatus().equals(VehicleStatus.SOLD) || v.getStatus().equals(VehicleStatus.RESERVED)){
-        continue;
-      }
-      VehiclePriceRule rule = vehiclePriceRuleService.getRule(v.getStatus());
-      double multiplier = rule.getMultiplier();
-
-      double finalPrice = basePrice * multiplier;
-      v.setPrice(finalPrice);
-      vehicleUnitRepository.save(v);
-    }
-  }
+  //  @Transactional
+  //  @Override
+  //  public void autoUpdateVehiclePrices(BigDecimal basePrice) {
+  //    List<VehicleUnit> vehicles = vehicleUnitRepository.findAll();
+  //    for (VehicleUnit v : vehicles) {
+  //      // Lấy rule theo enum
+  //      if(v.getStatus().equals(VehicleStatus.SOLD) ||
+  // v.getStatus().equals(VehicleStatus.RESERVED)){
+  //        continue;
+  //      }
+  //      VehiclePriceRule rule = vehiclePriceRuleService.getRule(v.getStatus());
+  //      double multiplier = rule.getMultiplier();
+  //
+  //      BigDecimal finalPrice = basePrice.multiply(BigDecimal.valueOf(multiplier));
+  //      v.setPrice(finalPrice);
+  //      vehicleUnitRepository.save(v);
+  //    }
+  //  }
 
 }

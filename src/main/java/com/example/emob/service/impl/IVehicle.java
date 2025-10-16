@@ -26,5 +26,5 @@ public interface IVehicle {
   APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
   APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
-  void  autoUpdateVehiclePrices(Double basePrice);
+  //  void  autoUpdateVehiclePrices(Double basePrice);
 }

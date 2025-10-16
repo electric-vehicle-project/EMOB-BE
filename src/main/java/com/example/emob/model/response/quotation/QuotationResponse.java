@@ -1,17 +1,14 @@
 /* EMOB-2025 */
 package com.example.emob.model.response.quotation;
 
-import com.example.emob.entity.Dealer;
-import com.example.emob.model.request.quotation.QuotationItemRequest;
-import com.example.emob.model.response.CustomerResponse;
-import com.example.emob.model.response.ElectricVehicleResponse;
-import com.example.emob.model.response.PromotionResponse;
+import com.example.emob.constant.QuotationStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +17,14 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuotationResponse {
-  List<QuotationItemResponse> items;
+  UUID id;
+  Set<QuotationItemResponse> items;
   UUID customerId;
-  Dealer dealer;
+  UUID dealerId;
+  UUID accountId;
+  BigDecimal totalPrice;
+  int totalQuantity;
+  int validUntil;
+  QuotationStatus status;
+  LocalDateTime createdAt;
 }

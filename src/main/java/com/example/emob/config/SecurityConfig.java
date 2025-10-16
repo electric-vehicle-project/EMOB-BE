@@ -5,8 +5,6 @@ import com.example.emob.security.CustomAccessDeniedHandler;
 import com.example.emob.security.CustomAuthenticationEntryPoint;
 import com.example.emob.security.Filter;
 import com.example.emob.service.AuthenticationService;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,58 +25,53 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    @Autowired
-    Filter filter;
-    @Autowired private AuthenticationService authenticationService;
+  @Autowired Filter filter;
+  @Autowired private AuthenticationService authenticationService;
 
-    @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
-    @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
+  @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
+  @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    // Public
-    public static final String[] PUBLIC = {
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/logout",
-            "/api/auth/refresh",
-            "/api/auth/refresh-token",
-            "/api/auth/forgot-password",
-            "/api/auth/verify-otp",
-            "/api/public/**",
-            "/api/delivery/**",
-            "/api/dealer-point-rules/**"
-    };
+  // Public
+  public static final String[] PUBLIC = {
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/logout",
+    "/api/auth/refresh",
+    "/api/auth/refresh-token",
+    "/api/auth/forgot-password",
+    "/api/auth/verify-otp",
+    "/api/public/**",
+    "/api/delivery/**",
+    "/api/dealer-point-rules/**"
+  };
 
-    // ADMIN
-    public static final String[] ADMIN = {
-        "/api/dealer/**","/api/vehicle-price-rules"
-    };
+  // ADMIN
+  public static final String[] ADMIN = {
+    "/api/dealer/**", "/api/vehicle-price-rules", "/api/vehicle/{id}/prices",
+  };
 
-    public static final String[] DEALER_STAFF = {
+  public static final String[] DEALER_STAFF = {
+    "/api/report/**",
+    "/api/test-drive/**",
+    "/api/contract/**",
+    "/api/customers/**",
+    "/api/quotation/**",
+  };
 
-            "/api/report/**",
-            "/api/test-drive/**",
-             "/api/contract/**",
-            "/api/customers/**"
+  public static final String[] EVM_STAFF = {
+    "/api/vehicle", "/api/vehicle/bulk",
+  };
 
-    };
-
-    public static final String[] EVM_STAFF = {
-
-            "/api/vehicle/**",
-
-    };
-
-    public static final String[] MANAGER = {
-            "/api/test-drive/schedules/**",
-            "/api/report/process-report/**",
-    };
-    // Authenticated chung
-    public static final String[] AUTHENTICATED = {
-            "/api/notifications/**","/api/promotion/**",
-    };
-    public static final String[] SWAGGER = {
-            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
-    };
+  public static final String[] MANAGER = {
+    "/api/test-drive/schedules/**", "/api/report/process-report/**",
+  };
+  // Authenticated chung
+  public static final String[] AUTHENTICATED = {
+    "/api/notifications/**", "/api/promotion/**",
+  };
+  public static final String[] SWAGGER = {
+    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
+  };
 
   @Bean
   public PasswordEncoder encoder() {
@@ -91,36 +84,36 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(Customizer.withDefaults()) // bật cors ở security
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        req ->
-                                req.requestMatchers(PUBLIC)
-                                        .permitAll()
-                                        .requestMatchers(SWAGGER)
-                                        .permitAll()
-                                        .requestMatchers(DEALER_STAFF)
-                                        .hasRole("DEALER_STAFF")
-                                        .requestMatchers(EVM_STAFF)
-                                        .hasRole("EVM_STAFF")
-                                        .requestMatchers(MANAGER)
-                                        .hasRole("MANAGER")
-                                        .requestMatchers(ADMIN)
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(AUTHENTICATED)
-                                        .authenticated()
-                                        .anyRequest()
-                                        .denyAll())
-                .exceptionHandling(
-                        ex ->
-                                ex.authenticationEntryPoint(authenticationEntryPoint)
-                                        .accessDeniedHandler(accessDeniedHandler))
-                .userDetailsService(authenticationService)
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http.cors(Customizer.withDefaults()) // bật cors ở security
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            req ->
+                req.requestMatchers(PUBLIC)
+                    .permitAll()
+                    .requestMatchers(SWAGGER)
+                    .permitAll()
+                    .requestMatchers(DEALER_STAFF)
+                    .hasRole("DEALER_STAFF")
+                    .requestMatchers(EVM_STAFF)
+                    .hasRole("EVM_STAFF")
+                    .requestMatchers(MANAGER)
+                    .hasRole("MANAGER")
+                    .requestMatchers(ADMIN)
+                    .hasRole("ADMIN")
+                    .requestMatchers(AUTHENTICATED)
+                    .authenticated()
+                    .anyRequest()
+                    .denyAll())
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler))
+        .userDetailsService(authenticationService)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
 }
