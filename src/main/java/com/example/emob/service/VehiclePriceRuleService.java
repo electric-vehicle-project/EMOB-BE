@@ -33,8 +33,4 @@ public class VehiclePriceRuleService {
         vehiclePriceRuleRepository.findAll().forEach(rules::add);
         return APIResponse.success(rules);
     }
-
-
-
-
 }
