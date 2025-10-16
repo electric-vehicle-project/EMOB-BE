@@ -1,6 +1,7 @@
 package com.example.emob.model.request.delivery;
 
 import com.example.emob.constant.DeliveryStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,5 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateDeliveryRequest {
+    @NotNull(message = "Delivery date cannot be null")
     LocalDateTime deliveryDate;
 }
