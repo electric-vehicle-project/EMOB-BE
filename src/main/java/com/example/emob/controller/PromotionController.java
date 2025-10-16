@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class PromotionController {
   @Autowired PromotionService promotionService;
 
-  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   @PostMapping
   @Operation(
       summary = "Generate Promotion",
@@ -50,7 +50,7 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createPromotion(request));
   }
 
-  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   @PutMapping("/{id}")
   @Operation(summary = "Update Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion(
@@ -58,7 +58,7 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.updatePromotion(request, id));
   }
 
-  @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   @GetMapping("/{id}")
   @Operation(summary = "View Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> viewPromotion(@PathVariable("id") UUID id) {
@@ -77,7 +77,7 @@ public class PromotionController {
   public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam @PathVariable("scope") PromotionScope scope) {
+      @RequestParam @PathVariable("scope") List<PromotionScope> scope) {
     Pageable pageResponse = PageRequest.of(page, size);
     return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
   }
@@ -89,7 +89,7 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
   }
 
-  @PreAuthorize("hasRole('DEALER_STAFF') or hasRole('MANAGER')")
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")
   public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion (UUID id) {

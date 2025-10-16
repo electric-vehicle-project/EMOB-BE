@@ -54,24 +54,31 @@ public class PromotionService implements IPromotion {
   @Autowired ElectricVehicleRepository electricVehicleRepository;
 
   // tự động cập nhật status promotion sau 1p
+  @Transactional
   @Scheduled(fixedRate = 300000)
   public void autoUpdatePromotionStatus() {
     try {
       List<Promotion> promotions = promotionRepository.findAll();
       for (Promotion p : promotions) {
         //                     nếu bị xóa rồi thì bỏ qua
-        if (p.getStatus().equals(PromotionStatus.INACTIVE)) {
+        if (PromotionStatus.INACTIVE.equals(p.getStatus())) {
+          continue;
+        }
+        if (p.getStartDate() == null || p.getEndDate() == null) {
           continue;
         }
         PromotionStatus newStatus =
             PromotionHelper.determinePromotionStatus(p.getStartDate(), p.getEndDate());
+        System.out.println("Promotion " + p.getId() + ": " + p.getStatus() + " → " + newStatus);
         if (newStatus != p.getStatus()) {
           p.setStatus(newStatus);
-          promotionRepository.save(p);
+          promotionRepository.saveAndFlush(p);
+          System.out.println("GetId: " + p.getId());
         }
       }
     } catch (Exception ex) {
       System.out.println("Lỗi: " + ex.getMessage());
+      ex.getStackTrace();
     }
   }
 
@@ -228,24 +235,38 @@ public class PromotionService implements IPromotion {
 
   @Override
   public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-      Pageable pageable, PromotionScope scope) {
-    if (scope.equals(PromotionScope.LOCAL)) {
-      Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.LOCAL, pageable);
-      PageResponse<PromotionResponse> promotionResponsePageResponse =
-          pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
+      Pageable pageable, List<PromotionScope> scope) {
+    Page<Promotion> promotions;
+
+    // Kiểm tra scope có giá trị hay không
+    if (scope != null && !scope.isEmpty()) {
+
+      if (scope.contains(PromotionScope.LOCAL) && !scope.contains(PromotionScope.GLOBAL)) {
+        promotions = promotionRepository.findByScope(PromotionScope.LOCAL, pageable);
+        return APIResponse.success(
+                pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
+                "Xem tất cả khuyến mãi LOCAL thành công");
+      }
+
+      if (scope.contains(PromotionScope.GLOBAL) && !scope.contains(PromotionScope.LOCAL)) {
+        promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
+        return APIResponse.success(
+                pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
+                "Xem tất cả khuyến mãi GLOBAL thành công");
+      }
+
+      // Nếu có cả LOCAL và GLOBAL
+      promotions = promotionRepository.findAll(pageable);
       return APIResponse.success(
-          promotionResponsePageResponse, "View All Lccal Promotions Successfully");
-    } else if (scope.equals(PromotionScope.GLOBAL)) {
-      Page<Promotion> promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
-      PageResponse<PromotionResponse> promotionResponsePageResponse =
-          pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
-      return APIResponse.success(
-          promotionResponsePageResponse, "View All Global Promotions Successfully");
+              pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
+              "Xem tất cả khuyến mãi (GLOBAL + LOCAL) thành công");
+
     } else {
-      Page<Promotion> promotions = promotionRepository.findAll(pageable);
-      PageResponse<PromotionResponse> promotionResponsePageResponse =
-          pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse);
-      return APIResponse.success(promotionResponsePageResponse, "View All Promotions Successfully");
+      // Mặc định: không truyền scope → lấy tất cả
+      promotions = promotionRepository.findAll(pageable);
+      return APIResponse.success(
+              pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
+              "Xem tất cả khuyến mãi thành công");
     }
   }
 

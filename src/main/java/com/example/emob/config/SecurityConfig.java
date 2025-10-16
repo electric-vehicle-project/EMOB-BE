@@ -60,7 +60,6 @@ public class SecurityConfig {
 
     public static final String[] EVM_STAFF = {
         "/api/vehicle/**",
-        "/api/promotion"
     };
 
     public static final String[] MANAGER = {
@@ -70,12 +69,15 @@ public class SecurityConfig {
     // Authenticated chung
     public static final String[] AUTHENTICATED = {
             "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**",
-            "/api/auth/reset-password",
+            "/api/auth/reset-password", "/api/promotion/**"
     };
     public static final String[] SWAGGER = {
             "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
     };
 
+    public static final String[] MULTI_ROLE_ACCESS = {
+            "/api/promotion/view-all/**",
+    };
   @Bean
   public PasswordEncoder encoder() {
     return new BCryptPasswordEncoder();
@@ -103,6 +105,8 @@ public class SecurityConfig {
                                         .hasRole("EVM_STAFF")
                                         .requestMatchers(MANAGER)
                                         .hasRole("MANAGER")
+                                        .requestMatchers(MULTI_ROLE_ACCESS)
+                                        .hasAnyRole("ADMIN", "MANAGER", "EVM_STAFF", "DEALER_STAFF")
                                         .requestMatchers(ADMIN)
                                         .hasRole("ADMIN")
                                         .requestMatchers(AUTHENTICATED)
