@@ -40,13 +40,14 @@ public class AuthenticationController {
 
   @PostMapping("/reset-password")
   public APIResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-    return authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+    return authenticationService.resetPassword(request.getNewPassword());
   }
 
   @PostMapping("/resend-otp")
   public void resendOtp () {
       authenticationService.resendOtp();
   }
+
   @PostMapping("/login")
   @Operation(
       summary = "Login Account",

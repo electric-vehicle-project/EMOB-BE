@@ -118,8 +118,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
-  public APIResponse<Void> resetPassword(String token, String newPassword) {
-    Account account = tokenService.verifyResetToken(token);
+  public APIResponse<Void> resetPassword(String newPassword) {
+    Account account = AccountUtil.getCurrentUser();
     if (account == null) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
