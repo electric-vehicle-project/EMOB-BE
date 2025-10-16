@@ -31,19 +31,19 @@ public class SecurityConfig {
   @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
   @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    // Public
-    public static final String[] PUBLIC = {
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/logout",
-            "/api/auth/refresh",
-            "/api/auth/refresh-token",
-            "/api/auth/forgot-password",
-            "/api/auth/verify-otp",
-            "/api/auth/resend-otp",
-            "/api/public/**",
-            "/api/delivery/**"
-    };
+  // Public
+  public static final String[] PUBLIC = {
+    "/api/auth/login",
+    "/api/auth/register",
+    "/api/auth/logout",
+    "/api/auth/refresh",
+    "/api/auth/refresh-token",
+    "/api/auth/forgot-password",
+    "/api/auth/verify-otp",
+    "/api/auth/resend-otp",
+    "/api/public/**",
+    "/api/delivery/**"
+  };
 
   // ADMIN
   public static final String[] ADMIN = {
@@ -58,26 +58,30 @@ public class SecurityConfig {
     "/api/quotation/**",
   };
 
-    public static final String[] EVM_STAFF = {
-        "/api/vehicle/**",
-    };
+  public static final String[] EVM_STAFF = {
+    "/api/vehicle/**",
+  };
 
-    public static final String[] MANAGER = {
-            "/api/test-drive/schedules/**",
-            "/api/report/process-report/**",
-    };
-    // Authenticated chung
-    public static final String[] AUTHENTICATED = {
-            "/api/products/**", "/api/cart/**", "/api/files/**", "/api/notifications/**",
-            "/api/auth/reset-password", "/api/promotion/**"
-    };
-    public static final String[] SWAGGER = {
-            "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
-    };
+  public static final String[] MANAGER = {
+    "/api/test-drive/schedules/**", "/api/report/process-report/**",
+  };
+  // Authenticated chung
+  public static final String[] AUTHENTICATED = {
+    "/api/products/**",
+    "/api/cart/**",
+    "/api/files/**",
+    "/api/notifications/**",
+    "/api/auth/reset-password",
+    "/api/promotion/**"
+  };
+  public static final String[] SWAGGER = {
+    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+  };
 
-    public static final String[] MULTI_ROLE_ACCESS = {
-            "/api/promotion/view-all/**",
-    };
+  public static final String[] MULTI_ROLE_ACCESS = {
+    "/api/promotion/view-all/**",
+  };
+
   @Bean
   public PasswordEncoder encoder() {
     return new BCryptPasswordEncoder();
@@ -89,38 +93,38 @@ public class SecurityConfig {
     return configuration.getAuthenticationManager();
   }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.cors(Customizer.withDefaults()) // bật cors ở security
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        req ->
-                                req.requestMatchers(PUBLIC)
-                                        .permitAll()
-                                        .requestMatchers(SWAGGER)
-                                        .permitAll()
-                                        .requestMatchers(DEALER_STAFF)
-                                        .hasRole("DEALER_STAFF")
-                                        .requestMatchers(EVM_STAFF)
-                                        .hasRole("EVM_STAFF")
-                                        .requestMatchers(MANAGER)
-                                        .hasRole("MANAGER")
-                                        .requestMatchers(MULTI_ROLE_ACCESS)
-                                        .hasAnyRole("ADMIN", "MANAGER", "EVM_STAFF", "DEALER_STAFF")
-                                        .requestMatchers(ADMIN)
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(AUTHENTICATED)
-                                        .authenticated()
-                                        .anyRequest()
-                                        .denyAll())
-                .exceptionHandling(
-                        ex ->
-                                ex.authenticationEntryPoint(authenticationEntryPoint)
-                                        .accessDeniedHandler(accessDeniedHandler))
-                .userDetailsService(authenticationService)
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    return http.cors(Customizer.withDefaults()) // bật cors ở security
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            req ->
+                req.requestMatchers(PUBLIC)
+                    .permitAll()
+                    .requestMatchers(SWAGGER)
+                    .permitAll()
+                    .requestMatchers(DEALER_STAFF)
+                    .hasRole("DEALER_STAFF")
+                    .requestMatchers(EVM_STAFF)
+                    .hasRole("EVM_STAFF")
+                    .requestMatchers(MANAGER)
+                    .hasRole("MANAGER")
+                    .requestMatchers(MULTI_ROLE_ACCESS)
+                    .hasAnyRole("ADMIN", "MANAGER", "EVM_STAFF", "DEALER_STAFF")
+                    .requestMatchers(ADMIN)
+                    .hasRole("ADMIN")
+                    .requestMatchers(AUTHENTICATED)
+                    .authenticated()
+                    .anyRequest()
+                    .denyAll())
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler))
+        .userDetailsService(authenticationService)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
 }

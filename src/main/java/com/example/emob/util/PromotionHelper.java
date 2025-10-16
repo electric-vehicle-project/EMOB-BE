@@ -1,9 +1,15 @@
 /* EMOB-2025 */
 package com.example.emob.util;
 
+import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.PromotionStatus;
-import com.example.emob.mapper.PromotionMapper;
-import com.example.emob.repository.PromotionRepository;
+import com.example.emob.constant.PromotionType;
+import com.example.emob.entity.Customer;
+import com.example.emob.entity.DealerPointRule;
+import com.example.emob.entity.Promotion;
+import com.example.emob.exception.GlobalException;
+import com.example.emob.service.DealerPointRuleService;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PromotionHelper {
 
-  @Autowired private static PromotionRepository promotionRepository;
+  private static DealerPointRuleService dealerPointRuleService;
 
   public static PromotionStatus determinePromotionStatus(
       LocalDateTime startDate, LocalDateTime endDate) {

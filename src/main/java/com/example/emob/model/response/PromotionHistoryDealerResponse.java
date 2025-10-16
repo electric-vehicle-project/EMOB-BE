@@ -1,10 +1,10 @@
+/* EMOB-2025 */
 package com.example.emob.model.response;
-
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
@@ -12,8 +12,8 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PromotionHistoryDealerResponse {
-    UUID dealerId;
-    String dealerName;
-    String country;
-    List<PromotionResponse> promotions;
+  UUID dealerId;
+  String dealerName;
+  String country;
+  List<PromotionResponse> promotions;
 }

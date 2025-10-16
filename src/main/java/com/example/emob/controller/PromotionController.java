@@ -11,11 +11,11 @@ import com.example.emob.model.response.PromotionResponse;
 import com.example.emob.service.PromotionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,43 @@ public class PromotionController {
               content =
                   @Content(
                       mediaType = "application/json",
-                      schema = @Schema(implementation = PromotionRequest.class))))
+                      schema = @Schema(implementation = PromotionRequest.class),
+                      examples = {
+                        @ExampleObject(
+                            name = "Customer A",
+                            value =
+                                """
+                                                          {
+                                                            {
+                                                              "dealerId": [
+                                                                "Global thì không truyền gì vào hết"
+                                                              ],
+                                                              "electricVehiclesId": [
+                                                                "mặc định là phải xe"
+                                                              ],
+                                                              "name": "cấm trùng nha",
+                                                              "description": "string"
+                                                            }
+                                                          }
+                                                          """),
+                        @ExampleObject(
+                            name = "Customer A",
+                            value =
+                                """
+                                                          {
+                                                            {
+                                                              "dealerId": [
+                                                                "Local thì truyền 1"
+                                                              ],
+                                                              "electricVehiclesId": [
+                                                                "mặc định là phải xe"
+                                                              ],
+                                                              "name": "cấm trùng nha",
+                                                              "description": "string"
+                                                            }
+                                                          }
+                                                          """),
+                      })))
   public ResponseEntity<APIResponse<PromotionResponse>> createPromotion(
       @RequestBody @Valid PromotionRequest request) {
     return ResponseEntity.ok(promotionService.createPromotion(request));
@@ -84,7 +120,6 @@ public class PromotionController {
 
   @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/value/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
       @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
@@ -93,7 +128,7 @@ public class PromotionController {
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")
-  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion (UUID id) {
+  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion(UUID id) {
     return ResponseEntity.ok(promotionService.viewHistoryDealerPromotion(id));
   }
 }
