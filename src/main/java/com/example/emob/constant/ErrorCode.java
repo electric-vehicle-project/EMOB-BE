@@ -40,6 +40,7 @@ public enum ErrorCode {
     INVALID_QUANTITY("Quantity is invalid", HttpStatus.BAD_REQUEST),
     VEHICLE_DUPLICATED("Vehicle is duplicated", HttpStatus.BAD_REQUEST),
     VEHICLE_PRICE_NOT_SET("Vehicle price not set", HttpStatus.BAD_REQUEST),
+    TOO_MANY_OTP("You sent otp too much", HttpStatus.BAD_REQUEST),
     NOT_FOUND("Not found!", HttpStatus.NOT_FOUND);
 
   final String message;
