@@ -40,9 +40,9 @@ public class SecurityConfig {
     "/api/auth/refresh-token",
     "/api/auth/forgot-password",
     "/api/auth/verify-otp",
+    "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/delivery/**",
-    "/api/dealer-point-rules/**"
+    "/api/delivery/**"
   };
 
   // ADMIN
@@ -59,7 +59,7 @@ public class SecurityConfig {
   };
 
   public static final String[] EVM_STAFF = {
-    "/api/vehicle", "/api/vehicle/bulk",
+    "/api/vehicle/**",
   };
 
   public static final String[] MANAGER = {
@@ -67,10 +67,19 @@ public class SecurityConfig {
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/notifications/**", "/api/promotion/**",
+    "/api/products/**",
+    "/api/cart/**",
+    "/api/files/**",
+    "/api/notifications/**",
+    "/api/auth/reset-password",
+    "/api/promotion/**"
   };
   public static final String[] SWAGGER = {
-    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml",
+    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
+  };
+
+  public static final String[] MULTI_ROLE_ACCESS = {
+    "/api/promotion/view-all/**",
   };
 
   @Bean
@@ -100,6 +109,8 @@ public class SecurityConfig {
                     .hasRole("EVM_STAFF")
                     .requestMatchers(MANAGER)
                     .hasRole("MANAGER")
+                    .requestMatchers(MULTI_ROLE_ACCESS)
+                    .hasAnyRole("ADMIN", "MANAGER", "EVM_STAFF", "DEALER_STAFF")
                     .requestMatchers(ADMIN)
                     .hasRole("ADMIN")
                     .requestMatchers(AUTHENTICATED)
