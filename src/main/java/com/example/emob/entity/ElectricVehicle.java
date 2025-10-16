@@ -3,6 +3,7 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.VehicleType;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +24,8 @@ public class ElectricVehicle {
 
   String brand;
   String model;
-  float importPrice;
-  float retailPrice;
+  BigDecimal importPrice;
+  BigDecimal retailPrice;
   Float batteryKwh;
   Integer rangeKm;
   Float chargeTimeHr;
@@ -52,4 +53,7 @@ public class ElectricVehicle {
 
   @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<QuotationItem> quotationItems = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<DealerDiscountPolicy> discountPolicies = new HashSet<>();
 }

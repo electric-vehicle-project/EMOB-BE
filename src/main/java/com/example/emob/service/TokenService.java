@@ -2,7 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.entity.Account;
-import com.example.emob.model.response.DecodedToken;
 import com.example.emob.repository.AccountRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -72,36 +71,12 @@ public class TokenService {
   }
 
   // verify_token
-  public Account verifyTokenToAccount(String token) {
-    DecodedToken decodedToken = decodeToken(token); // decode token
-
-    String jti = decodedToken.getJti();
-
+  public Account verifyToken(String token) {
     Claims claims =
         Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
     String idString = claims.getSubject();
     UUID id = UUID.fromString(idString); // parse sang UUID
     return accountRepository.findAccountById(id);
-  }
-
-  public DecodedToken decodeToken(String token) {
-    Claims claims =
-        Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
-
-    Object aud = claims.get("aud");
-    if (aud == null && claims.getAudience() != null) {
-      aud = claims.getAudience();
-    }
-
-    return new DecodedToken(
-        claims.getIssuer(),
-        aud,
-        claims.getSubject(),
-        claims.getId(),
-        (String) claims.get("token_type"),
-        (String) claims.get("roles"),
-        claims.getIssuedAt(),
-        claims.getExpiration());
   }
 
   // ===== ACCESS TOKEN =====

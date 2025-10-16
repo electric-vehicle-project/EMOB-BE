@@ -84,6 +84,7 @@ public class PromotionController {
 
   @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @PutMapping("/value/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
       @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));

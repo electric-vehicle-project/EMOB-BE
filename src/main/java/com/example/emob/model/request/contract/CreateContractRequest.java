@@ -1,13 +1,11 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.contract;
 
-import com.example.emob.entity.Dealer;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -15,9 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateContractRequest {
-    @NotNull
-    UUID orderId;
-    @NotNull
-
-    LocalDateTime createAt;
+  @NotNull UUID orderId;
+  @NotNull LocalDateTime createAt;
 }

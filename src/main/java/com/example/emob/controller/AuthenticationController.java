@@ -44,8 +44,8 @@ public class AuthenticationController {
   }
 
   @PostMapping("/resend-otp")
-  public void resendOtp () {
-      authenticationService.resendOtp();
+  public void resendOtp() {
+    authenticationService.resendOtp();
   }
 
   @PostMapping("/login")
@@ -80,31 +80,31 @@ public class AuthenticationController {
                       "password": "Pass5678"
                     }
                     """),
-                                                    @ExampleObject(
-                                                            name = "Account C",
-                                                            description = "Example login for Alice",
-                                                            value =
-                                                                    """
+                        @ExampleObject(
+                            name = "Account C",
+                            description = "Example login for Alice",
+                            value =
+                                """
                                                                             {
                                                                               "email": "alice123@example.com",
                                                                               "password": "Pass1234"
                                                                             }
                         """),
-                              @ExampleObject(
-                                      name = "Account D",
-                                      description = "Example login for Yob",
-                                      value =
-                                              """
+                        @ExampleObject(
+                            name = "Account D",
+                            description = "Example login for Yob",
+                            value =
+                                """
                       {
                         "email": "yob@example.com",
                         "password": "Pass5678"
                       }
                       """)
-                                            })))
-    public ResponseEntity<APIResponse<AccountResponse>> login(
-            @Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authenticationService.login(request));
-    }
+                      })))
+  public ResponseEntity<APIResponse<AccountResponse>> login(
+      @Valid @RequestBody LoginRequest request) {
+    return ResponseEntity.ok(authenticationService.login(request));
+  }
 
   @PostMapping("/register")
   @Operation(
@@ -148,10 +148,10 @@ public class AuthenticationController {
                   "password": "Pass5678"
                 }
                 """),
-                                                    @ExampleObject(
-                                                            name = "Account C",
-                                                            value =
-                                                                    """
+                        @ExampleObject(
+                            name = "Account C",
+                            value =
+                                """
                     {
                       "fullName": "Alice",
                       "gender": "FEMALE",
@@ -164,10 +164,10 @@ public class AuthenticationController {
                       "password": "Pass1234"
                     }
                     """),
-                              @ExampleObject(
-                                      name = "Account D",
-                                      value =
-                                              """
+                        @ExampleObject(
+                            name = "Account D",
+                            value =
+                                """
                   {
                     "fullName": "Yob",
                     "gender": "MALE",
@@ -180,11 +180,11 @@ public class AuthenticationController {
                     "password": "Pass5678"
                   }
                   """)
-                                            })))
-    public ResponseEntity<APIResponse<AccountResponse>> register(
-            @Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
-    }
+                      })))
+  public ResponseEntity<APIResponse<AccountResponse>> register(
+      @Valid @RequestBody RegisterRequest request) {
+    return ResponseEntity.ok(authenticationService.register(request));
+  }
 
   @PostMapping("/logout")
   @Operation(summary = "Logout a account")

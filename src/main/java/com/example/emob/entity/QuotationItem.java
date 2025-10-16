@@ -1,8 +1,10 @@
 /* EMOB-2025 */
 package com.example.emob.entity;
 
+import com.example.emob.constant.VehicleStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,11 +19,19 @@ import lombok.experimental.FieldDefaults;
 public class QuotationItem {
   @Id @GeneratedValue UUID id;
 
-  double unitPrice;
-  double discount;
-  double totalPrice;
+  BigDecimal unitPrice;
+  BigDecimal totalPrice;
+  BigDecimal discountPrice;
+
+  @Enumerated(EnumType.STRING)
+  VehicleStatus vehicleStatus;
+
   int quantity;
   String color;
+
+  @OneToOne
+  @JoinColumn(name = "promotion_id")
+  Promotion promotion;
 
   @ManyToOne
   @JoinColumn(name = "quotation_id")

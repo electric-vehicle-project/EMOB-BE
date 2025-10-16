@@ -1,11 +1,11 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.schedule;
 
 import com.example.emob.constant.TestStatus;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder

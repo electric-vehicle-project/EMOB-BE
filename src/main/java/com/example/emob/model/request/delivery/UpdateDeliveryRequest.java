@@ -1,10 +1,9 @@
+/* EMOB-2025 */
 package com.example.emob.model.request.delivery;
 
-import com.example.emob.constant.DeliveryStatus;
+import java.time.LocalDateTime;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -12,5 +11,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateDeliveryRequest {
-    LocalDateTime deliveryDate;
+  LocalDateTime deliveryDate;
 }

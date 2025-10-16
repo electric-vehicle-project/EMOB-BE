@@ -11,10 +11,11 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface PromotionMapper {
-    @Mapping(source = "id", target = "id")
-    PromotionResponse toPromotionResponse (Promotion promotion);
+  @Mapping(source = "id", target = "id")
+  PromotionResponse toPromotionResponse(Promotion promotion);
 
-    Promotion toPromotion (PromotionRequest request);
+  Promotion toPromotion(PromotionRequest request);
 
-    void updatePromotionFromRequest (UpdatePromotionRequest request, @MappingTarget Promotion promotion);
+  void updatePromotionFromRequest(
+      UpdatePromotionRequest request, @MappingTarget Promotion promotion);
 }

@@ -87,7 +87,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(\"/api/${ENTITY_LOWER}\")
 @CrossOrigin(\"*\")
 @SecurityRequirement(name = \"api\")
-public class ${ENTITY_NAME}API {
+public class ${ENTITY_NAME}Controller {
 
        @Autowired
        private ${ENTITY_NAME}Service ${ENTITY_LOWER}Service;

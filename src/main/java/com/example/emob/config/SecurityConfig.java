@@ -3,9 +3,8 @@ package com.example.emob.config;
 
 import com.example.emob.security.CustomAccessDeniedHandler;
 import com.example.emob.security.CustomAuthenticationEntryPoint;
+import com.example.emob.security.Filter;
 import com.example.emob.service.AuthenticationService;
-
-import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +25,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    @Autowired Filter filter;
-    @Autowired private AuthenticationService authenticationService;
+  @Autowired Filter filter;
+  @Autowired private AuthenticationService authenticationService;
 
-    @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
-    @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
+  @Autowired private CustomAccessDeniedHandler accessDeniedHandler;
+  @Autowired private CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     // Public
     public static final String[] PUBLIC = {
@@ -46,17 +45,18 @@ public class SecurityConfig {
             "/api/delivery/**"
     };
 
-    // ADMIN
-    public static final String[] ADMIN = {
-        "/api/dealer/**","/api/vehicle-price-rules"
-    };
+  // ADMIN
+  public static final String[] ADMIN = {
+    "/api/dealer/**", "/api/vehicle-price-rules", "/api/vehicle/{id}/prices",
+  };
 
-    public static final String[] DEALER_STAFF = {
-        "/api/dealer-staff/report/**",
-            "/api/dealer-staff/test-drive/**",
-            "/api/contract/**",
-            "/api/customers/**"
-    };
+  public static final String[] DEALER_STAFF = {
+    "/api/report/**",
+    "/api/test-drive/**",
+    "/api/contract/**",
+    "/api/customers/**",
+    "/api/quotation/**",
+  };
 
     public static final String[] EVM_STAFF = {
         "/api/vehicle/**",
