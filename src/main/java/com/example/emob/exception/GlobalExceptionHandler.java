@@ -23,7 +23,6 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException exception) {
     APIResponse<Object> apiResponse = new APIResponse<>();
 
-
     String enumkey = exception.getFieldError().getDefaultMessage();
 
     ErrorCode errorCode;
@@ -31,16 +30,11 @@ public class GlobalExceptionHandler {
     try {
       errorCode = ErrorCode.valueOf(enumkey);
 
-    }catch (IllegalArgumentException e) {
-      errorCode=  ErrorCode.INVALID_CODE;
+    } catch (IllegalArgumentException e) {
+      errorCode = ErrorCode.INVALID_CODE;
     }
 
-
-
-
     apiResponse.setCode(errorCode.getCode());
-
-
 
     switch (errorCode) {
       case FIELD_REQUIRED -> {
@@ -63,9 +57,7 @@ public class GlobalExceptionHandler {
       default -> apiResponse.setMessage(errorCode.getMessage());
     }
 
-    return  ResponseEntity
-            .status(errorCode.getCode())
-            .body(apiResponse);
+    return ResponseEntity.status(errorCode.getCode()).body(apiResponse);
   }
 
   @ExceptionHandler(AccessDeniedException.class)

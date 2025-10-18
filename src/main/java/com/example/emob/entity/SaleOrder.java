@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.entity;
 
-import com.example.emob.constant.InstallmentStatus;
 import com.example.emob.constant.OrderStatus;
 import com.example.emob.constant.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;

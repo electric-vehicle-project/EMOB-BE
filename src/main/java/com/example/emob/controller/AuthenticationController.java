@@ -12,15 +12,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -63,11 +61,11 @@ public class AuthenticationController {
                       mediaType = "application/json",
                       schema = @Schema(implementation = LoginRequest.class),
                       examples = {
-                          @ExampleObject(
-                                  name = "Account Admin",
-                                  description = "Example login for Admin",
-                                  value =
-                                          """
+                        @ExampleObject(
+                            name = "Account Admin",
+                            description = "Example login for Admin",
+                            value =
+                                """
                   {
                     "email": "admin@gmail.com",
                     "password": "Admin@123"
@@ -162,20 +160,21 @@ public class AuthenticationController {
       @Valid @RequestBody RegisterRequest request) {
     return ResponseEntity.ok(authenticationService.registerByManager(request));
   }
+
   @PostMapping("/register-by-admin")
   @Operation(
-          summary = "Register a new Account",
-          requestBody =
+      summary = "Register a new Account",
+      requestBody =
           @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                  content =
+              content =
                   @Content(
-                          mediaType = "application/json",
-                          schema = @Schema(implementation = RegisterRequest.class),
-                          examples = {
-                                  @ExampleObject(
-                                          name = "Account A",
-                                          value =
-                                                  """
+                      mediaType = "application/json",
+                      schema = @Schema(implementation = RegisterRequest.class),
+                      examples = {
+                        @ExampleObject(
+                            name = "Account A",
+                            value =
+                                """
                       {
                         "fullName": "Alice",
                         "dealerId": "nhập id hoặc ko nhập",
@@ -187,10 +186,10 @@ public class AuthenticationController {
                         "password": "Pass1234"
                       }
                       """),
-                                  @ExampleObject(
-                                          name = "Account B",
-                                          value =
-                                                  """
+                        @ExampleObject(
+                            name = "Account B",
+                            value =
+                                """
                                   {
                                     "fullName": "Bob",
                                     "dealerId": "nhập id hoặc ko nhập",
@@ -202,10 +201,9 @@ public class AuthenticationController {
                                     "password": "Pass5678"
                                   }
                                   """),
-
-                          })))
+                      })))
   public ResponseEntity<APIResponse<AccountResponse>> registerByAdmin(
-          @Valid @RequestBody RegisterRequest request) {
+      @Valid @RequestBody RegisterRequest request) {
     return ResponseEntity.ok(authenticationService.registerByAdmin(request));
   }
 
@@ -234,16 +232,15 @@ public class AuthenticationController {
   @GetMapping("by-manager")
   @Operation(summary = "Get all by manager")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByManager(
-          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(authenticationService.getAllByManager(pageable));
   }
 
   @GetMapping("by-admin")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByAdmin(
-          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(authenticationService.getAllByAdmin(pageable));
   }
-
 }

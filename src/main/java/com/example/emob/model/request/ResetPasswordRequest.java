@@ -16,8 +16,7 @@ public class ResetPasswordRequest {
   @NotBlank(message = "FIELD_REQUIRED")
   @Size(min = 8, max = 50, message = "INVALID_SIZE_PASSWORD")
   @Pattern(
-          regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
-          message = "INVALID_PATTERN_PASSWORD"
-  )
+      regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
+      message = "INVALID_PATTERN_PASSWORD")
   String newPassword;
 }

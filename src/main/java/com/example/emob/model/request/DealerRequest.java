@@ -13,10 +13,13 @@ import lombok.experimental.FieldDefaults;
 public class DealerRequest {
   @NotBlank(message = "FIELD_REQUIRED")
   String name;
+
   @NotBlank(message = "FIELD_REQUIRED")
   String contactInfo;
+
   @NotBlank(message = "FIELD_REQUIRED")
   String country;
+
   @NotBlank(message = "FIELD_REQUIRED")
   String address;
 }

@@ -16,11 +16,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataSeeder implements CommandLineRunner {
   @Autowired InventoryRepository inventoryRepository;
-  @Autowired
-  AccountRepository accountRepository;
-  @Autowired
-  @Lazy
-  PasswordEncoder passwordEncoder;
+  @Autowired AccountRepository accountRepository;
+  @Autowired @Lazy PasswordEncoder passwordEncoder;
+
   @Override
   public void run(String... args) throws Exception {
     seedCompanyInventory();
@@ -35,12 +33,14 @@ public class DataSeeder implements CommandLineRunner {
       System.out.println("Seeded company inventory!");
     }
   }
+
   private void seedCreateAdminUser() {
     // Implement logic to create an admin user if not exists
     if (accountRepository.findAccountByEmail("admin@gmail.com") != null) {
       return;
     }
-    Account admin = Account.builder()
+    Account admin =
+        Account.builder()
             .email("admin@gmail.com")
             .password(passwordEncoder.encode("Admin@123"))
             .role(Role.ADMIN)

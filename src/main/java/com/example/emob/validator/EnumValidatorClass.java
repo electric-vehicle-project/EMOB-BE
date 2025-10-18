@@ -22,21 +22,20 @@ public class EnumValidatorClass implements ConstraintValidator<EnumValidator, Ob
 
     String stringValue = String.valueOf(value);
 
-    boolean matched = Arrays.stream(enumClass.getEnumConstants())
+    boolean matched =
+        Arrays.stream(enumClass.getEnumConstants())
             .anyMatch(e -> e.name().equalsIgnoreCase(stringValue));
 
     if (matched) return true;
 
     // Nếu không khớp, tạo message chứa danh sách enum
-    String allowedValues = String.join(", ",
-            Arrays.stream(enumClass.getEnumConstants())
-                    .map(Enum::name)
-                    .toList());
+    String allowedValues =
+        String.join(", ", Arrays.stream(enumClass.getEnumConstants()).map(Enum::name).toList());
 
     context.disableDefaultConstraintViolation();
-    context.buildConstraintViolationWithTemplate(
-            message + ". Allowed values: [" + allowedValues + "]"
-    ).addConstraintViolation();
+    context
+        .buildConstraintViolationWithTemplate(message + ". Allowed values: [" + allowedValues + "]")
+        .addConstraintViolation();
 
     return false;
   }

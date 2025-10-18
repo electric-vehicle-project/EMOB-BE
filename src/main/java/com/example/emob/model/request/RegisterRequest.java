@@ -1,15 +1,11 @@
 /* EMOB-2025 */
 package com.example.emob.model.request;
 
-import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.Gender;
-import com.example.emob.constant.Role;
 import com.example.emob.validator.EnumValidator;
 import jakarta.validation.constraints.*;
-
 import java.time.LocalDate;
 import java.util.UUID;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -29,7 +25,6 @@ public class RegisterRequest {
   @EnumValidator(enumClass = Gender.class)
   Gender gender;
 
-
   @NotBlank(message = "FIELD_REQUIRED")
   String address;
 
@@ -37,10 +32,7 @@ public class RegisterRequest {
   LocalDate dateOfBirth;
 
   @NotBlank(message = "FIELD_REQUIRED")
-  @Pattern(
-          regexp = "^(0[0-9]{9,10})$",
-          message = "INVALID_PHONE_NUMBER"
-  )
+  @Pattern(regexp = "^(0[0-9]{9,10})$", message = "INVALID_PHONE_NUMBER")
   String phone;
 
   @NotBlank(message = "FIELD_REQUIRED")
@@ -50,8 +42,7 @@ public class RegisterRequest {
   @NotBlank(message = "FIELD_REQUIRED")
   @Size(min = 8, max = 50, message = "INVALID_SIZE_PASSWORD")
   @Pattern(
-          regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
-          message = "INVALID_PATTERN_PASSWORD"
-  )
+      regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]+$",
+      message = "INVALID_PATTERN_PASSWORD")
   String password;
 }

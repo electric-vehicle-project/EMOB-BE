@@ -43,12 +43,17 @@ public class SecurityConfig {
     "/api/auth/resend-otp",
     "/api/public/**",
     "/api/delivery/**",
-          "/api/installment/**"
+    "/api/installment/**"
   };
 
   // ADMIN
   public static final String[] ADMIN = {
-    "/api/dealer/**", "/api/vehicle-price-rules", "/api/vehicle/{id}/prices","/api/auth/register-by-admin", "api/auth/by-admin","/api/dealer-discount-policy/**"
+    "/api/dealer/**",
+    "/api/vehicle-price-rules",
+    "/api/vehicle/{id}/prices",
+    "/api/auth/register-by-admin",
+    "api/auth/by-admin",
+    "/api/dealer-discount-policy/**"
   };
 
   public static final String[] DEALER_STAFF = {
@@ -64,7 +69,10 @@ public class SecurityConfig {
   };
 
   public static final String[] MANAGER = {
-    "/api/test-drive/schedules/**", "/api/report/process-report/**","api/auth/by-manager","/api/auth/register-by-manager",
+    "/api/test-drive/schedules/**",
+    "/api/report/process-report/**",
+    "api/auth/by-manager",
+    "/api/auth/register-by-manager",
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
@@ -73,8 +81,6 @@ public class SecurityConfig {
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
   };
-
-
 
   @Bean
   public PasswordEncoder encoder() {
@@ -95,9 +101,10 @@ public class SecurityConfig {
             req ->
                 req.requestMatchers(PUBLIC)
                     .permitAll()
-                        .requestMatchers(HttpMethod.GET,"/**").authenticated()
-                        .requestMatchers(AUTHENTICATED)
-                        .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/**")
+                    .authenticated()
+                    .requestMatchers(AUTHENTICATED)
+                    .authenticated()
                     .requestMatchers(SWAGGER)
                     .permitAll()
                     .requestMatchers(DEALER_STAFF)
@@ -108,7 +115,6 @@ public class SecurityConfig {
                     .hasRole("MANAGER")
                     .requestMatchers(ADMIN)
                     .hasRole("ADMIN")
-
                     .anyRequest()
                     .denyAll())
         .exceptionHandling(

@@ -9,7 +9,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
-  @Mapping(target = "dealerId", expression = "java(account.getDealer() != null ? account.getDealer().getId() : null)")
+  @Mapping(
+      target = "dealerId",
+      expression = "java(account.getDealer() != null ? account.getDealer().getId() : null)")
   AccountResponse toAccountResponse(Account account);
 
   Account toAccount(RegisterRequest request);

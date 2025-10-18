@@ -3,7 +3,6 @@ package com.example.emob.repository;
 
 import com.example.emob.entity.Dealer;
 import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +10,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DealerRepository extends JpaRepository<Dealer, UUID> {
-    Page<Dealer> findAllByDeletedFalse(Pageable pageable);
+  Page<Dealer> findAllByDeletedFalse(Pageable pageable);
 }

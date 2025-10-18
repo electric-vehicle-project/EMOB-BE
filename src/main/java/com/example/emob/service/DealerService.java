@@ -99,7 +99,7 @@ public class DealerService implements IDealer {
   @PreAuthorize("hasRole('ADMIN')")
   public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
     try {
-    Page<Dealer> page = dealerRepository.findAllByDeletedFalse(pageable);
+      Page<Dealer> page = dealerRepository.findAllByDeletedFalse(pageable);
       PageResponse<DealerResponse> response =
           pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
 

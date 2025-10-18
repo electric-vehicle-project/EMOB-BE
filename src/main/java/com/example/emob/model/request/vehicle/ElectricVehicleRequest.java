@@ -2,9 +2,8 @@
 package com.example.emob.model.request.vehicle;
 
 import com.example.emob.constant.VehicleType;
-import java.util.List;
-
 import jakarta.validation.constraints.*;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -48,7 +47,6 @@ public class ElectricVehicleRequest {
   @NotNull(message = "FIELD_REQUIRED")
   @DecimalMin(value = "0.1", inclusive = false, message = "INVALID_MIN_0")
   Float topSpeedKmh;
-
 
   @NotNull(message = "FIELD_REQUIRED")
   VehicleType type;

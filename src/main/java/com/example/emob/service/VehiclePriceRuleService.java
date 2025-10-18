@@ -19,18 +19,18 @@ public class VehiclePriceRuleService {
   @Autowired VehiclePriceRuleRepository vehiclePriceRuleRepository;
 
   @PreAuthorize("hasRole('ADMIN')")
- public void saveRule(List<VehiclePriceRuleRequest> vehiclePriceRuleRequests) {
-   for (VehiclePriceRuleRequest req : vehiclePriceRuleRequests) {
-     String status = req.getVehicleStatus().toString();
-     VehiclePriceRule rule =
-         VehiclePriceRule.builder()
-             .vehicleStatus(status)
-             .multiplier(req.getMultiplier())
-             .note(req.getNote())
-             .build();
-     vehiclePriceRuleRepository.save(rule);
-   }
- }
+  public void saveRule(List<VehiclePriceRuleRequest> vehiclePriceRuleRequests) {
+    for (VehiclePriceRuleRequest req : vehiclePriceRuleRequests) {
+      String status = req.getVehicleStatus().toString();
+      VehiclePriceRule rule =
+          VehiclePriceRule.builder()
+              .vehicleStatus(status)
+              .multiplier(req.getMultiplier())
+              .note(req.getNote())
+              .build();
+      vehiclePriceRuleRepository.save(rule);
+    }
+  }
 
   public VehiclePriceRule getRule(VehicleStatus status) {
     return vehiclePriceRuleRepository

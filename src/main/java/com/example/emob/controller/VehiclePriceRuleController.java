@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,10 +57,10 @@ public class VehiclePriceRuleController {
                       mediaType = "application/json",
                       schema = @Schema(implementation = VehiclePriceRule.class),
                       examples = {
-@ExampleObject(
-    name = "Rules Array",
-    value =
-        """
+                        @ExampleObject(
+                            name = "Rules Array",
+                            value =
+                                """
         [
           {
             "vehicleStatus": "NORMAL",
@@ -85,8 +84,7 @@ public class VehiclePriceRuleController {
           }
         ]
         """)
-})))
-
+                      })))
   public ResponseEntity<APIResponse<String>> saveRule(
       @RequestBody List<VehiclePriceRuleRequest> vehiclePriceRuleRequests) {
     vehiclePriceRuleService.saveRule(vehiclePriceRuleRequests);

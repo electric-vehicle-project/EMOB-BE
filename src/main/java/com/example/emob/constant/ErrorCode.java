@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public enum ErrorCode {
-//===============  check validation ===============
+  // ===============  check validation ===============
   EMAIL_EXISTED("Email is existed", HttpStatus.BAD_REQUEST),
   PHONE_EXISTED("Phone is existed", HttpStatus.BAD_REQUEST),
   INVALID_SIZE_100("name must not exceed 100 characters", HttpStatus.BAD_REQUEST),
@@ -24,7 +24,10 @@ public enum ErrorCode {
   INVALID_DATE("Invalid date", HttpStatus.BAD_REQUEST),
 
   INVALID_MIN_0("must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
-  INVALID_PATTERN_PASSWORD("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character", HttpStatus.BAD_REQUEST),
+  INVALID_PATTERN_PASSWORD(
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and"
+          + " one special character",
+      HttpStatus.BAD_REQUEST),
   //  =======================================================
   EMPTY_TOKEN("Empty token", HttpStatus.UNAUTHORIZED),
   EXPIRED_TOKEN("Expired token!", HttpStatus.UNAUTHORIZED),

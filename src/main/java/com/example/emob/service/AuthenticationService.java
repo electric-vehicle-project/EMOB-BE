@@ -10,7 +10,6 @@ import com.example.emob.entity.Otp;
 import com.example.emob.entity.RefreshToken;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.AccountMapper;
-
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.LoginRequest;
 import com.example.emob.model.request.OtpRequest;
@@ -23,12 +22,11 @@ import com.example.emob.repository.OtpRepository;
 import com.example.emob.service.impl.IAuthentication;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
+import io.swagger.v3.oas.annotations.Operation;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,10 +59,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Autowired AccountRepository accountRepository;
 
   @Autowired RefreshTokenService refreshTokenService;
-  @Autowired
-  DealerRepository dealerRepository;
-  @Autowired
-  PageMapper pageMapper;
+  @Autowired DealerRepository dealerRepository;
+  @Autowired PageMapper pageMapper;
 
   private final SecureRandom secureRandom = new SecureRandom();
 
@@ -226,15 +222,17 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   public APIResponse<AccountResponse> registerByAdmin(RegisterRequest request) {
     // Map RegisterRequest => Account
     Account account = accountMapper.toAccount(request);
-    if(request.getDealerId() != null){
-      Dealer dealer = dealerRepository.findById(request.getDealerId())
+    if (request.getDealerId() != null) {
+      Dealer dealer =
+          dealerRepository
+              .findById(request.getDealerId())
               .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Dealer not found"));
       account.setDealer(dealer);
-      //tạo account cho manager
+      // tạo account cho manager
       account.setRole(Role.MANAGER);
-    }else{
-      //tạo account cho evm staff
-        account.setRole(Role.EVM_STAFF);
+    } else {
+      // tạo account cho evm staff
+      account.setRole(Role.EVM_STAFF);
     }
     try {
       // Mã hóa mật khẩu trước khi lưu
@@ -269,16 +267,15 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     // Map RegisterRequest => Account
     Account account = accountMapper.toAccount(request);
     account.setRole(Role.DEALER_STAFF);
-      // Mã hóa mật khẩu trước khi lưu
-      account.setDealer(AccountUtil.getCurrentUser().getDealer());
-      account.setStatus(AccountStatus.ACTIVE);
-      account.setPassword(passwordEncoder.encode(request.getPassword()));
-      // Lưu tài khoản vào DB
-      Account newAccount = accountRepository.save(account);
-      AccountResponse response = accountMapper.toAccountResponse(newAccount);
+    // Mã hóa mật khẩu trước khi lưu
+    account.setDealer(AccountUtil.getCurrentUser().getDealer());
+    account.setStatus(AccountStatus.ACTIVE);
+    account.setPassword(passwordEncoder.encode(request.getPassword()));
+    // Lưu tài khoản vào DB
+    Account newAccount = accountRepository.save(account);
+    AccountResponse response = accountMapper.toAccountResponse(newAccount);
     response.setDealerId(account.getDealer().getId());
-      return APIResponse.success(response, "Login Successful");
-
+    return APIResponse.success(response, "Login Successful");
   }
 
   @Override
@@ -301,37 +298,37 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-public APIResponse<AccountResponse> get(UUID id) {
-  Account account = accountRepository.findAccountById(id);
-  if (account == null) {
-    throw new GlobalException(ErrorCode.NOT_FOUND);
-  }
-
-  Account current = AccountUtil.getCurrentUser();
-  if (current == null) {
-    throw new GlobalException(ErrorCode.NOT_FOUND);
-  }
-
-  // Dealer staff can be accessed only by manager of the same dealer
-  if (account.getRole() == Role.DEALER_STAFF) {
-    if (current.getRole() != Role.MANAGER
-        || current.getDealer() == null
-        || account.getDealer() == null
-        || !current.getDealer().getId().equals(account.getDealer().getId())) {
-      throw new GlobalException(ErrorCode.UNAUTHORIZED);
+  public APIResponse<AccountResponse> get(UUID id) {
+    Account account = accountRepository.findAccountById(id);
+    if (account == null) {
+      throw new GlobalException(ErrorCode.NOT_FOUND);
     }
-  } else {
-    // Manager and EVM_STAFF can be accessed only by admin (EVM_STAFF)
-    if (account.getRole() == Role.MANAGER || account.getRole() == Role.EVM_STAFF) {
-      if (current.getRole() != Role.ADMIN) {
+
+    Account current = AccountUtil.getCurrentUser();
+    if (current == null) {
+      throw new GlobalException(ErrorCode.NOT_FOUND);
+    }
+
+    // Dealer staff can be accessed only by manager of the same dealer
+    if (account.getRole() == Role.DEALER_STAFF) {
+      if (current.getRole() != Role.MANAGER
+          || current.getDealer() == null
+          || account.getDealer() == null
+          || !current.getDealer().getId().equals(account.getDealer().getId())) {
         throw new GlobalException(ErrorCode.UNAUTHORIZED);
       }
+    } else {
+      // Manager and EVM_STAFF can be accessed only by admin (EVM_STAFF)
+      if (account.getRole() == Role.MANAGER || account.getRole() == Role.EVM_STAFF) {
+        if (current.getRole() != Role.ADMIN) {
+          throw new GlobalException(ErrorCode.UNAUTHORIZED);
+        }
+      }
     }
-  }
 
-  AccountResponse response = accountMapper.toAccountResponse(account);
-  return APIResponse.success(response);
-}
+    AccountResponse response = accountMapper.toAccountResponse(account);
+    return APIResponse.success(response);
+  }
 
   @Override
   @Operation(summary = "Get all by admin")
@@ -340,33 +337,35 @@ public APIResponse<AccountResponse> get(UUID id) {
       List<Role> roles = List.of(Role.MANAGER, Role.EVM_STAFF);
       Page<Account> page = accountRepository.findByRoleIn(roles, pageable);
       PageResponse<AccountResponse> response =
-              pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
+          pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
       return APIResponse.success(response);
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
 
-@Override
-@PreAuthorize("hasRole('MANAGER')")
-public APIResponse<PageResponse<AccountResponse>> getAllByManager(Pageable pageable) {
-  try {
-    Account current = AccountUtil.getCurrentUser();
-    if (current == null) {
-      throw new GlobalException(ErrorCode.NOT_FOUND);
-    }
-    if (current.getDealer() == null) {
-      throw new GlobalException(ErrorCode.UNAUTHORIZED);
-    }
+  @Override
+  @PreAuthorize("hasRole('MANAGER')")
+  public APIResponse<PageResponse<AccountResponse>> getAllByManager(Pageable pageable) {
+    try {
+      Account current = AccountUtil.getCurrentUser();
+      if (current == null) {
+        throw new GlobalException(ErrorCode.NOT_FOUND);
+      }
+      if (current.getDealer() == null) {
+        throw new GlobalException(ErrorCode.UNAUTHORIZED);
+      }
 
-    Page<Account> page = accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(), pageable);
-    PageResponse<AccountResponse> response = pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
+      Page<Account> page =
+          accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(), pageable);
+      PageResponse<AccountResponse> response =
+          pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
 
-    return APIResponse.success(response);
-  } catch (Exception e) {
-    throw new GlobalException(ErrorCode.INVALID_CODE);
+      return APIResponse.success(response);
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
+    }
   }
-}
 
   @Override
   public void logout(TokenRequest refreshRequest) {
