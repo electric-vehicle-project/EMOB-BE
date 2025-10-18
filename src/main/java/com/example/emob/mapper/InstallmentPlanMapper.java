@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.mapper;
 
 import com.example.emob.entity.InstallmentPlan;
@@ -7,7 +8,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface InstallmentPlanMapper {
-    InstallmentResponse toInstallmentResponse (InstallmentPlan installmentPlan);
+  InstallmentResponse toInstallmentResponse(InstallmentPlan installmentPlan);
 
-    InstallmentPlan toInstallmentPlan (InstallmentRequest request);
+  InstallmentPlan toInstallmentPlan(InstallmentRequest request);
 }

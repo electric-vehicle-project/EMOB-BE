@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/dealer-discount-policy")
 @CrossOrigin("*")
-@Tag(name = "Dealer Controller", description = "Endpoints for managing dealers")
+@Tag(name = "Dealer discount policy Controller", description = "Endpoints for managing dealers")
 @SecurityRequirement(name = "api")
 public class DealerDiscountPolicyController {
   @Autowired private DealerDiscountPolicyService dealerDiscountPolicyService;

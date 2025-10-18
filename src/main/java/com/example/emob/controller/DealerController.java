@@ -48,7 +48,8 @@ public class DealerController {
                             {
                               "name": "Dealer One",
                               "contactInfo": "dealer1@example.com",
-                              "country": "USA"
+                                "country": "USA",
+                                "address": "New York, NY"
                             }
                             """),
                         @ExampleObject(
@@ -58,7 +59,8 @@ public class DealerController {
                             {
                               "name": "Dealer Two",
                               "contactInfo": "dealer2@example.com",
-                              "country": "Canada"
+                              "country": "Canada",
+                              "address": "Toronto, ON"
                             }
                             """)
                       })))
