@@ -8,4 +8,6 @@ public interface NotificationHelper {
   String OTP = "🛡️";
   String REMIND_CONTRACT = "📝";
   String SIGN_CONTRACT = "🎉";
+  String INSTALLMENT_CREATED = "💵";
+  String INSTALLMENT_OVERDUE = "⚠️";
 }
