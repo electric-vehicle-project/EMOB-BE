@@ -271,7 +271,8 @@ public class PromotionService implements IPromotion {
         dealerRepository
             .findById(dealerId)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    List<Promotion> promotions = promotionRepository.findAllByDealersId(dealer.getId());
+    List<Promotion> promotions = promotionRepository.findAllByDealersId(dealer.getId())
+            .stream().filter((item) -> item.getScope().equals(PromotionScope.LOCAL)).toList();
     List<PromotionResponse> responses =
         promotions.stream()
             .map(

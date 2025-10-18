@@ -7,10 +7,7 @@ import com.example.emob.entity.Otp;
 import com.example.emob.entity.RefreshToken;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.AccountMapper;
-import com.example.emob.model.request.LoginRequest;
-import com.example.emob.model.request.OtpRequest;
-import com.example.emob.model.request.RegisterRequest;
-import com.example.emob.model.request.TokenRequest;
+import com.example.emob.model.request.*;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
@@ -92,7 +89,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
-  public APIResponse<OtpResponse> verifyOtp(OtpRequest request, String otpCode) {
+  public APIResponse<OtpResponse> verifyOtp(OtpVerifyRequest request) {
     Account account = accountRepository.findAccountByEmail(request.getEmail());
     if (account == null) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
@@ -104,7 +101,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     if (otp == null) {
       throw new RuntimeException("No OTP set or expired");
     }
-    if (!otp.getOtp().equals(otpCode)) {
+    if (!otp.getOtp().equals(request.getOtpCode())) {
       throw new RuntimeException("Invalid OTP");
     }
 

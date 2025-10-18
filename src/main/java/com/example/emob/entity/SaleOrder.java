@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.entity;
 
+import com.example.emob.constant.InstallmentStatus;
 import com.example.emob.constant.OrderStatus;
 import com.example.emob.constant.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,6 +50,9 @@ public class SaleOrder {
   @JoinColumn(name = "dealer", referencedColumnName = "id")
   Dealer dealer;
 
+  @OneToOne(mappedBy = "saleOrder", cascade = CascadeType.ALL)
+  @JsonIgnore
+  InstallmentPlan installmentPlan;
   //    @ManyToOne
   //    @JoinColumn(name = "account", referencedColumnName = "id")
   //    Account account;

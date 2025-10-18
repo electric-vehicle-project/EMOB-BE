@@ -1,10 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
-import com.example.emob.model.request.LoginRequest;
-import com.example.emob.model.request.OtpRequest;
-import com.example.emob.model.request.RegisterRequest;
-import com.example.emob.model.request.TokenRequest;
+import com.example.emob.model.request.*;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.AccountResponse;
 import com.example.emob.model.response.OtpResponse;
@@ -20,7 +17,7 @@ public interface IAuthentication {
 
   void forgotPassword(OtpRequest request);
 
-  APIResponse<OtpResponse> verifyOtp(OtpRequest request, String otp);
+  APIResponse<OtpResponse> verifyOtp(OtpVerifyRequest request);
 
   APIResponse<Void> resetPassword(String newPassword);
 

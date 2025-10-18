@@ -47,10 +47,10 @@ public class PromotionController {
                       schema = @Schema(implementation = PromotionRequest.class),
                       examples = {
                         @ExampleObject(
-                            name = "Customer A",
+                            name = "Promotion A",
                             value =
                                 """
-                                                          {
+                                                          
                                                             {
                                                               "dealerId": [
                                                                 "Global thì không truyền gì vào hết"
@@ -61,13 +61,13 @@ public class PromotionController {
                                                               "name": "cấm trùng nha",
                                                               "description": "string"
                                                             }
-                                                          }
+                                                          
                                                           """),
                         @ExampleObject(
-                            name = "Customer A",
+                            name = "Promotion B",
                             value =
                                 """
-                                                          {
+                                                          
                                                             {
                                                               "dealerId": [
                                                                 "Local thì truyền 1"
@@ -78,7 +78,7 @@ public class PromotionController {
                                                               "name": "cấm trùng nha",
                                                               "description": "string"
                                                             }
-                                                          }
+                                                          
                                                           """),
                       })))
   public ResponseEntity<APIResponse<PromotionResponse>> createPromotion(

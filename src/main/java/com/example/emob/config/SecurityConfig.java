@@ -42,7 +42,8 @@ public class SecurityConfig {
     "/api/auth/verify-otp",
     "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/delivery/**"
+    "/api/delivery/**",
+          "/api/installment/**"
   };
 
   // ADMIN

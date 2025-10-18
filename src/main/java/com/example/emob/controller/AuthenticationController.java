@@ -34,8 +34,8 @@ public class AuthenticationController {
 
   @PostMapping("/verify-otp")
   public ResponseEntity<APIResponse<OtpResponse>> verifyOtp(
-      @Valid @RequestBody OtpRequest request, String otp) {
-    return ResponseEntity.ok(authenticationService.verifyOtp(request, otp));
+      @Valid @RequestBody OtpVerifyRequest request) {
+    return ResponseEntity.ok(authenticationService.verifyOtp(request));
   }
 
   @PostMapping("/reset-password")
