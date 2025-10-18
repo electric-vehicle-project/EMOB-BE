@@ -101,12 +101,13 @@ public class SecurityConfig {
             req ->
                 req.requestMatchers(PUBLIC)
                     .permitAll()
+                        .requestMatchers(SWAGGER)
+                        .permitAll()
                     .requestMatchers(HttpMethod.GET, "/**")
                     .authenticated()
                     .requestMatchers(AUTHENTICATED)
                     .authenticated()
-                    .requestMatchers(SWAGGER)
-                    .permitAll()
+
                     .requestMatchers(DEALER_STAFF)
                     .hasRole("DEALER_STAFF")
                     .requestMatchers(EVM_STAFF)
