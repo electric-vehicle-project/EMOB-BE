@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -207,6 +208,7 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public APIResponse<DealerDiscountPolicyResponse> get(UUID id) {
     DealerDiscountPolicy policy =
         dealerDiscountPolicyRepository
@@ -219,6 +221,7 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('ADMIN')")
   public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable) {
     try {
       // Lấy page từ repository

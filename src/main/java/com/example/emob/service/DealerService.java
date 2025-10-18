@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -81,6 +82,7 @@ public class DealerService implements IDealer {
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public APIResponse<DealerResponse> get(UUID id) {
     try {
       Dealer dealer =
@@ -94,9 +96,10 @@ public class DealerService implements IDealer {
   }
 
   @Override
+  @PreAuthorize("hasRole('ADMIN')")
   public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
     try {
-      Page<Dealer> page = dealerRepository.findAll(pageable);
+    Page<Dealer> page = dealerRepository.findAllByDeletedFalse(pageable);
       PageResponse<DealerResponse> response =
           pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
 

@@ -16,5 +16,6 @@ public class DealerResponse {
   String name;
   String contactInfo;
   String country;
+  String address;
   LocalDateTime createdAt;
 }

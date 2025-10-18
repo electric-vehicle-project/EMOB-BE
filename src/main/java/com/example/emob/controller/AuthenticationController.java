@@ -2,9 +2,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.model.request.*;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.AccountResponse;
-import com.example.emob.model.response.OtpResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.service.AuthenticationService;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,8 +14,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -60,6 +63,16 @@ public class AuthenticationController {
                       mediaType = "application/json",
                       schema = @Schema(implementation = LoginRequest.class),
                       examples = {
+                          @ExampleObject(
+                                  name = "Account Admin",
+                                  description = "Example login for Admin",
+                                  value =
+                                          """
+                  {
+                    "email": "admin@gmail.com",
+                    "password": "Admin@123"
+                  }
+                  """),
                         @ExampleObject(
                             name = "Account A",
                             description = "Example login for Alice",
@@ -106,7 +119,7 @@ public class AuthenticationController {
     return ResponseEntity.ok(authenticationService.login(request));
   }
 
-  @PostMapping("/register")
+  @PostMapping("/register-by-manager")
   @Operation(
       summary = "Register a new Account",
       requestBody =
@@ -117,48 +130,14 @@ public class AuthenticationController {
                       schema = @Schema(implementation = RegisterRequest.class),
                       examples = {
                         @ExampleObject(
-                            name = "Account A",
-                            value =
-                                """
-    {
-      "fullName": "Alice",
-      "gender": "FEMALE",
-      "status": "ACTIVE",
-      "address": "123 Elm St",
-      "dateOfBirth": "1990-01-01",
-      "role": "ADMIN",
-      "phone": "0987654321",
-      "email": "alice@example.com",
-      "password": "Pass1234"
-    }
-    """),
-                        @ExampleObject(
-                            name = "Account B",
-                            value =
-                                """
-                {
-                  "fullName": "Bob",
-                  "gender": "MALE",
-                  "status": "ACTIVE",
-                  "address": "456 Oak St",
-                  "dateOfBirth": "1992-02-02",
-                  "role": "EVM_STAFF",
-                  "phone": "0123456789",
-                  "email": "bob@example.com",
-                  "password": "Pass5678"
-                }
-                """),
-                        @ExampleObject(
                             name = "Account C",
                             value =
                                 """
                     {
                       "fullName": "Alice",
                       "gender": "FEMALE",
-                      "status": "ACTIVE",
                       "address": "123 Elm St",
                       "dateOfBirth": "1990-01-01",
-                      "role": "DEALER_STAFF",
                       "phone": "09876543211",
                       "email": "alice123@example.com",
                       "password": "Pass1234"
@@ -171,19 +150,63 @@ public class AuthenticationController {
                   {
                     "fullName": "Yob",
                     "gender": "MALE",
-                    "status": "ACTIVE",
                     "address": "456 Oak St",
                     "dateOfBirth": "1992-02-02",
-                    "role": "MANAGER",
                     "phone": "1012345678912",
                     "email": "yob@example.com",
                     "password": "Pass5678"
                   }
                   """)
                       })))
-  public ResponseEntity<APIResponse<AccountResponse>> register(
+  public ResponseEntity<APIResponse<AccountResponse>> registerByManager(
       @Valid @RequestBody RegisterRequest request) {
-    return ResponseEntity.ok(authenticationService.register(request));
+    return ResponseEntity.ok(authenticationService.registerByManager(request));
+  }
+  @PostMapping("/register-by-admin")
+  @Operation(
+          summary = "Register a new Account",
+          requestBody =
+          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                  content =
+                  @Content(
+                          mediaType = "application/json",
+                          schema = @Schema(implementation = RegisterRequest.class),
+                          examples = {
+                                  @ExampleObject(
+                                          name = "Account A",
+                                          value =
+                                                  """
+                      {
+                        "fullName": "Alice",
+                        "dealerId": "nhập id hoặc ko nhập",
+                        "gender": "FEMALE",
+                        "address": "123 Elm St",
+                        "dateOfBirth": "1990-01-01",
+                        "phone": "0987654321",
+                        "email": "alice@example.com",
+                        "password": "Pass1234"
+                      }
+                      """),
+                                  @ExampleObject(
+                                          name = "Account B",
+                                          value =
+                                                  """
+                                  {
+                                    "fullName": "Bob",
+                                    "dealerId": "nhập id hoặc ko nhập",
+                                    "gender": "MALE",
+                                    "address": "456 Oak St",
+                                    "dateOfBirth": "1992-02-02",
+                                    "phone": "0123456789",
+                                    "email": "bob@example.com",
+                                    "password": "Pass5678"
+                                  }
+                                  """),
+
+                          })))
+  public ResponseEntity<APIResponse<AccountResponse>> registerByAdmin(
+          @Valid @RequestBody RegisterRequest request) {
+    return ResponseEntity.ok(authenticationService.registerByAdmin(request));
   }
 
   @PostMapping("/logout")
@@ -201,4 +224,26 @@ public class AuthenticationController {
       @RequestBody TokenRequest refreshRequest) {
     return ResponseEntity.ok(authenticationService.refresh(refreshRequest));
   }
+
+  @GetMapping("/{id}")
+  @Operation(summary = "Get account by ID")
+  public ResponseEntity<APIResponse<AccountResponse>> getAccount(@PathVariable UUID id) {
+    return ResponseEntity.ok(authenticationService.get(id));
+  }
+
+  @GetMapping("by-manager")
+  @Operation(summary = "Get all by manager")
+  public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByManager(
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(authenticationService.getAllByManager(pageable));
+  }
+
+  @GetMapping("by-admin")
+  public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByAdmin(
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(authenticationService.getAllByAdmin(pageable));
+  }
+
 }

@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -57,51 +58,38 @@ public class VehiclePriceRuleController {
                       mediaType = "application/json",
                       schema = @Schema(implementation = VehiclePriceRule.class),
                       examples = {
-                        @ExampleObject(
-                            name = "NORMAL Rule",
-                            value =
-                                """
-                                            {
-                                              "vehicleStatus": "NORMAL",
-                                              "multiplier": 1.0,
-                                              "note": "High season pricing"
-                                            }
-                                            """),
-                        @ExampleObject(
-                            name = "TEST_DRIVE Rule",
-                            value =
-                                """
-                                            {
-                                              "vehicleStatus": "TEST_DRIVE",
-                                              "multiplier": 0.9,
-                                              "note": "High season pricing"
-                                            }
-                                            """),
-                        @ExampleObject(
-                            name = "SPECIAL Rule",
-                            value =
-                                """
-                                            {
-                                              "vehicleStatus": "SPECIAL",
-                                              "multiplier": 1.5,
-                                              "note": "High season pricing"
-                                            }
-                                            """),
-                        @ExampleObject(
-                            name = "OLD_STOCK Rule",
-                            value =
-                                """
-                                            {
-                                              "vehicleStatus": "OLD_STOCK",
-                                              "multiplier": 0.8,
-                                              "note": "High season pricing"
-                                            }
-                                            """)
-                      })))
+@ExampleObject(
+    name = "Rules Array",
+    value =
+        """
+        [
+          {
+            "vehicleStatus": "NORMAL",
+            "multiplier": 1.0,
+            "note": "High season pricing"
+          },
+          {
+            "vehicleStatus": "TEST_DRIVE",
+            "multiplier": 0.9,
+            "note": "High season pricing"
+          },
+          {
+            "vehicleStatus": "SPECIAL",
+            "multiplier": 1.5,
+            "note": "High season pricing"
+          },
+          {
+            "vehicleStatus": "OLD_STOCK",
+            "multiplier": 0.8,
+            "note": "High season pricing"
+          }
+        ]
+        """)
+})))
+
   public ResponseEntity<APIResponse<String>> saveRule(
-      @RequestBody VehiclePriceRuleRequest request) {
-    vehiclePriceRuleService.saveRule(
-        request.getVehicleStatus(), request.getMultiplier(), request.getNote());
+      @RequestBody List<VehiclePriceRuleRequest> vehiclePriceRuleRequests) {
+    vehiclePriceRuleService.saveRule(vehiclePriceRuleRequests);
     return ResponseEntity.ok(APIResponse.success("Vehicle price rule created successfully"));
   }
 }

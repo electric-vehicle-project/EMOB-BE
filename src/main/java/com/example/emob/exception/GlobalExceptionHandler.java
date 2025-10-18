@@ -23,31 +23,49 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException exception) {
     APIResponse<Object> apiResponse = new APIResponse<>();
 
-    String field = Objects.requireNonNull(exception.getFieldError()).getField();
-    log.info(field);
+
+    String enumkey = exception.getFieldError().getDefaultMessage();
+
     ErrorCode errorCode;
 
-    switch (field) {
-      case "email":
-        errorCode = ErrorCode.INVALID_EMAIL;
-        break;
-      case "phone":
-        errorCode = ErrorCode.INVALID_PHONE_NUMBER;
-        break;
-      case "fullName":
-        errorCode = ErrorCode.FULL_NAME_REQUIRED;
-        break;
-      case "password":
-        errorCode = ErrorCode.PASSWORD_TOO_SHORT;
-        break;
-      default:
-        errorCode = ErrorCode.INVALID_CODE;
+    try {
+      errorCode = ErrorCode.valueOf(enumkey);
+
+    }catch (IllegalArgumentException e) {
+      errorCode=  ErrorCode.INVALID_CODE;
     }
 
-    apiResponse.setCode(errorCode.getCode());
-    apiResponse.setMessage(errorCode.getMessage());
 
-    return ResponseEntity.status(errorCode.getStatus()).body(apiResponse);
+
+
+    apiResponse.setCode(errorCode.getCode());
+
+
+
+    switch (errorCode) {
+      case FIELD_REQUIRED -> {
+        String field = Objects.requireNonNull(exception.getFieldError()).getField();
+        String message = field + " " + errorCode.getMessage();
+        apiResponse.setMessage(message);
+      }
+      case INVALID_SIZE_100 -> {
+        var fieldError = exception.getBindingResult().getFieldError();
+        String field = (fieldError != null) ? fieldError.getField() : "unknown field";
+        String message = field + " " + errorCode.getMessage();
+        apiResponse.setMessage(message);
+      }
+      case INVALID_MIN_0 -> {
+        var fieldError = exception.getBindingResult().getFieldError();
+        String field = (fieldError != null) ? fieldError.getField() : "unknown field";
+        String message = field + " " + errorCode.getMessage();
+        apiResponse.setMessage(message);
+      }
+      default -> apiResponse.setMessage(errorCode.getMessage());
+    }
+
+    return  ResponseEntity
+            .status(errorCode.getCode())
+            .body(apiResponse);
   }
 
   @ExceptionHandler(AccessDeniedException.class)
@@ -75,9 +93,18 @@ public class GlobalExceptionHandler {
   public ResponseEntity<APIResponse<Object>> httpMessageNotReadableException(
       HttpMessageNotReadableException exception) {
     APIResponse<Object> apiResponse = new APIResponse<>();
+    String message = exception.getMessage();
+
+    if (message != null && message.contains("values accepted for Enum class")) {
+      int start = message.indexOf("values accepted for Enum class");
+      message = message.substring(start);
+    }
+
+    // Làm sạch thêm (xóa dấu chấm thừa hoặc dòng mới)
+    message = message.replaceAll("\\s+", " ").trim();
     apiResponse.setCode(ErrorCode.NOT_FOUND_ENUM.getCode());
     log.info(exception.getMessage());
-    apiResponse.setMessage(ErrorCode.NOT_FOUND_ENUM.getMessage());
+    apiResponse.setMessage(message);
     return ResponseEntity.status(ErrorCode.NOT_FOUND_ENUM.getStatus()).body(apiResponse);
   }
 

@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -96,6 +97,7 @@ public class CustomerService implements ICustomer {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF','MANAGER')")
   public APIResponse<CustomerResponse> get(UUID id) {
     try {
       Customer customer =
@@ -110,9 +112,10 @@ public class CustomerService implements ICustomer {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF','MANAGER')")
   public APIResponse<PageResponse<CustomerResponse>> getAll(Pageable pageable) {
     try {
-      Page<Customer> page = customerRepository.findAll(pageable);
+    Page<Customer> page = customerRepository.findAllByDealer(AccountUtil.getCurrentUser().getDealer(), pageable);
       PageResponse<CustomerResponse> response =
           pageMapper.toPageResponse(page, customerMapper::toCustomerResponse);
       return APIResponse.success(response);

@@ -2,6 +2,7 @@
 package com.example.emob.security;
 
 import com.example.emob.config.SecurityConfig;
+import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Account;
 import com.example.emob.exception.GlobalException;
@@ -53,11 +54,16 @@ public class Filter extends OncePerRequestFilter {
       return;
     }
 
+
     if (token != null) {
       try {
 
         Account account = tokenService.verifyToken(token);
-
+        if(account.getStatus().equals(AccountStatus.BANNED)){
+            resolver.resolveException(
+                request, response, null, new GlobalException(ErrorCode.ACCOUNT_BANNED));
+            return;
+        }
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

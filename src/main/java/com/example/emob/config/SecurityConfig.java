@@ -8,6 +8,7 @@ import com.example.emob.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -34,7 +35,6 @@ public class SecurityConfig {
   // Public
   public static final String[] PUBLIC = {
     "/api/auth/login",
-    "/api/auth/register",
     "/api/auth/logout",
     "/api/auth/refresh",
     "/api/auth/refresh-token",
@@ -48,7 +48,7 @@ public class SecurityConfig {
 
   // ADMIN
   public static final String[] ADMIN = {
-    "/api/dealer/**", "/api/vehicle-price-rules", "/api/vehicle/{id}/prices",
+    "/api/dealer/**", "/api/vehicle-price-rules", "/api/vehicle/{id}/prices","/api/auth/register-by-admin", "api/auth/by-admin","/api/dealer-discount-policy/**"
   };
 
   public static final String[] DEALER_STAFF = {
@@ -64,24 +64,17 @@ public class SecurityConfig {
   };
 
   public static final String[] MANAGER = {
-    "/api/test-drive/schedules/**", "/api/report/process-report/**",
+    "/api/test-drive/schedules/**", "/api/report/process-report/**","api/auth/by-manager","/api/auth/register-by-manager",
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/products/**",
-    "/api/cart/**",
-    "/api/files/**",
-    "/api/notifications/**",
-    "/api/auth/reset-password",
-    "/api/promotion/**"
+    "/api/notifications/**", "/api/promotion/**", "/api/vehicle-price-rules/**"
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
   };
 
-  public static final String[] MULTI_ROLE_ACCESS = {
-    "/api/promotion/view-all/**",
-  };
+
 
   @Bean
   public PasswordEncoder encoder() {
@@ -102,6 +95,9 @@ public class SecurityConfig {
             req ->
                 req.requestMatchers(PUBLIC)
                     .permitAll()
+                        .requestMatchers(HttpMethod.GET,"/**").authenticated()
+                        .requestMatchers(AUTHENTICATED)
+                        .authenticated()
                     .requestMatchers(SWAGGER)
                     .permitAll()
                     .requestMatchers(DEALER_STAFF)
@@ -110,12 +106,9 @@ public class SecurityConfig {
                     .hasRole("EVM_STAFF")
                     .requestMatchers(MANAGER)
                     .hasRole("MANAGER")
-                    .requestMatchers(MULTI_ROLE_ACCESS)
-                    .hasAnyRole("ADMIN", "MANAGER", "EVM_STAFF", "DEALER_STAFF")
                     .requestMatchers(ADMIN)
                     .hasRole("ADMIN")
-                    .requestMatchers(AUTHENTICATED)
-                    .authenticated()
+
                     .anyRequest()
                     .denyAll())
         .exceptionHandling(

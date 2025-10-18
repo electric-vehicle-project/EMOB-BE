@@ -5,8 +5,8 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 
-// ?: wildcard => Enum<?> chỉ 1 enum bât kì ....
 public class EnumValidatorClass implements ConstraintValidator<EnumValidator, Object> {
+
   private Class<? extends Enum<?>> enumClass;
   private String message;
 
@@ -18,28 +18,26 @@ public class EnumValidatorClass implements ConstraintValidator<EnumValidator, Ob
 
   @Override
   public boolean isValid(Object value, ConstraintValidatorContext context) {
-    if (value == null) return true;
+    if (value == null) return true; // Cho phép null (nếu muốn bắt buộc => thêm @NotNull riêng)
 
-    boolean isValid;
-    if (value instanceof Enum<?>) {
-      isValid = Arrays.asList(enumClass.getEnumConstants()).contains(value);
-    } else {
-      // so sánh String hoặc Integer
-      isValid =
-          Arrays.stream(enumClass.getEnumConstants())
-              .anyMatch(e -> e.name().equals(value.toString()));
-    }
+    String stringValue = String.valueOf(value);
 
-    if (!isValid) {
-      context.disableDefaultConstraintViolation();
-      context
-          .buildConstraintViolationWithTemplate(
-              (message == null || message.isEmpty())
-                  ? "Invalid value for enum " + enumClass.getSimpleName()
-                  : message)
-          .addConstraintViolation();
-    }
+    boolean matched = Arrays.stream(enumClass.getEnumConstants())
+            .anyMatch(e -> e.name().equalsIgnoreCase(stringValue));
 
-    return isValid;
+    if (matched) return true;
+
+    // Nếu không khớp, tạo message chứa danh sách enum
+    String allowedValues = String.join(", ",
+            Arrays.stream(enumClass.getEnumConstants())
+                    .map(Enum::name)
+                    .toList());
+
+    context.disableDefaultConstraintViolation();
+    context.buildConstraintViolationWithTemplate(
+            message + ". Allowed values: [" + allowedValues + "]"
+    ).addConstraintViolation();
+
+    return false;
   }
 }
