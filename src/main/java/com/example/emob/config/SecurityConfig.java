@@ -53,7 +53,8 @@ public class SecurityConfig {
     "/api/vehicle/{id}/prices",
     "/api/auth/register-by-admin",
     "api/auth/by-admin",
-    "/api/dealer-discount-policy/**"
+    "/api/dealer-discount-policy/**",
+          "/api/vehicle-price-rules/**"
   };
 
   public static final String[] DEALER_STAFF = {
@@ -65,7 +66,7 @@ public class SecurityConfig {
   };
 
   public static final String[] EVM_STAFF = {
-    "/api/vehicle/**",
+    "/api/vehicle/",
   };
 
   public static final String[] MANAGER = {
@@ -76,7 +77,7 @@ public class SecurityConfig {
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/notifications/**", "/api/promotion/**", "/api/vehicle-price-rules/**"
+    "/api/notifications/**", "/api/promotion/**"
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
@@ -101,21 +102,23 @@ public class SecurityConfig {
             req ->
                 req.requestMatchers(PUBLIC)
                     .permitAll()
-                        .requestMatchers(SWAGGER)
-                        .permitAll()
+                    .requestMatchers(SWAGGER)
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/**")
                     .authenticated()
                     .requestMatchers(AUTHENTICATED)
                     .authenticated()
-
+                        .requestMatchers(ADMIN)
+                        .hasRole("ADMIN")
+                        .requestMatchers(EVM_STAFF)
+                        .hasRole("EVM_STAFF")
+                        .requestMatchers(MANAGER)
+                        .hasRole("MANAGER")
                     .requestMatchers(DEALER_STAFF)
                     .hasRole("DEALER_STAFF")
-                    .requestMatchers(EVM_STAFF)
-                    .hasRole("EVM_STAFF")
-                    .requestMatchers(MANAGER)
-                    .hasRole("MANAGER")
-                    .requestMatchers(ADMIN)
-                    .hasRole("ADMIN")
+
+
+
                     .anyRequest()
                     .denyAll())
         .exceptionHandling(

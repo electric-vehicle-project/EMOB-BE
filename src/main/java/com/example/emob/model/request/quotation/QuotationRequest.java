@@ -11,9 +11,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuotationRequest {
-  List<QuotationItemRequest> items;
+public class QuotationRequest<T> {
+  List<T> items;
   UUID customerId;
   Integer validUntil;
-  UUID dealerId;
 }
