@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DealerRepository extends JpaRepository<Dealer, UUID> {
-  Page<Dealer> findAllByDeletedFalse(Pageable pageable);
+  Page<Dealer> findAllByIsDeletedFalse(Pageable pageable);
 }

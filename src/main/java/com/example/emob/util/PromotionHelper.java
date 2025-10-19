@@ -1,9 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.util;
 
-import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.PromotionStatus;
-import com.example.emob.constant.PromotionType;
+import com.example.emob.constant.*;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.DealerPointRule;
 import com.example.emob.entity.Promotion;
@@ -39,41 +37,39 @@ public class PromotionHelper {
     }
   }
 
-  public static BigDecimal calculateDiscountedPrice(
-      BigDecimal price, Promotion promotion, Customer customer) {
+  public static BigDecimal calculateDiscountedPrice(BigDecimal price, Promotion promotion, Customer customer) {
     BigDecimal discountedPrice = price;
 
-    if (promotion.getType() == PromotionType.PERCENTAGE) {
-      discountedPrice =
-          price.subtract(
-              price
-                  .multiply(BigDecimal.valueOf(promotion.getValue()))
-                  .divide(BigDecimal.valueOf(100)));
-    } else if (promotion.getType() == PromotionType.FIXED_AMOUNT) {
-      discountedPrice = price.subtract(BigDecimal.valueOf(promotion.getValue()));
-    } else if (promotion.getType() == PromotionType.POINT) {
-      customer.setLoyaltyPoints((int) promotion.getValue());
-      // Nếu chỉ cộng điểm, giá không thay đổi
-      discountedPrice = price;
-    }
-    // Áp dụng giá trị tối thiểu
-    if (discountedPrice.compareTo(BigDecimal.valueOf(promotion.getMinValue())) < 0) {
-      discountedPrice = BigDecimal.valueOf(promotion.getMinValue());
-    }
-    String dealerId = customer.getDealer().getId().toString();
-    String membershipLevel = customer.getMemberShipLevel().toString();
-    DealerPointRule rule = dealerPointRuleService.getRule(dealerId, membershipLevel);
-    discountedPrice = discountedPrice.subtract(rule.getPrice());
+    if (promotion != null) {
+      switch (promotion.getType()) {
+        case PERCENTAGE -> discountedPrice = price.subtract(
+                price.multiply(BigDecimal.valueOf(promotion.getValue()))
+                        .divide(BigDecimal.valueOf(100))
+        );
+        case FIXED_AMOUNT -> discountedPrice = price.subtract(BigDecimal.valueOf(promotion.getValue()));
+        case POINT -> {
+          customer.setLoyaltyPoints((int) promotion.getValue());
+          discountedPrice = price;
+        }
+      }
 
-    return discountedPrice;
+      if (discountedPrice.compareTo(BigDecimal.valueOf(promotion.getMinValue())) < 0) {
+        discountedPrice = BigDecimal.valueOf(promotion.getMinValue());
+      }
+    }
+
+    return calculateDiscountedByPoint(discountedPrice, customer);
   }
 
-  public static BigDecimal calculateDiscountedPrice(BigDecimal price, Customer customer) {
-    BigDecimal discountedPrice = price;
-    String dealerId = customer.getDealer().getId().toString();
-    String membershipLevel = customer.getMemberShipLevel().toString();
-    DealerPointRule rule = dealerPointRuleService.getRule(dealerId, membershipLevel);
-    discountedPrice = discountedPrice.subtract(rule.getPrice());
-    return discountedPrice;
+  private static BigDecimal calculateDiscountedByPoint(BigDecimal price, Customer customer) {
+    BigDecimal discountedPriceByPoint = price;
+    if (!MemberShipLevel.NORMAL.equals(customer.getMemberShipLevel())) {
+      String dealerId = customer.getDealer().getId().toString();
+      String membershipLevel = customer.getMemberShipLevel().toString();
+      DealerPointRule rule = dealerPointRuleService.getRule(dealerId, membershipLevel);
+      discountedPriceByPoint = price.subtract(rule.getPrice());
+    }
+    return discountedPriceByPoint;
   }
 }
+

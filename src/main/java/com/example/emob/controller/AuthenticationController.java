@@ -78,7 +78,7 @@ public class AuthenticationController {
                                 """
         {
           "email": "alice@example.com",
-          "password": "Pass1234"
+          "password": "Pass5678@"
         }
         """),
                         @ExampleObject(
@@ -88,7 +88,7 @@ public class AuthenticationController {
                                 """
                     {
                       "email": "bob@example.com",
-                      "password": "Pass5678"
+                      "password": "Pass5678@"
                     }
                     """),
                         @ExampleObject(
@@ -98,7 +98,7 @@ public class AuthenticationController {
                                 """
                                                                             {
                                                                               "email": "alice123@example.com",
-                                                                              "password": "Pass1234"
+                                                                              "password": "Pass5678@"
                                                                             }
                         """),
                         @ExampleObject(
@@ -108,7 +108,7 @@ public class AuthenticationController {
                                 """
                       {
                         "email": "yob@example.com",
-                        "password": "Pass5678"
+                        "password": "Pass5678@"
                       }
                       """)
                       })))
@@ -138,7 +138,7 @@ public class AuthenticationController {
                       "dateOfBirth": "1990-01-01",
                       "phone": "09876543211",
                       "email": "alice123@example.com",
-                      "password": "Pass1234"
+                      "password": "Pass5678@"
                     }
                     """),
                         @ExampleObject(
@@ -152,7 +152,7 @@ public class AuthenticationController {
                     "dateOfBirth": "1992-02-02",
                     "phone": "1012345678912",
                     "email": "yob@example.com",
-                    "password": "Pass5678"
+                    "password": "Pass5678@"
                   }
                   """)
                       })))
@@ -183,7 +183,7 @@ public class AuthenticationController {
                         "dateOfBirth": "1990-01-01",
                         "phone": "0987654321",
                         "email": "alice@example.com",
-                        "password": "Pass1234"
+                        "password": "Pass5678@"
                       }
                       """),
                         @ExampleObject(
@@ -198,7 +198,7 @@ public class AuthenticationController {
                                     "dateOfBirth": "1992-02-02",
                                     "phone": "0123456789",
                                     "email": "bob@example.com",
-                                    "password": "Pass5678"
+                                    "password": "Pass5678@"
                                   }
                                   """),
                       })))

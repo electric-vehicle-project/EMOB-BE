@@ -25,6 +25,7 @@ public class Quotation {
   BigDecimal totalPrice;
   int totalQuantity;
   int validUntil;
+  boolean isDeleted = false;
 
   @Enumerated(EnumType.STRING)
   QuotationStatus status;

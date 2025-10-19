@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QuotationItemResponse {
   UUID id;
-  ElectricVehicleResponse vehicle;
+  UUID vehicleId;
   UUID promotionId;
   VehicleStatus vehicleStatus;
   String color;

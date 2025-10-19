@@ -22,7 +22,7 @@ public class QuotationItem {
   BigDecimal unitPrice;
   BigDecimal totalPrice;
   BigDecimal discountPrice;
-
+  boolean isDeleted = false;
   @Enumerated(EnumType.STRING)
   VehicleStatus vehicleStatus;
 
