@@ -116,7 +116,7 @@ public class ElectricVehicleService implements IVehicle {
   @Override
   public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable) {
     try {
-      Page<ElectricVehicle> page = vehicleRepository.findAll(pageable);
+      Page<ElectricVehicle> page = vehicleRepository.findAllByIsDeletedFalse(pageable);
       PageResponse<ElectricVehicleResponse> response =
           pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
       return APIResponse.success(response);

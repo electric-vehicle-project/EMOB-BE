@@ -66,7 +66,7 @@ public class SecurityConfig {
   };
 
   public static final String[] EVM_STAFF = {
-    "/api/vehicle/",
+    "/api/vehicle/**",
   };
 
   public static final String[] MANAGER = {
