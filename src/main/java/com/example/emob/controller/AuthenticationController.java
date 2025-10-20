@@ -45,8 +45,8 @@ public class AuthenticationController {
   }
 
   @PostMapping("/resend-otp")
-  public void resendOtp() {
-    authenticationService.resendOtp();
+  public APIResponse<OtpResponse> resendOtp(@RequestBody @Valid OtpRequest request) {
+    return authenticationService.resendOtp(request.getEmail());
   }
 
   @PostMapping("/login")

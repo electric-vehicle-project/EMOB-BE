@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
+
+import com.example.emob.config.RedisConfig;
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.Role;
@@ -24,10 +26,16 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,6 +66,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Autowired RefreshTokenService refreshTokenService;
   @Autowired DealerRepository dealerRepository;
   @Autowired PageMapper pageMapper;
+
+  @Autowired
+  RedisTemplate<String, Object> redisTemplate;
 
   private final SecureRandom secureRandom = new SecureRandom();
 
@@ -127,6 +138,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Override
   public APIResponse<Void> resetPassword(String newPassword) {
     Account account = AccountUtil.getCurrentUser();
+    System.out.println("AccountID: " + account.getEmail());
     if (account == null) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
@@ -136,29 +148,64 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   public boolean checkSpamOtp(String accountId) {
+    // check xem tài khoản này có bị cooldown k
+//    String lockKey = "otp locked: " + accountId;
+    Boolean isLocked = redisTemplate.hasKey(accountId);
+    if (isLocked) {
+      return true; // đang cooldown 24h
+    }
+
+    // kiểm tra OTP hiện tại trong Redis
     Optional<Otp> otpToken = otpRepository.findById(accountId);
-    if (otpToken.isEmpty()) return true;
+    if (otpToken.isEmpty()) return false; // ko tìm thấy
     Otp otp = otpToken.get();
-    return otp.getResendCount() < 3;
+    // nếu gửi quá 3 lần
+    if (otp.getResendCount() >= 3) {
+      // Xóa OTP hiện tại
+      otpRepository.deleteById(accountId);
+
+      // đăt khóa 24h
+      redisTemplate.opsForValue().set(accountId, otp, 24, TimeUnit.HOURS);
+
+      return true; // bị spam => chặn
+    }
+    return false; // chưa spam
   }
 
   @Override
-  public void resendOtp() {
-    Account account = AccountUtil.getCurrentUser();
+  public APIResponse<OtpResponse> resendOtp(String email) {
+    // tìm email
+    Account account = accountRepository.findAccountByEmail(email);
     if (account == null) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
-    if (checkSpamOtp(account.getId().toString())) {
-      throw new GlobalException(ErrorCode.TOO_MANY_OTP);
+
+    String accountId = account.getId().toString();
+
+    // check spam và check locked
+    if (checkSpamOtp(accountId)) {
+      throw new GlobalException(
+              ErrorCode.TOO_MANY_OTP
+      );
     }
+    // tạo ra otp mới
     String newOtpCode = String.format("%05d", secureRandom.nextInt(100_000));
-    Otp newOtp = new Otp();
-    newOtp.setOtp(newOtpCode);
-    newOtp.setTtl(DURATION);
-    newOtp.setAccountId(account.getId().toString());
-    // check spam otp
-    newOtp.setResendCount(newOtp.getResendCount() + 1);
-    otpRepository.save(newOtp);
+
+    // lấy ra otp hiện tại
+    Optional<Otp> otpOpt = otpRepository.findById(accountId);
+    Otp otp = otpOpt.orElse(new Otp());
+
+    otp.setAccountId(accountId);
+    otp.setOtp(newOtpCode);
+    otp.setTtl(DURATION); // 5 phút
+    otp.setToken(tokenService.generateResetToken(account)); // set token mới vào
+
+    // count++ số lần gửi lại
+    otp.setResendCount(otp.getResendCount() + 1);
+
+    // lưu otp này vào redis lại
+    otpRepository.save(otp);
+
     // Gửi lại email
     emailService.sendEmail(
         "Mã OTP mới của bạn",
@@ -176,6 +223,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         account.getFullName(),
         "Xác thực ngay",
         account.getEmail());
+    OtpResponse otpResponse = new OtpResponse();
+    otpResponse.setToken(otp.getToken());
+    return APIResponse.success(otpResponse, "Resend Otp Successfully");
   }
 
   @Override

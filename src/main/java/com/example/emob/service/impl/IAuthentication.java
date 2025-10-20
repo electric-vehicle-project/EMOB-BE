@@ -29,5 +29,5 @@ public interface IAuthentication {
 
   APIResponse<Void> resetPassword(String newPassword);
 
-  void resendOtp();
+  APIResponse<OtpResponse> resendOtp(String email);
 }
