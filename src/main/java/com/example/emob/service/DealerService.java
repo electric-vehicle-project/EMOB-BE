@@ -82,7 +82,7 @@ public class DealerService implements IDealer {
   }
 
   @Override
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<DealerResponse> get(UUID id) {
     try {
       Dealer dealer =
@@ -96,7 +96,7 @@ public class DealerService implements IDealer {
   }
 
   @Override
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
     try {
       Page<Dealer> page = dealerRepository.findAllByIsDeletedFalse(pageable);
