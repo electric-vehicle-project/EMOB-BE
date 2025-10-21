@@ -20,6 +20,5 @@ public class Otp implements Serializable {
   @Id @Indexed String accountId;
   String otp;
   @TimeToLive Long ttl;
-  String token;
   int resendCount; // số lần gửi lại otp
 }
