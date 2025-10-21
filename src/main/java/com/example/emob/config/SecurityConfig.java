@@ -54,7 +54,7 @@ public class SecurityConfig {
     "/api/auth/register-by-admin",
     "api/auth/by-admin",
     "/api/dealer-discount-policy/**",
-          "/api/vehicle-price-rules/**"
+    "/api/vehicle-price-rules/**"
   };
 
   public static final String[] DEALER_STAFF = {
@@ -116,9 +116,6 @@ public class SecurityConfig {
                         .hasRole("MANAGER")
                     .requestMatchers(DEALER_STAFF)
                     .hasRole("DEALER_STAFF")
-
-
-
                     .anyRequest()
                     .denyAll())
         .exceptionHandling(

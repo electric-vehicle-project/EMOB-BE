@@ -35,6 +35,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,6 +81,7 @@ public class PromotionService implements IPromotion {
 
   @Override
   @Transactional
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   public APIResponse<PromotionResponse> createPromotion(PromotionRequest request) {
     // tim staff
     Account staff = AccountUtil.getCurrentUser();
@@ -137,14 +139,52 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   public APIResponse<PromotionResponse> updatePromotion(UpdatePromotionRequest request, UUID id) {
     Promotion promotion =
         promotionRepository
             .findById(id)
-            .filter((item) -> (item.getStatus().equals(PromotionStatus.UPCOMING)))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     try {
-      // mapper
+      if (promotion.getScope() == PromotionScope.GLOBAL || promotion.getScope() == PromotionScope.LOCAL) {
+        // tìm xe
+        if (request.getElectricVehicleIds() != null && !request.getElectricVehicleIds().isEmpty()) {
+          Set<ElectricVehicle> electricVehicles =
+                  new HashSet<>(electricVehicleRepository.findAllById(request.getElectricVehicleIds()));
+          if (promotion.getVehicles().equals(electricVehicles)) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+          }
+          promotion.getVehicles().addAll(electricVehicles);
+        }
+        System.out.println("vào đây chưa 1");
+
+        // tìm dealer
+        if (request.getDealerIds() != null && !request.getDealerIds().isEmpty()) {
+          Set<Dealer> dealers = new HashSet<>(dealerRepository.findAllById(request.getDealerIds()));
+          // kiểm tra có trùng danh sách cũ không
+          if (promotion.getDealers().equals(dealers)) {
+            throw new GlobalException(ErrorCode.DATA_INVALID);
+          }
+          if (promotion.getScope() == PromotionScope.LOCAL) {
+            // --- LOCAL SCOPE chỉ cho phép 1 dealer ---
+            Set<UUID> dealerIds = request.getDealerIds();
+
+            if (dealerIds == null || dealerIds.isEmpty() || dealerIds.size() != 1) {
+              throw new GlobalException(ErrorCode.DATA_INVALID);
+            }
+            // lấy 1 thằng duy nhất
+            UUID dealerId = dealerIds.iterator().next();
+            Dealer dealer = dealerRepository
+                    .findById(dealerId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+            promotion.setDealers(Set.of(dealer)); // chỉ set duy nhất 1 dealer
+          } else {
+            // global scope có thể nhiều dealer ---
+            promotion.getDealers().addAll(dealers);
+          }
+        }
+      }
+        // mapper
       promotion.setUpdateAt(LocalDateTime.now());
       promotion.setName(request.getName());
       promotion.setDescription(request.getDescription());
@@ -169,6 +209,7 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public APIResponse<PromotionResponse> createValuePromotion(
       UUID id, PromotionValueRequest request) {
     Promotion promotion =
@@ -201,6 +242,7 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public APIResponse<Void> deletePromotion(UUID id) {
     Promotion promotion =
         promotionRepository
@@ -266,6 +308,7 @@ public class PromotionService implements IPromotion {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId) {
     Dealer dealer =
         dealerRepository

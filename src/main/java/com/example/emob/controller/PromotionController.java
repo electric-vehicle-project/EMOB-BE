@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class PromotionController {
   @Autowired PromotionService promotionService;
 
-  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
+
   @PostMapping
   @Operation(
       summary = "Generate Promotion",
@@ -86,7 +86,7 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createPromotion(request));
   }
 
-  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
+
   @PutMapping("/{id}")
   @Operation(summary = "Update Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion(
@@ -94,14 +94,13 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.updatePromotion(request, id));
   }
 
-  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   @GetMapping("/{id}")
   @Operation(summary = "View Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> viewPromotion(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.viewPromotion(id));
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Promotion")
   public ResponseEntity<APIResponse<Void>> deletePromotion(@PathVariable("id") UUID id) {
@@ -118,14 +117,14 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
   }
 
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+
   @PutMapping("/value/{id}")
   public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
       @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
   }
 
-  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")
   public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion(UUID id) {
