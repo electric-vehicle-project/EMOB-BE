@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.model.response;
 
+import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.Gender;
 import com.example.emob.constant.MemberShipLevel;
 import java.time.LocalDate;
@@ -24,4 +25,5 @@ public class CustomerResponse {
   Gender gender;
   int loyaltyPoints;
   MemberShipLevel memberShipLevel;
+  CustomerStatus status;
 }

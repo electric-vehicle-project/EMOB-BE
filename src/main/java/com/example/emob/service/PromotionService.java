@@ -152,25 +152,24 @@ public class PromotionService implements IPromotion {
           Set<ElectricVehicle> electricVehicles =
                   new HashSet<>(electricVehicleRepository.findAllById(request.getElectricVehicleIds()));
           if (promotion.getVehicles().equals(electricVehicles)) {
-            throw new GlobalException(ErrorCode.DATA_INVALID);
+            throw new GlobalException(ErrorCode.DATA_INVALID, "Electric vehicles list is the same as before");
           }
           promotion.getVehicles().addAll(electricVehicles);
         }
-        System.out.println("vào đây chưa 1");
 
         // tìm dealer
         if (request.getDealerIds() != null && !request.getDealerIds().isEmpty()) {
           Set<Dealer> dealers = new HashSet<>(dealerRepository.findAllById(request.getDealerIds()));
           // kiểm tra có trùng danh sách cũ không
           if (promotion.getDealers().equals(dealers)) {
-            throw new GlobalException(ErrorCode.DATA_INVALID);
+            throw new GlobalException(ErrorCode.DATA_INVALID, "Dealers list is the same as before");
           }
           if (promotion.getScope() == PromotionScope.LOCAL) {
             // --- LOCAL SCOPE chỉ cho phép 1 dealer ---
             Set<UUID> dealerIds = request.getDealerIds();
 
             if (dealerIds == null || dealerIds.isEmpty() || dealerIds.size() != 1) {
-              throw new GlobalException(ErrorCode.DATA_INVALID);
+              throw new GlobalException(ErrorCode.DATA_INVALID, "Local promotion must have exactly one dealer");
             }
             // lấy 1 thằng duy nhất
             UUID dealerId = dealerIds.iterator().next();
