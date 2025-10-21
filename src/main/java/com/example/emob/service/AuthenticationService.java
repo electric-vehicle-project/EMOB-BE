@@ -120,10 +120,10 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
             .findFirst()
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     if (otp == null) {
-      throw new RuntimeException("No OTP set or expired");
+      throw new GlobalException(ErrorCode.INVALID_CODE, "No OTP set or expired");
     }
     if (!otp.getOtp().equals(request.getOtpCode())) {
-      throw new RuntimeException("Invalid OTP");
+      throw new GlobalException(ErrorCode.INVALID_CODE, "Invalid OTP");
     }
 
     // xóa otp
@@ -173,7 +173,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
-  public APIResponse<OtpResponse> resendOtp(String email) {
+  public APIResponse<Void> resendOtp(String email) {
     // tìm email
     Account account = accountRepository.findAccountByEmail(email);
     if (account == null) {
@@ -198,7 +198,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     otp.setAccountId(accountId);
     otp.setOtp(newOtpCode);
     otp.setTtl(DURATION); // 5 phút
-    otp.setToken(tokenService.generateResetToken(account)); // set token mới vào
+//    otp.setToken(tokenService.generateResetToken(account)); // set token mới vào
 
     // count++ số lần gửi lại
     otp.setResendCount(otp.getResendCount() + 1);
@@ -223,9 +223,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         account.getFullName(),
         "Xác thực ngay",
         account.getEmail());
-    OtpResponse otpResponse = new OtpResponse();
-    otpResponse.setToken(otp.getToken());
-    return APIResponse.success(otpResponse, "Resend Otp Successfully");
+    return APIResponse.success(null, "Resend Otp Successfully");
   }
 
   @Override
