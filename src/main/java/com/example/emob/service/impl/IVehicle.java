@@ -27,4 +27,8 @@ public interface IVehicle {
 
   APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
   //  void  autoUpdateVehiclePrices(Double basePrice);
+
+  APIResponse<VehicleUnitResponse> getVehicleUnit (UUID id);
+
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits (Pageable pageable);
 }
