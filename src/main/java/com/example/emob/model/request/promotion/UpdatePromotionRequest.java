@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,8 +17,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdatePromotionRequest {
+  Set<UUID> dealerIds;
+  Set<UUID> electricVehicleIds;
   @NotNull String name;
-
   @Size(max = 255, message = "Description must not exceed 255 characters")
   String description;
 }
