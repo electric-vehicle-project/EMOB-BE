@@ -36,6 +36,6 @@ public class InstallmentPlan {
   Integer reminderCount; // số lần nhắc nhỏ khi OVERDUE
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "sale_order")
+  @JoinColumn(name = "sale_order_id")
   SaleOrder saleOrder;
 }

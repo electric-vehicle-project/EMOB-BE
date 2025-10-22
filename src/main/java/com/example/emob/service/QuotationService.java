@@ -2,12 +2,14 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.PaymentStatus;
 import com.example.emob.constant.QuotationStatus;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ElectricVehicleMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.QuotationMapper;
+import com.example.emob.model.request.SaleOrderItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
@@ -43,6 +45,7 @@ public class QuotationService implements IQuotation {
   @Autowired private VehiclePriceRuleService vehiclePriceRuleService;
   @Autowired private QuotationItemRepository quotationItemRepository;
   @Autowired private PageMapper pageMapper;
+  @Autowired private SaleOrderService saleOrderService;
 
   @Override
   @Transactional
@@ -81,6 +84,8 @@ public class QuotationService implements IQuotation {
         if (itemRequest.getPromotionId() != null) {
           Promotion promotion = promotionRepository.findById(itemRequest.getPromotionId())
                   .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
+          //check promotion tồn tại trong vehicle
+          PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
           PromotionHelper.checkPromotionValid(promotion);
           discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, promotion, customer);
           item.setPromotion(promotion);
@@ -192,6 +197,7 @@ public class QuotationService implements IQuotation {
        if (itemReq.getPromotionId() != null) {
          Promotion promotion = promotionRepository.findById(itemReq.getPromotionId())
                  .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
+         PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
          PromotionHelper.checkPromotionValid(promotion);
          discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, promotion, quotation.getCustomer());
          item.setPromotion(promotion);
@@ -321,5 +327,15 @@ public class QuotationService implements IQuotation {
         .vehicleStatus(request.getVehicleStatus())
         .vehicle(vehicle)
         .build();
+  }
+
+
+  public APIResponse<QuotationResponse> approveQuotation(UUID id, List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
+    Quotation quotation = quotationRepository.findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+    quotation.setStatus(QuotationStatus.APPROVED);
+    Quotation savedQuotation = quotationRepository.save(quotation);
+    saleOrderService.createSaleOrderFromQuotation(quotation,itemRequests,paymentStatus);
+    return APIResponse.success(quotationMapper.toQuotationResponse(savedQuotation), "Approve quotation successfully");
   }
 }

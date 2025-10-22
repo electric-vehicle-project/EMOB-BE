@@ -5,7 +5,11 @@ import com.example.emob.constant.OrderStatus;
 import com.example.emob.constant.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,46 +21,46 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "sale_order")
 public class SaleOrder {
   @Id
   @GeneratedValue
-  @Column(columnDefinition = "BINARY(16)", unique = true)
   UUID id;
 
-  LocalDateTime saleDate;
-  Float salePrice;
+  BigDecimal totalPrice;
+  int totalQuantity;
 
-  LocalDateTime createAt;
+  LocalDateTime createdAt;
 
   @Enumerated(EnumType.STRING)
   PaymentStatus paymentStatus;
 
   @Enumerated(EnumType.STRING)
-  OrderStatus orderStatus;
+  OrderStatus status;
 
-  LocalDateTime scheduleAt; // lịch hẹn khaách có thể đến ký hợp đồng
+
+
+
+  @ManyToOne
+  @JoinColumn(name = "customer_id", referencedColumnName = "id")
+  Customer customer;
+
+  @ManyToOne
+  @JoinColumn(name = "dealer_id", referencedColumnName = "id")
+  Dealer dealer;
+  @ManyToOne
+  @JoinColumn(name = "account_id", referencedColumnName = "id")
+  Account account;
+  @OneToMany(mappedBy = "saleOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<SaleOrderItem> saleOrderItems = new HashSet<>();
 
   @OneToOne(mappedBy = "saleOrder", cascade = CascadeType.ALL)
   @JsonIgnore
   SaleContract contract;
 
-  @ManyToOne
-  @JoinColumn(name = "customer", referencedColumnName = "id")
-  Customer customer;
-
-  @ManyToOne
-  @JoinColumn(name = "dealer", referencedColumnName = "id")
-  Dealer dealer;
-
   @OneToOne(mappedBy = "saleOrder", cascade = CascadeType.ALL)
   @JsonIgnore
   InstallmentPlan installmentPlan;
-  //    @ManyToOne
-  //    @JoinColumn(name = "account", referencedColumnName = "id")
-  //    Account account;
-  //
-  //    @ManyToOne
-  //    @JoinColumn(name = "dealer", referencedColumnName = "id")
-  //    Dealer dealer;
+
+
+
 }

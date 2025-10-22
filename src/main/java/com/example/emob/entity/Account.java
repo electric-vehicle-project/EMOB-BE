@@ -69,6 +69,9 @@ public class Account implements UserDetails {
   @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Quotation> quotations = new HashSet<>();
 
+  @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<SaleOrder> saleOrders = new HashSet<>();
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
