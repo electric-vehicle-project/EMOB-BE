@@ -55,5 +55,8 @@ public class ElectricVehicle {
   Set<QuotationItem> quotationItems = new HashSet<>();
 
   @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<SaleOrderItem> saleOrderItems = new HashSet<>();
+
+  @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<DealerDiscountPolicy> discountPolicies = new HashSet<>();
 }

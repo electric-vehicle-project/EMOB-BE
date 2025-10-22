@@ -13,6 +13,6 @@ public interface ContractMapper {
   @Mapping(source = "saleOrder.id", target = "orderId")
   ContractResponse toContractResponse(SaleContract contract);
 
-  @Mapping(target = "id", ignore = true)
-  SaleContract toSaleContract(SaleOrder order);
+//  @Mapping(target = "id", ignore = true)
+//  SaleContract toSaleContract(SaleOrder order);
 }

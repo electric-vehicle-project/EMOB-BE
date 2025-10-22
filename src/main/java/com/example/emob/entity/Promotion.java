@@ -67,4 +67,7 @@ public class Promotion {
 
   @OneToOne(mappedBy = "promotion")
   QuotationItem quotationItem;
+
+  @OneToOne(mappedBy = "promotion")
+  SaleOrderItem saleOrderItem;
 }

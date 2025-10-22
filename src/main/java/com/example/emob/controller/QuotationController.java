@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.PaymentStatus;
+import com.example.emob.model.request.SaleOrderItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,6 +40,13 @@ public class QuotationController {
           @RequestBody QuotationRequest<QuotationItemUpdateRequest> quotationRequest) {
     return ResponseEntity.ok(quotationService.update(id,quotationRequest));
   }
+  @PutMapping("{id}/approved")
+  public ResponseEntity<APIResponse<QuotationResponse>> approved(@RequestParam UUID id,
+                                                                @RequestBody List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
+    return ResponseEntity.ok(quotationService.approveQuotation(id,itemRequests,paymentStatus));
+  }
+
+
 
   @GetMapping("{id}")
   public ResponseEntity<APIResponse<QuotationResponse>> get(@RequestParam UUID id) {

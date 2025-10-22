@@ -77,7 +77,7 @@ public class SecurityConfig {
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/notifications/**", "/api/promotion/**","/api/auth/reset-password"
+    "/api/notifications/**", "/api/promotion/**","/api/auth/reset-password","/api/sale-order/**"
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

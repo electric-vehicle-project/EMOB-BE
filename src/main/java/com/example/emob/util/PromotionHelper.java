@@ -4,11 +4,15 @@ package com.example.emob.util;
 import com.example.emob.constant.*;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.DealerPointRule;
+import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Promotion;
 import com.example.emob.exception.GlobalException;
+import com.example.emob.repository.PromotionRepository;
 import com.example.emob.service.DealerPointRuleService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Component;
 public class PromotionHelper {
 
   private static DealerPointRuleService dealerPointRuleService;
+  private static PromotionRepository promotionRepository;
 
   public static PromotionStatus determinePromotionStatus(
       LocalDateTime startDate, LocalDateTime endDate) {
@@ -59,6 +64,15 @@ public class PromotionHelper {
     }
 
     return calculateDiscountedByPoint(discountedPrice, customer);
+  }
+
+  public static Promotion checkPromotionExists(Promotion promotion, ElectricVehicle vehicle) {
+    Set<Promotion> promotionsInVehicle = vehicle.getPromotions();
+    // Kiểm tra promotion có thuộc vehicle không
+    if (!promotionsInVehicle.contains(promotion)) {
+      throw new GlobalException(ErrorCode.NOT_FOUND, "promotion not found in vehicle");
+    }
+    return promotion;
   }
 
   private static BigDecimal calculateDiscountedByPoint(BigDecimal price, Customer customer) {

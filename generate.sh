@@ -94,7 +94,7 @@ public class ${ENTITY_NAME}Controller {
 
 
 
-}" > src/main/java/com/${PATH_NAME}/controller/${ENTITY_NAME}API.java
+}" > src/main/java/com/${PATH_NAME}/controller/${ENTITY_NAME}Controller.java
 #Mapper
 echo "
 package com.${PACKAGE_NAME}.mapper;
