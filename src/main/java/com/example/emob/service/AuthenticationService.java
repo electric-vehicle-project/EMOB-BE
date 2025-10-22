@@ -1,8 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
-
-import com.example.emob.config.RedisConfig;
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.Role;
@@ -27,14 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,8 +61,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Autowired DealerRepository dealerRepository;
   @Autowired PageMapper pageMapper;
 
-  @Autowired
-  RedisTemplate<String, Object> redisTemplate;
+  @Autowired RedisTemplate<String, Object> redisTemplate;
 
   private final SecureRandom secureRandom = new SecureRandom();
 
@@ -149,7 +142,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   public boolean checkSpamOtp(String accountId) {
     // check xem tài khoản này có bị cooldown k
-//    String lockKey = "otp locked: " + accountId;
+    //    String lockKey = "otp locked: " + accountId;
     Boolean isLocked = redisTemplate.hasKey(accountId);
     if (isLocked) {
       return true; // đang cooldown 24h
@@ -184,9 +177,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
     // check spam và check locked
     if (checkSpamOtp(accountId)) {
-      throw new GlobalException(
-              ErrorCode.TOO_MANY_OTP
-      );
+      throw new GlobalException(ErrorCode.TOO_MANY_OTP);
     }
     // tạo ra otp mới
     String newOtpCode = String.format("%05d", secureRandom.nextInt(100_000));
@@ -198,7 +189,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     otp.setAccountId(accountId);
     otp.setOtp(newOtpCode);
     otp.setTtl(DURATION); // 5 phút
-//    otp.setToken(tokenService.generateResetToken(account)); // set token mới vào
+    //    otp.setToken(tokenService.generateResetToken(account)); // set token mới vào
 
     // count++ số lần gửi lại
     otp.setResendCount(otp.getResendCount() + 1);

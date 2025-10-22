@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.request.installment.UpdateInstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.InstallmentResponse;
@@ -27,22 +26,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Installment Plan Controller", description = "Endpoints for managing installment plans")
 public class InstallmentPlanController {
   @Autowired InstallmentPlanService installmentPlanService;
-
-  @PostMapping
-  @Operation(
-      summary = "Create Installment Plan",
-      requestBody =
-          @io.swagger.v3.oas.annotations.parameters.RequestBody(
-              description = "Create Installment Plan",
-              required = true,
-              content =
-                  @Content(
-                      mediaType = "application/json",
-                      schema = @Schema(implementation = InstallmentRequest.class))))
-  public ResponseEntity<APIResponse<InstallmentResponse>> createInstallment(
-      @Valid @RequestBody InstallmentRequest request) {
-    return ResponseEntity.ok(installmentPlanService.createInstallment(request));
-  }
 
   @PutMapping("/{id}")
   @Operation(

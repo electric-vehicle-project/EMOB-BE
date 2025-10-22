@@ -52,7 +52,7 @@ public class SecurityConfig {
     "/api/vehicle-price-rules",
     "/api/vehicle/{id}/prices",
     "/api/auth/register-by-admin",
-    "api/auth/by-admin",
+    "/api/auth/by-admin",
     "/api/dealer-discount-policy/**",
     "/api/vehicle-price-rules/**"
   };
@@ -74,10 +74,11 @@ public class SecurityConfig {
     "/api/report/process-report/**",
     "api/auth/by-manager",
     "/api/auth/register-by-manager",
+    "/api/vehicle-request/**"
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/notifications/**", "/api/promotion/**","/api/auth/reset-password","/api/sale-order/**"
+    "/api/notifications/**", "/api/promotion/**", "/api/auth/reset-password", "/api/sale-order/**"
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"
@@ -108,12 +109,12 @@ public class SecurityConfig {
                     .authenticated()
                     .requestMatchers(AUTHENTICATED)
                     .authenticated()
-                        .requestMatchers(ADMIN)
-                        .hasRole("ADMIN")
-                        .requestMatchers(EVM_STAFF)
-                        .hasRole("EVM_STAFF")
-                        .requestMatchers(MANAGER)
-                        .hasRole("MANAGER")
+                    .requestMatchers(ADMIN)
+                    .hasRole("ADMIN")
+                    .requestMatchers(EVM_STAFF)
+                    .hasRole("EVM_STAFF")
+                    .requestMatchers(MANAGER)
+                    .hasRole("MANAGER")
                     .requestMatchers(DEALER_STAFF)
                     .hasRole("DEALER_STAFF")
                     .anyRequest()

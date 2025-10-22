@@ -13,13 +13,12 @@ import org.springframework.data.domain.Pageable;
 public interface IQuotation {
   APIResponse<QuotationResponse> create(QuotationRequest<QuotationItemRequest> request);
 
-  APIResponse<QuotationResponse> update(UUID id, QuotationRequest<QuotationItemUpdateRequest> request);
+  APIResponse<QuotationResponse> update(
+      UUID id, QuotationRequest<QuotationItemUpdateRequest> request);
 
   APIResponse<QuotationResponse> delete(UUID id);
 
   APIResponse<QuotationResponse> get(UUID id);
 
   APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable);
-
-  void deleteItem(UUID id);
 }

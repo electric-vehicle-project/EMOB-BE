@@ -1,10 +1,13 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.entity.Dealer;
 import com.example.emob.entity.InstallmentPlan;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +21,6 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
           AND (p.lastReminderDate IS NULL OR p.lastReminderDate < :today)
         """)
   List<InstallmentPlan> findAllOverdueNeedingReminder(@Param("today") LocalDate today);
+
+  Page<InstallmentPlan> findAllBySaleOrder_Dealer(Dealer dealer, Pageable pageable);
 }

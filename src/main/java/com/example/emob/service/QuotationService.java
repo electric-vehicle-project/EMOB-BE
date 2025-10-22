@@ -6,7 +6,6 @@ import com.example.emob.constant.PaymentStatus;
 import com.example.emob.constant.QuotationStatus;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
-import com.example.emob.mapper.ElectricVehicleMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.QuotationMapper;
 import com.example.emob.model.request.SaleOrderItemRequest;
@@ -14,7 +13,6 @@ import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.quotation.QuotationItemResponse;
 import com.example.emob.model.response.quotation.QuotationResponse;
@@ -27,14 +25,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class QuotationService implements IQuotation {
   @Autowired private QuotationRepository quotationRepository;
@@ -47,24 +47,47 @@ public class QuotationService implements IQuotation {
   @Autowired private PageMapper pageMapper;
   @Autowired private SaleOrderService saleOrderService;
 
+  @Scheduled(cron = "0 0 0 * * *") // Giờ VN, check mỗi ngày một lần
+  public void checkExpiredQuotations() {
+    List<Quotation> quotations =
+        quotationRepository.findAllByIsDeletedFalseAndStatus(QuotationStatus.PENDING);
+    LocalDateTime now = LocalDateTime.now();
+
+    for (Quotation quotation : quotations) {
+      LocalDateTime baseDate =
+          quotation.getUpdatedAt() != null ? quotation.getUpdatedAt() : quotation.getCreatedAt();
+
+      LocalDateTime expiryDate = baseDate.plusDays(quotation.getValidUntil());
+
+      if (now.isAfter(expiryDate)) {
+        quotation.setStatus(QuotationStatus.EXPIRED);
+        quotation.setUpdatedAt(now);
+        log.info("Quotation [{}] expired at {}", quotation.getId(), expiryDate);
+      }
+    }
+    quotationRepository.saveAll(quotations);
+  }
+
   @Override
   @Transactional
   public APIResponse<QuotationResponse> create(QuotationRequest<QuotationItemRequest> request) {
     try {
       // Lấy Customer và Dealer liên quan
-      Customer customer = customerRepository.findById(request.getCustomerId())
+      Customer customer =
+          customerRepository
+              .findById(request.getCustomerId())
               .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
 
       // Khởi tạo quotation
-      Quotation quotation = Quotation.builder()
+      Quotation quotation =
+          Quotation.builder()
               .dealer(customer.getDealer())
               .customer(customer)
               .validUntil(request.getValidUntil())
               .status(QuotationStatus.PENDING)
               .account(AccountUtil.getCurrentUser())
-                .createdAt(LocalDateTime.now())
+              .createdAt(LocalDateTime.now())
               .build();
-
 
       Set<QuotationItem> quotationItems = new HashSet<>();
       Set<QuotationItemResponse> itemResponses = new HashSet<>();
@@ -82,15 +105,19 @@ public class QuotationService implements IQuotation {
         // Tính giá sau khuyến mãi
         BigDecimal discountedPrice;
         if (itemRequest.getPromotionId() != null) {
-          Promotion promotion = promotionRepository.findById(itemRequest.getPromotionId())
-                  .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
-          //check promotion tồn tại trong vehicle
+          Promotion promotion =
+              promotionRepository
+                  .findById(itemRequest.getPromotionId())
+                  .orElseThrow(
+                      () -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
+          // check promotion tồn tại trong vehicle
           PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
           PromotionHelper.checkPromotionValid(promotion);
-          discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, promotion, customer);
+          discountedPrice =
+              PromotionHelper.calculateDiscountedPrice(basePrice, promotion, customer);
           item.setPromotion(promotion);
         } else {
-          discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, null , customer);
+          discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, null, customer);
         }
 
         // Gán các giá trị vào item
@@ -102,7 +129,6 @@ public class QuotationService implements IQuotation {
         quotationItems.add(item);
         totalPrice = totalPrice.add(item.getTotalPrice());
         totalQuantity += item.getQuantity();
-
       }
 
       quotation.setQuotationItems(quotationItems);
@@ -111,12 +137,14 @@ public class QuotationService implements IQuotation {
 
       Quotation savedQuotation = quotationRepository.save(quotation);
 
-      for(QuotationItem saveItem : savedQuotation.getQuotationItems()) {
+      for (QuotationItem saveItem : savedQuotation.getQuotationItems()) {
         // Map sang response
-        itemResponses.add(QuotationItemResponse.builder()
+        itemResponses.add(
+            QuotationItemResponse.builder()
                 .id(saveItem.getId())
                 .vehicleId(saveItem.getVehicle().getId())
-                .promotionId(saveItem.getPromotion() != null ? saveItem.getPromotion().getId() : null)
+                .promotionId(
+                    saveItem.getPromotion() != null ? saveItem.getPromotion().getId() : null)
                 .vehicleStatus(saveItem.getVehicleStatus())
                 .color(saveItem.getColor())
                 .quantity(saveItem.getQuantity())
@@ -137,157 +165,171 @@ public class QuotationService implements IQuotation {
     }
   }
 
-
-
-
- @Override
- @Transactional
- public APIResponse<QuotationResponse> update(UUID id, QuotationRequest<QuotationItemUpdateRequest> request) {
-   try {
-     Quotation quotation = quotationRepository.findById(id)
-             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
-
-     // --- Cập nhật customer ---
-     if (request.getCustomerId() != null) {
-       Customer customer = customerRepository.findById(request.getCustomerId())
-               .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
-       quotation.setCustomer(customer);
-     }
-
-     // --- Cập nhật thời hạn ---
-     if (request.getValidUntil() != null && request.getValidUntil() > 0) {
-       quotation.setValidUntil(request.getValidUntil());
-     }
-
-     Map<UUID, QuotationItem> existingItems = quotation.getQuotationItems().stream()
-             .collect(Collectors.toMap(QuotationItem::getId, Function.identity()));
-
-     Set<QuotationItem> updatedItems = new HashSet<>();
-     Set<QuotationItemResponse> itemResponses = new HashSet<>();
-
-     BigDecimal totalPrice = BigDecimal.ZERO;
-     int totalQuantity = 0;
-
-     for (QuotationItemUpdateRequest itemReq : Optional.ofNullable(request.getItems()).orElse(Collections.emptyList())) {
-       QuotationItem item;
-
-       // 🔹 Nếu có id, lấy item cũ ra để update
-       if (itemReq.getId() != null && existingItems.containsKey(itemReq.getId())) {
-         item = existingItems.get(itemReq.getId());
-       } else {
-         // 🔹 Nếu không có id → tạo mới
-         item = new QuotationItem();
-         item.setQuotation(quotation);
-       }
-
-       // --- Cập nhật dữ liệu ---
-       ElectricVehicle vehicle = electricVehicleRepository.findById(itemReq.getVehicleId())
-               .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle not found"));
-       item.setVehicle(vehicle);
-       item.setVehicleStatus(itemReq.getVehicleStatus());
-       item.setColor(itemReq.getColor());
-       item.setQuantity(itemReq.getQuantity());
-
-       // --- Tính giá ---
-       VehiclePriceRule priceRule = vehiclePriceRuleService.getRule(itemReq.getVehicleStatus());
-       BigDecimal basePrice = vehicle.getRetailPrice()
-               .multiply(BigDecimal.valueOf(priceRule.getMultiplier()));
-
-       BigDecimal discountedPrice;
-       if (itemReq.getPromotionId() != null) {
-         Promotion promotion = promotionRepository.findById(itemReq.getPromotionId())
-                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
-         PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
-         PromotionHelper.checkPromotionValid(promotion);
-         discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, promotion, quotation.getCustomer());
-         item.setPromotion(promotion);
-       } else {
-         discountedPrice = PromotionHelper.calculateDiscountedPrice(basePrice, null, quotation.getCustomer());
-         item.setPromotion(null);
-       }
-
-       item.setUnitPrice(basePrice);
-       item.setDiscountPrice(discountedPrice);
-       item.setTotalPrice(discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
-
-       updatedItems.add(item);
-     }
-     List<QuotationItem> itemsNotInRequest = quotation.getQuotationItems().stream()
-             .filter(item -> !request.getItems().contains(item.getId()))
-             .collect(Collectors.toList());
-     for(QuotationItem itemNotIn : itemsNotInRequest) {
-       updatedItems.add(itemNotIn);
-     }
-
-     // 🔹 Gán lại danh sách item (Hibernate sẽ update đúng vì các entity cũ còn reference)
-     quotation.getQuotationItems().clear();
-     quotation.getQuotationItems().addAll(updatedItems);
-     for(QuotationItem item : updatedItems) {
-       totalPrice = totalPrice.add(item.getTotalPrice());
-       totalQuantity += item.getQuantity();
-     }
-
-     quotation.setTotalPrice(totalPrice);
-     quotation.setTotalQuantity(totalQuantity);
-
-     Quotation savedQuotation = quotationRepository.save(quotation);
-
-     for (QuotationItem savedItem : savedQuotation.getQuotationItems()) {
-       itemResponses.add(QuotationItemResponse.builder()
-               .id(savedItem.getId())
-               .vehicleId(savedItem.getVehicle().getId())
-               .promotionId(savedItem.getPromotion() != null ? savedItem.getPromotion().getId() : null)
-               .vehicleStatus(savedItem.getVehicleStatus())
-               .color(savedItem.getColor())
-               .quantity(savedItem.getQuantity())
-               .unitPrice(savedItem.getUnitPrice())
-               .discountPrice(savedItem.getDiscountPrice())
-               .totalPrice(savedItem.getTotalPrice())
-               .build());
-     }
-
-     QuotationResponse response = quotationMapper.toQuotationResponse(savedQuotation);
-     response.setItems(itemResponses);
-
-     return APIResponse.success(response, "Update quotation successfully");
-
-   } catch (GlobalException e) {
-     throw e;
-   } catch (Exception e) {
-     throw new GlobalException(ErrorCode.INVALID_CODE, e.getMessage());
-   }
- }
-
-
   @Override
-  public APIResponse<QuotationResponse> delete(UUID id) {
-    Quotation quotation = quotationRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
-    quotation.setDeleted(true);
-    for(QuotationItem item : quotation.getQuotationItems()) {
-      item.setDeleted(true);
+  @Transactional
+  public APIResponse<QuotationResponse> update(
+      UUID id, QuotationRequest<QuotationItemUpdateRequest> request) {
+    try {
+      Quotation quotation =
+          quotationRepository
+              .findById(id)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+
+      // --- Cập nhật customer ---
+      if (request.getCustomerId() != null) {
+        Customer customer =
+            customerRepository
+                .findById(request.getCustomerId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
+        quotation.setCustomer(customer);
+      }
+
+      // --- Cập nhật thời hạn ---
+      if (request.getValidUntil() != null && request.getValidUntil() > 0) {
+        quotation.setValidUntil(request.getValidUntil());
+      }
+
+      Map<UUID, QuotationItem> existingItems =
+          quotation.getQuotationItems().stream()
+              .collect(Collectors.toMap(QuotationItem::getId, Function.identity()));
+
+      Set<QuotationItem> updatedItems = new HashSet<>();
+      Set<QuotationItemResponse> itemResponses = new HashSet<>();
+
+      BigDecimal totalPrice = BigDecimal.ZERO;
+      int totalQuantity = 0;
+
+      // --- Lặp qua các item request ---
+      for (QuotationItemUpdateRequest itemReq :
+          Optional.ofNullable(request.getItems()).orElse(Collections.emptyList())) {
+        QuotationItem item;
+
+        // Nếu có ID → update
+        if (itemReq.getId() != null && existingItems.containsKey(itemReq.getId())) {
+          item = existingItems.get(itemReq.getId());
+        } else {
+          // Nếu không có ID → tạo mới
+          item = new QuotationItem();
+          item.setQuotation(quotation);
+        }
+
+        // --- Cập nhật dữ liệu ---
+        ElectricVehicle vehicle =
+            electricVehicleRepository
+                .findById(itemReq.getVehicleId())
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle not found"));
+        item.setVehicle(vehicle);
+        item.setVehicleStatus(itemReq.getVehicleStatus());
+        item.setColor(itemReq.getColor());
+        item.setQuantity(itemReq.getQuantity());
+        item.setDeleted(false); // Item được cập nhật hoặc thêm mới là active
+
+        // --- Tính giá ---
+        VehiclePriceRule priceRule = vehiclePriceRuleService.getRule(itemReq.getVehicleStatus());
+        BigDecimal basePrice =
+            vehicle.getRetailPrice().multiply(BigDecimal.valueOf(priceRule.getMultiplier()));
+
+        BigDecimal discountedPrice;
+        if (itemReq.getPromotionId() != null) {
+          Promotion promotion =
+              promotionRepository
+                  .findById(itemReq.getPromotionId())
+                  .orElseThrow(
+                      () -> new GlobalException(ErrorCode.NOT_FOUND, "Promotion not found"));
+          PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
+          PromotionHelper.checkPromotionValid(promotion);
+          discountedPrice =
+              PromotionHelper.calculateDiscountedPrice(
+                  basePrice, promotion, quotation.getCustomer());
+          item.setPromotion(promotion);
+        } else {
+          discountedPrice =
+              PromotionHelper.calculateDiscountedPrice(basePrice, null, quotation.getCustomer());
+          item.setPromotion(null);
+        }
+
+        item.setUnitPrice(basePrice);
+        item.setDiscountPrice(discountedPrice);
+        item.setTotalPrice(discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
+
+        updatedItems.add(item);
+      }
+
+      // --- Xử lý item bị xóa ---
+      Set<UUID> updatedIds =
+          request.getItems().stream()
+              .map(QuotationItemUpdateRequest::getId)
+              .filter(Objects::nonNull)
+              .collect(Collectors.toSet());
+
+      Set<QuotationItem> itemsToRemove =
+          quotation.getQuotationItems().stream()
+              .filter(item -> !updatedIds.contains(item.getId()))
+              .collect(Collectors.toSet());
+      // Đánh dấu isDeleted = true
+      for (QuotationItem itemToRemove : itemsToRemove) {
+        itemToRemove.setDeleted(true);
+      }
+      // --- Gộp danh sách lại ---
+      quotation.getQuotationItems().clear();
+      quotation.getQuotationItems().addAll(updatedItems);
+      quotation.getQuotationItems().addAll(itemsToRemove);
+
+      // --- Tính lại tổng ---
+      for (QuotationItem item : updatedItems) {
+        totalPrice = totalPrice.add(item.getTotalPrice());
+        totalQuantity += item.getQuantity();
+      }
+
+      quotation.setTotalPrice(totalPrice);
+      quotation.setTotalQuantity(totalQuantity);
+      quotation.setUpdatedAt(LocalDateTime.now());
+
+      Quotation savedQuotation = quotationRepository.save(quotation);
+
+      QuotationResponse response = quotationMapper.toQuotationResponse(savedQuotation);
+
+      return APIResponse.success(response, "Update quotation successfully");
+
+    } catch (GlobalException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new GlobalException(
+          ErrorCode.INVALID_CODE, "Error updating quotation: " + e.getMessage());
     }
-    quotationRepository.save(quotation);
-    return APIResponse.success(quotationMapper.toQuotationResponse(quotation), "Delete quotation successfully");
   }
 
   @Override
-  public void deleteItem(UUID id) {
-    QuotationItem quotationItem = quotationItemRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation item not found"));
-    quotationItem.setDeleted(true);
-    quotationItemRepository.save(quotationItem);
+  public APIResponse<QuotationResponse> delete(UUID id) {
+    Quotation quotation =
+        quotationRepository
+            .findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+    quotation.setDeleted(true);
+    for (QuotationItem item : quotation.getQuotationItems()) {
+      item.setDeleted(true);
+    }
+    quotationRepository.save(quotation);
+    return APIResponse.success(
+        quotationMapper.toQuotationResponse(quotation), "Delete quotation successfully");
   }
 
   @Override
   @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
   public APIResponse<QuotationResponse> get(UUID id) {
-    Quotation quotation = quotationRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+    Quotation quotation =
+        quotationRepository
+            .findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
     Set<QuotationItemResponse> itemResponses = new HashSet<>();
     for (QuotationItem savedItem : quotation.getQuotationItems()) {
-      if(!savedItem.isDeleted()){
-        itemResponses.add(QuotationItemResponse.builder()
+      if (!savedItem.isDeleted()) {
+        itemResponses.add(
+            QuotationItemResponse.builder()
                 .id(savedItem.getId())
                 .vehicleId(savedItem.getVehicle().getId())
-                .promotionId(savedItem.getPromotion() != null ? savedItem.getPromotion().getId() : null)
+                .promotionId(
+                    savedItem.getPromotion() != null ? savedItem.getPromotion().getId() : null)
                 .vehicleStatus(savedItem.getVehicleStatus())
                 .color(savedItem.getColor())
                 .quantity(savedItem.getQuantity())
@@ -304,15 +346,16 @@ public class QuotationService implements IQuotation {
 
   @Override
   @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
- public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable) {
+  public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable) {
 
-     Page<Quotation> page = quotationRepository.findAllByIsDeletedFalseAndDealer(AccountUtil.getCurrentUser().getDealer(), pageable);
-     // Gói kết quả vào PageResponse
-     PageResponse<QuotationResponse> pageResponse =
-             pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
+    Page<Quotation> page =
+        quotationRepository.findAllByIsDeletedFalseAndDealer(
+            AccountUtil.getCurrentUser().getDealer(), pageable);
+    // Gói kết quả vào PageResponse
+    PageResponse<QuotationResponse> pageResponse =
+        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
 
-     return APIResponse.success(pageResponse, "Get all quotations successfully");
-
+    return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
 
   private QuotationItem createQuotationItem(QuotationItemRequest request) {
@@ -329,13 +372,17 @@ public class QuotationService implements IQuotation {
         .build();
   }
 
-
-  public APIResponse<QuotationResponse> approveQuotation(UUID id, List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
-    Quotation quotation = quotationRepository.findById(id)
+  @Transactional
+  public APIResponse<QuotationResponse> approveQuotation(
+      UUID id, List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
+    Quotation quotation =
+        quotationRepository
+            .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
     quotation.setStatus(QuotationStatus.APPROVED);
     Quotation savedQuotation = quotationRepository.save(quotation);
-    saleOrderService.createSaleOrderFromQuotation(quotation,itemRequests,paymentStatus);
-    return APIResponse.success(quotationMapper.toQuotationResponse(savedQuotation), "Approve quotation successfully");
+    saleOrderService.createSaleOrderFromQuotation(quotation, itemRequests, paymentStatus);
+    return APIResponse.success(
+        quotationMapper.toQuotationResponse(savedQuotation), "Approve quotation successfully");
   }
 }

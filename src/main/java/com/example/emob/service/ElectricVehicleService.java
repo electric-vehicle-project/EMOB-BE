@@ -2,7 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.Role;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ElectricVehicleMapper;
@@ -18,15 +17,13 @@ import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
 import com.example.emob.repository.VehicleUnitRepository;
 import com.example.emob.service.impl.IVehicle;
+import com.example.emob.util.AccountUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.IntStream;
-
-import com.example.emob.util.AccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,8 +43,7 @@ public class ElectricVehicleService implements IVehicle {
 
   @Autowired VehicleUnitRepository vehicleUnitRepository;
   @Autowired VehiclePriceRuleService vehiclePriceRuleService;
-    @Autowired
-    private ElectricVehicleRepository electricVehicleRepository;
+  @Autowired private ElectricVehicleRepository electricVehicleRepository;
 
   @Override
   public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
@@ -143,11 +139,9 @@ public class ElectricVehicleService implements IVehicle {
       throw new GlobalException(ErrorCode.VEHICLE_PRICE_NOT_SET);
     }
     // Tìm kho của hãng
-    Inventory inventory =
-        inventoryRepository
-            .findInventoryByIsCompanyTrue();
+    Inventory inventory = inventoryRepository.findInventoryByIsCompanyTrue();
     if (inventory == null) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for company not found.");
+      throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for company not found.");
     }
     // tìm VehiclePriceRule
 
@@ -223,15 +217,18 @@ public class ElectricVehicleService implements IVehicle {
       }
     } else { // Manager || dealer_staff
       inventory = account.getDealer().getInventory();
-      if  (inventory == null) {
+      if (inventory == null) {
         throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
       }
     }
-    VehicleUnit vehicleUnit = vehicleUnitRepository.findById(id)
-        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found."));
+    VehicleUnit vehicleUnit =
+        vehicleUnitRepository
+            .findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found."));
     try {
       // Kiểm tra vehicleUnit có thuộc inventory này không
-      Optional<VehicleUnit> vehicleInInventory = vehicleUnitRepository.findByIdAndInventory(vehicleUnit.getId(), inventory);
+      Optional<VehicleUnit> vehicleInInventory =
+          vehicleUnitRepository.findByIdAndInventory(vehicleUnit.getId(), inventory);
       if (vehicleInInventory.isEmpty()) {
         throw new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found in your inventory.");
       }
@@ -254,7 +251,7 @@ public class ElectricVehicleService implements IVehicle {
       }
     } else { // Manager || dealer_staff
       inventory = account.getDealer().getInventory();
-      if  (inventory == null) {
+      if (inventory == null) {
         throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
       }
     }
@@ -269,8 +266,14 @@ public class ElectricVehicleService implements IVehicle {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(UUID modelId, Pageable pageable) {
-    ElectricVehicle electricVehicle = electricVehicleRepository.findById(modelId).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Electric vehicle model not found."));
+  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
+      UUID modelId, Pageable pageable) {
+    ElectricVehicle electricVehicle =
+        electricVehicleRepository
+            .findById(modelId)
+            .orElseThrow(
+                () ->
+                    new GlobalException(ErrorCode.NOT_FOUND, "Electric vehicle model not found."));
     Account account = AccountUtil.getCurrentUser();
     Inventory inventory = null;
     if (account.getDealer() == null) { // admin || evm_staff
@@ -280,20 +283,20 @@ public class ElectricVehicleService implements IVehicle {
       }
     } else { // Manager || dealer_staff
       inventory = account.getDealer().getInventory();
-      if  (inventory == null) {
+      if (inventory == null) {
         throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
       }
     }
     try {
-      Page<VehicleUnit> page = vehicleUnitRepository.findAllByVehicleAndInventory(electricVehicle ,inventory, pageable);
+      Page<VehicleUnit> page =
+          vehicleUnitRepository.findAllByVehicleAndInventory(electricVehicle, inventory, pageable);
       PageResponse<VehicleUnitResponse> response =
-              pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
+          pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
       return APIResponse.success(response);
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
-
 
   //  @Transactional
   //  @Override
@@ -313,6 +316,5 @@ public class ElectricVehicleService implements IVehicle {
   //      vehicleUnitRepository.save(v);
   //    }
   //  }
-
 
 }

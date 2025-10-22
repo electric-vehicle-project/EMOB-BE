@@ -3,6 +3,7 @@ package com.example.emob.service.impl;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.model.request.report.CreateReportRequest;
+import com.example.emob.model.request.report.ResolveReportRequest;
 import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
@@ -23,5 +24,6 @@ public interface IReport {
   APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable);
 
   // xử lý
-  APIResponse<ReportResponse> changeStatus(UUID id, ReportStatus status);
+  APIResponse<ReportResponse> changeStatus(
+      UUID id, ReportStatus status, ResolveReportRequest request);
 }

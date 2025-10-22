@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Builder
@@ -16,12 +17,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SaleOrderItem {
-  @Id @GeneratedValue UUID id;
+public class VehicleRequestItem {
+  @Id @UuidGenerator UUID id;
 
   BigDecimal unitPrice;
   BigDecimal totalPrice;
-  BigDecimal discountPrice;
   boolean isDeleted = false;
 
   @Enumerated(EnumType.STRING)
@@ -30,17 +30,13 @@ public class SaleOrderItem {
   int quantity;
   String color;
 
-  @OneToOne
-  @JoinColumn(name = "promotion_id")
-  Promotion promotion;
-
-  @ManyToOne
-  @JoinColumn(name = "saleOrder_id")
-  @JsonIgnore
-  SaleOrder saleOrder;
-
   @ManyToOne
   @JoinColumn(name = "vehicle_id")
   @JsonIgnore
   ElectricVehicle vehicle;
+
+  @ManyToOne
+  @JoinColumn(name = "vehicleRequest_id")
+  @JsonIgnore
+  VehicleRequest vehicleRequest;
 }

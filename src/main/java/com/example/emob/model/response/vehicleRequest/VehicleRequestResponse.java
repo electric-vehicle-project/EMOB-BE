@@ -1,11 +1,11 @@
 /* EMOB-2025 */
-package com.example.emob.model.response;
+package com.example.emob.model.response.vehicleRequest;
 
-import com.example.emob.constant.ReportStatus;
-import com.example.emob.constant.ReportType;
-import com.example.emob.entity.Customer;
+import com.example.emob.constant.VehicleRequestStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,16 +16,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReportResponse {
-  UUID accountId;
-  UUID reportId;
-  String title;
-  String description;
-  ReportType type;
-  ReportStatus status;
-  Customer reportBy;
-  String fullName;
+public class VehicleRequestResponse {
+  UUID id;
+  Set<VehicleRequestItemResponse> items;
+  UUID dealerId;
+  BigDecimal totalPrice;
+  int totalQuantity;
+  VehicleRequestStatus status;
   LocalDateTime createdAt;
   LocalDateTime updatedAt;
-  String solution;
 }

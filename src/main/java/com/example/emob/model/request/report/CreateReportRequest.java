@@ -17,8 +17,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CreateReportRequest {
-  @NotNull(message = "AccountId is required")
-  UUID accountId;
 
   @NotNull(message = "CustomerId is required")
   UUID customerId;

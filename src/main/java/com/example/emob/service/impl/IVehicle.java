@@ -26,11 +26,13 @@ public interface IVehicle {
   APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
   APIResponse<ElectricVehicleResponse> updatePrices(UUID id, ElectricVehiclePriceRequest request);
+
   //  void  autoUpdateVehiclePrices(Double basePrice);
 
-  APIResponse<VehicleUnitResponse> getVehicleUnit (UUID id);
+  APIResponse<VehicleUnitResponse> getVehicleUnit(UUID id);
 
-  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits (Pageable pageable);
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable);
 
-  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId (UUID modelId, Pageable pageable);
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
+      UUID modelId, Pageable pageable);
 }

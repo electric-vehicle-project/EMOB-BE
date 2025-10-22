@@ -3,7 +3,6 @@ package com.example.emob.service;
 
 import com.example.emob.constant.*;
 import com.example.emob.entity.SaleContract;
-import com.example.emob.entity.SaleOrder;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ContractMapper;
 import com.example.emob.mapper.PageMapper;
@@ -15,7 +14,6 @@ import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IContract;
 import com.example.emob.util.NotificationHelper;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -88,31 +86,31 @@ public class ContractService implements IContract {
   @Override
   //    @PreAuthorize("hasRole('EVM_STAFF') or hasRole('DEALER_STAFF')")
   public APIResponse<ContractResponse> createContract(UUID orderId) {
-//    String contractNumber = generateContractNumber(orderId);
-//    SaleOrder order =
-//        saleOrderRepository
-//            .findById(orderId)
-//            .filter((item) -> (item.getStatus().equals(OrderStatus.CREATED)))
-//            //        (item.getPaymentStatus().equals(PaymentStatus.PAID)
-//            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-//    SaleContract contract = contractMapper.toSaleContract(order);
-//    contract.setSaleOrder(order);
-//    contract.setContractNumber(contractNumber);
-//    contract.setCreateAt(LocalDateTime.now());
-//    contract.setStatus(ContractStatus.PENDING);
-//    contractRepository.save(contract);
-//    //        if (order.getAccount().getRole().equals(Role.EVM_STAFF)) {
-//    //            remindContract(contract.getContractNumber(), order.getDealer(),
-//    //                    order.getScheduleAt(), order.getAccount().getFullName());
-//    //        } else {
-//    remindContract(
-//        contract.getContractNumber(),
-//        "zuongm52@gmail.com",
-//        order.getScheduleAt().toLocalDate().toString(),
-//        "Vuong");
-//    //        }
-//    ContractResponse contractResponse = contractMapper.toContractResponse(contract);
-//    return APIResponse.success(contractResponse, "Create contract successfully");
+    //    String contractNumber = generateContractNumber(orderId);
+    //    SaleOrder order =
+    //        saleOrderRepository
+    //            .findById(orderId)
+    //            .filter((item) -> (item.getStatus().equals(OrderStatus.CREATED)))
+    //            //        (item.getPaymentStatus().equals(PaymentStatus.PAID)
+    //            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    //    SaleContract contract = contractMapper.toSaleContract(order);
+    //    contract.setSaleOrder(order);
+    //    contract.setContractNumber(contractNumber);
+    //    contract.setCreateAt(LocalDateTime.now());
+    //    contract.setStatus(ContractStatus.PENDING);
+    //    contractRepository.save(contract);
+    //    //        if (order.getAccount().getRole().equals(Role.EVM_STAFF)) {
+    //    //            remindContract(contract.getContractNumber(), order.getDealer(),
+    //    //                    order.getScheduleAt(), order.getAccount().getFullName());
+    //    //        } else {
+    //    remindContract(
+    //        contract.getContractNumber(),
+    //        "zuongm52@gmail.com",
+    //        order.getScheduleAt().toLocalDate().toString(),
+    //        "Vuong");
+    //    //        }
+    //    ContractResponse contractResponse = contractMapper.toContractResponse(contract);
+    //    return APIResponse.success(contractResponse, "Create contract successfully");
     return null;
   }
 
@@ -146,23 +144,23 @@ public class ContractService implements IContract {
 
   @Override
   public APIResponse<ContractResponse> signContract(UUID contractId) {
-//    // sign contract chưa check role
-//    SaleContract contract =
-//        contractRepository
-//            .findById(contractId)
-//            .filter((item) -> item.getStatus().equals(ContractStatus.PENDING))
-//            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-//    if (LocalDateTime.now().isAfter(contract.getSaleOrder().getScheduleAt())) {
-//      throw new GlobalException(ErrorCode.EXPIRED_CONTRACT);
-//    }
-//    contract.setStatus(ContractStatus.SIGNED);
-//    contract.setSignDate(LocalDateTime.now());
-//    contractRepository.save(contract);
-//    signContract(
-//        contract.getSaleOrder().getCustomer().getEmail(),
-//        contract.getSaleOrder().getCustomer().getFullName());
-//    ContractResponse contractResponse = contractMapper.toContractResponse(contract);
-//    return APIResponse.success(contractResponse, "Signed contract successfully");
+    //    // sign contract chưa check role
+    //    SaleContract contract =
+    //        contractRepository
+    //            .findById(contractId)
+    //            .filter((item) -> item.getStatus().equals(ContractStatus.PENDING))
+    //            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    //    if (LocalDateTime.now().isAfter(contract.getSaleOrder().getScheduleAt())) {
+    //      throw new GlobalException(ErrorCode.EXPIRED_CONTRACT);
+    //    }
+    //    contract.setStatus(ContractStatus.SIGNED);
+    //    contract.setSignDate(LocalDateTime.now());
+    //    contractRepository.save(contract);
+    //    signContract(
+    //        contract.getSaleOrder().getCustomer().getEmail(),
+    //        contract.getSaleOrder().getCustomer().getFullName());
+    //    ContractResponse contractResponse = contractMapper.toContractResponse(contract);
+    //    return APIResponse.success(contractResponse, "Signed contract successfully");
     return null;
   }
 
