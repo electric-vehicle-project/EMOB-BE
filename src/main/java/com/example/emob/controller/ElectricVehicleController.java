@@ -254,4 +254,13 @@ public class ElectricVehicleController {
       Pageable pageable = PageRequest.of(page, size);
       return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable));
     }
+    @GetMapping("/unit/view-all-by-model/{modelId}")
+    @Operation(summary = "Get all vehicles unit")
+    public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(@PathVariable UUID modelId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId,pageable));
+    }
 }

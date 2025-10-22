@@ -46,6 +46,8 @@ public class ElectricVehicleService implements IVehicle {
 
   @Autowired VehicleUnitRepository vehicleUnitRepository;
   @Autowired VehiclePriceRuleService vehiclePriceRuleService;
+    @Autowired
+    private ElectricVehicleRepository electricVehicleRepository;
 
   @Override
   public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
@@ -265,6 +267,33 @@ public class ElectricVehicleService implements IVehicle {
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
+
+  @Override
+  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(UUID modelId, Pageable pageable) {
+    ElectricVehicle electricVehicle = electricVehicleRepository.findById(modelId).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Electric vehicle model not found."));
+    Account account = AccountUtil.getCurrentUser();
+    Inventory inventory = null;
+    if (account.getDealer() == null) { // admin || evm_staff
+      inventory = inventoryRepository.findInventoryByIsCompanyTrue();
+      if (inventory == null) {
+        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for company not found.");
+      }
+    } else { // Manager || dealer_staff
+      inventory = account.getDealer().getInventory();
+      if  (inventory == null) {
+        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
+      }
+    }
+    try {
+      Page<VehicleUnit> page = vehicleUnitRepository.findAllByVehicleAndInventory(electricVehicle ,inventory, pageable);
+      PageResponse<VehicleUnitResponse> response =
+              pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
+      return APIResponse.success(response);
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
+    }
+  }
+
 
   //  @Transactional
   //  @Override

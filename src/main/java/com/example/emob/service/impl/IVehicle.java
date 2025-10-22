@@ -31,4 +31,6 @@ public interface IVehicle {
   APIResponse<VehicleUnitResponse> getVehicleUnit (UUID id);
 
   APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits (Pageable pageable);
+
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId (UUID modelId, Pageable pageable);
 }
