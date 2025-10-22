@@ -30,6 +30,9 @@ public class Dealer {
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Account> accounts = new HashSet<>();
 
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<Report> reports = new HashSet<>();
+
   @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
   Set<Promotion> promotions = new HashSet<>();
 
@@ -45,4 +48,7 @@ public class Dealer {
 
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Customer> customers = new HashSet<>();
+
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<VehicleRequest> vehicleRequests = new HashSet<>();
 }

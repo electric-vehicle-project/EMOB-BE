@@ -19,6 +19,7 @@ import com.example.emob.repository.DealerDiscountPolicyRepository;
 import com.example.emob.repository.DealerRepository;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.service.impl.IDealerDiscountPolicy;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
@@ -41,6 +44,28 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   @Autowired private DealerDiscountPolicyMapper dealerDiscountPolicyMapper;
 
   @Autowired PageMapper pageMapper;
+
+  @Scheduled(cron = "0 0 0 * * ?")
+  @Transactional
+  public void updateDiscountPolicyStatus() {
+    LocalDate today = LocalDate.now();
+
+    // 1. Chính sách sắp diễn ra nhưng đã đến ngày hiệu lực → ACTIVE
+    List<DealerDiscountPolicy> toActivate =
+        dealerDiscountPolicyRepository.findAllByStatusAndEffectiveDateBefore(
+            DiscountPolicyStatus.UPCOMING, today.plusDays(1));
+    toActivate.forEach(p -> p.setStatus(DiscountPolicyStatus.ACTIVE));
+
+    // 2. Chính sách đang hiệu lực nhưng đã hết hạn → EXPIRED
+    List<DealerDiscountPolicy> toExpire =
+        dealerDiscountPolicyRepository.findAllByStatusAndExpiryDateBefore(
+            DiscountPolicyStatus.ACTIVE, today);
+    toExpire.forEach(p -> p.setStatus(DiscountPolicyStatus.EXPIRED));
+
+    // Lưu toàn bộ thay đổi
+    dealerDiscountPolicyRepository.saveAll(toActivate);
+    dealerDiscountPolicyRepository.saveAll(toExpire);
+  }
 
   @Override
   public APIResponse<List<DealerDiscountPolicyResponse>> bulkCreate(

@@ -4,12 +4,8 @@ package com.example.emob.repository;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +19,6 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
 
   Page<VehicleUnit> findAllByInventory(Inventory inventory, Pageable pageable);
 
-  Page<VehicleUnit> findAllByVehicleAndInventory(ElectricVehicle vehicle ,Inventory inventory, Pageable pageable);
+  Page<VehicleUnit> findAllByVehicleAndInventory(
+      ElectricVehicle vehicle, Inventory inventory, Pageable pageable);
 }

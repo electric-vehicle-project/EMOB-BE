@@ -16,6 +16,7 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.InstallmentPlanRepository;
 import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IInstallmentPlan;
+import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,7 +45,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Autowired EmailService emailService;
 
   //    @Scheduled(cron = "0 0 8 * * *") // mỗi ngày 8h sẽ chạy tự dộng
-  @Scheduled(fixedRate = 60000)
+  @Scheduled(cron = "0 0 0 * * *")
   public void remindOverdueDaily() {
     LocalDate today = LocalDate.now();
     // quá hạn nhưng chưa nhắc hôm nay
@@ -262,7 +263,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
 
   @Override
   public APIResponse<PageResponse<InstallmentResponse>> viewAllInstallmentPlans(Pageable pageable) {
-    Page<InstallmentPlan> planPage = installmentPlanRepository.findAll(pageable);
+    Page<InstallmentPlan> planPage =
+        installmentPlanRepository.findAllBySaleOrder_Dealer(
+            AccountUtil.getCurrentUser().getDealer(), pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(planPage, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response, "View All Installment Plan Successfully");

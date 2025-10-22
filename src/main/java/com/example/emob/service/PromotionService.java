@@ -54,7 +54,7 @@ public class PromotionService implements IPromotion {
 
   // tự động cập nhật status promotion sau 1p
   @Transactional
-  @Scheduled(fixedRate = 300000)
+  @Scheduled(cron = "0 0 0 * * *")
   public void autoUpdatePromotionStatus() {
     try {
       List<Promotion> promotions = promotionRepository.findAll();
@@ -146,13 +146,15 @@ public class PromotionService implements IPromotion {
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     try {
-      if (promotion.getScope() == PromotionScope.GLOBAL || promotion.getScope() == PromotionScope.LOCAL) {
+      if (promotion.getScope() == PromotionScope.GLOBAL
+          || promotion.getScope() == PromotionScope.LOCAL) {
         // tìm xe
         if (request.getElectricVehicleIds() != null && !request.getElectricVehicleIds().isEmpty()) {
           Set<ElectricVehicle> electricVehicles =
-                  new HashSet<>(electricVehicleRepository.findAllById(request.getElectricVehicleIds()));
+              new HashSet<>(electricVehicleRepository.findAllById(request.getElectricVehicleIds()));
           if (promotion.getVehicles().equals(electricVehicles)) {
-            throw new GlobalException(ErrorCode.DATA_INVALID, "Electric vehicles list is the same as before");
+            throw new GlobalException(
+                ErrorCode.DATA_INVALID, "Electric vehicles list is the same as before");
           }
           promotion.getVehicles().addAll(electricVehicles);
         }
@@ -169,11 +171,13 @@ public class PromotionService implements IPromotion {
             Set<UUID> dealerIds = request.getDealerIds();
 
             if (dealerIds == null || dealerIds.isEmpty() || dealerIds.size() != 1) {
-              throw new GlobalException(ErrorCode.DATA_INVALID, "Local promotion must have exactly one dealer");
+              throw new GlobalException(
+                  ErrorCode.DATA_INVALID, "Local promotion must have exactly one dealer");
             }
             // lấy 1 thằng duy nhất
             UUID dealerId = dealerIds.iterator().next();
-            Dealer dealer = dealerRepository
+            Dealer dealer =
+                dealerRepository
                     .findById(dealerId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
             promotion.setDealers(Set.of(dealer)); // chỉ set duy nhất 1 dealer
@@ -183,7 +187,7 @@ public class PromotionService implements IPromotion {
           }
         }
       }
-        // mapper
+      // mapper
       promotion.setUpdateAt(LocalDateTime.now());
       promotion.setName(request.getName());
       promotion.setDescription(request.getDescription());

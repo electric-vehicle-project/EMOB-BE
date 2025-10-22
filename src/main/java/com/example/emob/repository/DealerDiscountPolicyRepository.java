@@ -1,7 +1,11 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.constant.DiscountPolicyStatus;
+import com.example.emob.entity.Dealer;
 import com.example.emob.entity.DealerDiscountPolicy;
+import com.example.emob.entity.ElectricVehicle;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +14,13 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
   // Tìm tất cả policy theo danh sách dealer và vehicle
   List<DealerDiscountPolicy> findAllByDealerIdInAndVehicleIdIn(
       List<UUID> dealerIds, List<UUID> vehicleIds);
+
+  DealerDiscountPolicy findByDealerAndVehicleAndStatus(
+      Dealer dealer, ElectricVehicle vehicle, DiscountPolicyStatus status);
+
+  List<DealerDiscountPolicy> findAllByStatusAndExpiryDateBefore(
+      DiscountPolicyStatus status, LocalDate date);
+
+  List<DealerDiscountPolicy> findAllByStatusAndEffectiveDateBefore(
+      DiscountPolicyStatus status, LocalDate date);
 }

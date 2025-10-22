@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Promotion Controller", description = "Endpoints for managing promotions")
 public class PromotionController {
   @Autowired PromotionService promotionService;
-
 
   @PostMapping
   @Operation(
@@ -86,7 +84,6 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createPromotion(request));
   }
 
-
   @PutMapping("/{id}")
   @Operation(summary = "Update Promotion")
   public ResponseEntity<APIResponse<PromotionResponse>> updatePromotion(
@@ -99,7 +96,6 @@ public class PromotionController {
   public ResponseEntity<APIResponse<PromotionResponse>> viewPromotion(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.viewPromotion(id));
   }
-
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Promotion")
@@ -117,13 +113,11 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.viewAllPromotions(pageResponse, scope));
   }
 
-
   @PutMapping("/value/{id}")
   public ResponseEntity<APIResponse<PromotionResponse>> createValuePromotion(
       @RequestBody @Valid PromotionValueRequest request, @PathVariable("id") UUID id) {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
   }
-
 
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")

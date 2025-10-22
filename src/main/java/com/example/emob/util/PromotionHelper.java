@@ -12,7 +12,6 @@ import com.example.emob.service.DealerPointRuleService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -42,16 +41,19 @@ public class PromotionHelper {
     }
   }
 
-  public static BigDecimal calculateDiscountedPrice(BigDecimal price, Promotion promotion, Customer customer) {
+  public static BigDecimal calculateDiscountedPrice(
+      BigDecimal price, Promotion promotion, Customer customer) {
     BigDecimal discountedPrice = price;
 
     if (promotion != null) {
       switch (promotion.getType()) {
-        case PERCENTAGE -> discountedPrice = price.subtract(
-                price.multiply(BigDecimal.valueOf(promotion.getValue()))
-                        .divide(BigDecimal.valueOf(100))
-        );
-        case FIXED_AMOUNT -> discountedPrice = price.subtract(BigDecimal.valueOf(promotion.getValue()));
+        case PERCENTAGE -> discountedPrice =
+            price.subtract(
+                price
+                    .multiply(BigDecimal.valueOf(promotion.getValue()))
+                    .divide(BigDecimal.valueOf(100)));
+        case FIXED_AMOUNT -> discountedPrice =
+            price.subtract(BigDecimal.valueOf(promotion.getValue()));
         case POINT -> {
           customer.setLoyaltyPoints((int) promotion.getValue());
           discountedPrice = price;
@@ -86,4 +88,3 @@ public class PromotionHelper {
     return discountedPriceByPoint;
   }
 }
-

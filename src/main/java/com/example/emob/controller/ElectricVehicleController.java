@@ -239,28 +239,27 @@ public class ElectricVehicleController {
     return ResponseEntity.ok(vehicleService.createBulkVehicles(request));
   }
 
-    @GetMapping("/unit/{id}")
-    @Operation(summary = "Get vehicle unit by ID")
-    public ResponseEntity<APIResponse<VehicleUnitResponse>> getVehicleUnit(@PathVariable UUID id) {
-        return ResponseEntity.ok(vehicleService.getVehicleUnit(id));
-    }
+  @GetMapping("/unit/{id}")
+  @Operation(summary = "Get vehicle unit by ID")
+  public ResponseEntity<APIResponse<VehicleUnitResponse>> getVehicleUnit(@PathVariable UUID id) {
+    return ResponseEntity.ok(vehicleService.getVehicleUnit(id));
+  }
 
-    @GetMapping("/unit/view-all")
-    @Operation(summary = "Get all vehicles unit")
-    public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-      Pageable pageable = PageRequest.of(page, size);
-      return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable));
-    }
-    @GetMapping("/unit/view-all-by-model/{modelId}")
-    @Operation(summary = "Get all vehicles unit")
-    public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(@PathVariable UUID modelId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId,pageable));
-    }
+  @GetMapping("/unit/view-all")
+  @Operation(summary = "Get all vehicles unit")
+  public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable));
+  }
+
+  @GetMapping("/unit/view-all-by-model/{modelId}")
+  @Operation(summary = "Get all vehicles unit")
+  public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
+      @PathVariable UUID modelId,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId, pageable));
+  }
 }

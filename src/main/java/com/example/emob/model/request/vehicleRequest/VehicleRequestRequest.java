@@ -1,16 +1,15 @@
 /* EMOB-2025 */
-package com.example.emob.model.request;
+package com.example.emob.model.request.vehicleRequest;
 
-import java.util.UUID;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SaleOrderItemRequest {
-  UUID itemsId;
-  UUID promotionId;
+public class VehicleRequestRequest<T> {
+  List<T> items;
 }

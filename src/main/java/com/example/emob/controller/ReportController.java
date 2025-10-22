@@ -3,6 +3,7 @@ package com.example.emob.controller;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.model.request.report.CreateReportRequest;
+import com.example.emob.model.request.report.ResolveReportRequest;
 import com.example.emob.model.request.report.UpdateReportRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
@@ -47,7 +48,6 @@ public class ReportController {
                             value =
                                 """
                                                                    {
-                                                       "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
                                                          "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                         "description": "string",
                                                         "title": "string",
@@ -63,7 +63,6 @@ public class ReportController {
                             value =
                                 """
                                                                    {
-                                                                     "accountId": "a154190f-cdfc-4bfd-8d97-35719d608eea",
                                                                      "customerId": "29e59bdf-9dcd-11f0-ac59-0242ac110002",
                                                                      "description": "bad",
                                                                      "title": "giá cả",
@@ -135,7 +134,9 @@ public class ReportController {
   @PutMapping("/process-report/{reportId}")
   @Operation(summary = "Change Status Report")
   public ResponseEntity<APIResponse<ReportResponse>> changeStatus(
-      @PathVariable("reportId") UUID reportId, ReportStatus status) {
-    return ResponseEntity.ok(reportService.changeStatus(reportId, status));
+      @PathVariable("reportId") UUID reportId,
+      @RequestParam() ReportStatus status,
+      @RequestBody ResolveReportRequest request) {
+    return ResponseEntity.ok(reportService.changeStatus(reportId, status, request));
   }
 }

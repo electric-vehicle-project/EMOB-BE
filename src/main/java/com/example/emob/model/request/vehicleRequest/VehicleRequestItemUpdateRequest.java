@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.model.request.quotation;
+package com.example.emob.model.request.vehicleRequest;
 
 import com.example.emob.constant.VehicleStatus;
 import java.util.UUID;
@@ -11,10 +11,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class QuotationItemUpdateRequest {
+public class VehicleRequestItemUpdateRequest {
   UUID id;
   UUID vehicleId;
-  UUID promotionId;
   VehicleStatus vehicleStatus;
   String color;
   int quantity;

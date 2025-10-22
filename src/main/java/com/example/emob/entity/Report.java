@@ -36,8 +36,13 @@ public class Report {
 
   LocalDateTime createdAt;
   LocalDateTime updatedAt;
+  String solution;
 
   @ManyToOne
   @JoinColumn(name = "accountId", referencedColumnName = "id")
   Account createBy;
+
+  @ManyToOne
+  @JoinColumn(name = "dealer_id", referencedColumnName = "id")
+  Dealer dealer;
 }
