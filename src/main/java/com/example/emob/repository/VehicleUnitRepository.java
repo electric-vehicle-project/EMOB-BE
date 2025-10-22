@@ -22,4 +22,6 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
   Optional<VehicleUnit> findByIdAndInventory(UUID id, Inventory inventory);
 
   Page<VehicleUnit> findAllByInventory(Inventory inventory, Pageable pageable);
+
+  Page<VehicleUnit> findAllByVehicleAndInventory(ElectricVehicle vehicle ,Inventory inventory, Pageable pageable);
 }
