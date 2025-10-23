@@ -1,42 +1,20 @@
-#!/bin/bash
+echo "Building app..."
+./mvnw clean package
 
-echo "🚀 Building app..."
-./mvnw clean package -DskipTests || { echo "❌ Build failed"; exit 1; }
+echo "Deploy files to server..."
+scp -r  target/be.jar root@103.90.226.19:/var/www/be/
 
-SERVER_IP=34.56.57.56      # IP VPS Google Cloud
-USER=truon                 # Username trên VPS
-KEY_PATH=/c/Users/truon/.ssh/id_ed25519
-REMOTE_TMP=/home/$USER/tmp_deploy
-REMOTE_DIR=/var/www/be
-
-echo "📦 Deploying files to server..."
-# Tạo thư mục tạm trước khi upload
-ssh -i "$KEY_PATH" $USER@$SERVER_IP "mkdir -p $REMOTE_TMP"
-# Upload file .jar
-scp -i "$KEY_PATH" target/be.jar $USER@$SERVER_IP:$REMOTE_TMP/ || { echo "❌ SCP failed"; exit 1; }
-
-echo "🔗 Connecting to server..."
-ssh -i "$KEY_PATH" $USER@$SERVER_IP <<EOF
-set -e
-
-echo "🧹 Preparing directories..."
-sudo mkdir -p $REMOTE_DIR
-sudo mv $REMOTE_TMP/be.jar $REMOTE_DIR/be.jar
-
+ssh root@103.90.226.19 <<EOF
 pid=\$(sudo lsof -t -i:8080)
+
 if [ -z "\$pid" ]; then
-    echo "▶ Starting server..."
+    echo "Start server..."
 else
-    echo "🔁 Restarting server (\$pid)..."
+    echo "Restart server..."
     sudo kill -9 "\$pid"
 fi
-
-cd $REMOTE_DIR
-echo "🚀 Running JAR..."
-nohup sudo java -jar be.jar > app.log 2>&1 & disown
-
-echo "✅ Server started successfully."
-exit
+cd /var/www/be
+java -jar be.jar
 EOF
-
-echo "🎉 Done!"
+exit
+echo "Done!"
