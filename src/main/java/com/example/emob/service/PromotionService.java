@@ -151,8 +151,6 @@ public class PromotionService implements IPromotion {
       promotion.setVehicles(electricVehicles);
       promotion.setCreateAt(LocalDateTime.now());
       promotion.setCreateBy(staff);
-      PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
-        promotion.setStatus(status);
       promotionRepository.save(promotion);
       PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
       return APIResponse.success(promotionResponse, "Create promotion for local successfully");
@@ -161,7 +159,7 @@ public class PromotionService implements IPromotion {
     } catch (DataAccessException ex) {
       throw new GlobalException(ErrorCode.DB_ERROR);
     } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
+      throw new GlobalException(ErrorCode.OTHER, ex.getMessage());
     }
   }
 
@@ -250,13 +248,16 @@ public class PromotionService implements IPromotion {
       if (promotion.getScope().equals(PromotionScope.GLOBAL)
           && AccountUtil.getCurrentUser().getRole().equals(Role.ADMIN)) {
         updatePromotionDetail(request, promotion);
+        PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
+        promotion.setStatus(status);
         promotionRepository.save(promotion);
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
         return APIResponse.success(promotionResponse, "Create promotion for global successfully");
       } else if (promotion.getScope().equals(PromotionScope.LOCAL)
           && Role.MANAGER.equals(AccountUtil.getCurrentUser().getRole())) {
         updatePromotionDetail(request, promotion);
-
+        PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
+        promotion.setStatus(status);
         promotionRepository.save(promotion);
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
         return APIResponse.success(promotionResponse, "Create promotion for local successfully");
