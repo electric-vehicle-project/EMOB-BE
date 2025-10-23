@@ -22,14 +22,14 @@ public class SaleOrderControler {
   @Autowired SaleOrderService saleOrderService;
 
   @GetMapping("/of-dealer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrders(
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfDealer(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(saleOrderService.getAllSaleOrdersOfDealer(pageable));
   }
 
   @GetMapping("/of-customer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrders(
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfCustomer(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(saleOrderService.getAllSaleOrdersByCustomer(pageable));
