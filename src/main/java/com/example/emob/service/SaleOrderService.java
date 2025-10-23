@@ -113,7 +113,7 @@ public class SaleOrderService implements ISaleOrder {
     saleOrder.setCreatedAt(LocalDateTime.now());
     saleOrder.setSaleOrderItems(saleOrderItems);
     saleOrder.setQuotation(quotation);
-
+    quotation.setSaleOrder(saleOrder);
     // Gán quan hệ ngược cho JPA
     saleOrderItems.forEach(item -> item.setSaleOrder(saleOrder));
 
@@ -141,6 +141,7 @@ public class SaleOrderService implements ISaleOrder {
     SaleOrder saleOrder = saleOrderMapper.toSaleOrder(vehicleRequest);
     saleOrder.setPaymentStatus(paymentStatus);
     saleOrder.setVehicleRequest(vehicleRequest);
+    vehicleRequest.setSaleOrder(saleOrder);
     saleOrder.setStatus(OrderStatus.CREATED);
     // ✅ Lưu vào DB
     SaleOrder savedSaleOrder = saleOrderRepository.save(saleOrder);

@@ -55,7 +55,7 @@ public class PromotionService implements IPromotion {
   // tự động cập nhật status promotion sau 1p
   @Transactional
   @Scheduled(cron = "0 0 0 * * *")
-  public void autoUpdatePromotionStatus() {
+  public void autoUpdatePromotionStatuses() {
     try {
       List<Promotion> promotions = promotionRepository.findAll();
       for (Promotion p : promotions) {
@@ -77,6 +77,31 @@ public class PromotionService implements IPromotion {
       System.out.println("Lỗi: " + ex.getMessage());
       ex.getStackTrace();
     }
+  }
+
+  public Promotion autoUpdatePromotionStatus(Promotion promotion){
+    try {
+      //                     nếu bị xóa rồi thì bỏ qua
+      if (PromotionStatus.INACTIVE.equals(promotion.getStatus())) {
+        return promotion;
+      }
+      if (promotion.getStartDate() == null || promotion.getEndDate() == null) {
+        return promotion;
+      }
+      PromotionStatus newStatus =
+          PromotionHelper.determinePromotionStatus(
+              promotion.getStartDate(), promotion.getEndDate());
+      if (newStatus != promotion.getStatus()) {
+        promotion.setStatus(newStatus);
+        promotionRepository.saveAndFlush(promotion);
+      }
+      return promotion;
+    } catch (Exception ex) {
+      System.out.println("Lỗi: " + ex.getMessage());
+      ex.getStackTrace();
+      return promotion;
+    }
+
   }
 
   @Override
@@ -123,9 +148,11 @@ public class PromotionService implements IPromotion {
         Set<Dealer> dealerSet = Set.of(dealer);
         promotion.setDealers(dealerSet);
       }
+      promotion.setVehicles(electricVehicles);
       promotion.setCreateAt(LocalDateTime.now());
       promotion.setCreateBy(staff);
-      //            autoUpdatePromotionStatus();
+      PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
+        promotion.setStatus(status);
       promotionRepository.save(promotion);
       PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
       return APIResponse.success(promotionResponse, "Create promotion for local successfully");
@@ -229,6 +256,7 @@ public class PromotionService implements IPromotion {
       } else if (promotion.getScope().equals(PromotionScope.LOCAL)
           && Role.MANAGER.equals(AccountUtil.getCurrentUser().getRole())) {
         updatePromotionDetail(request, promotion);
+
         promotionRepository.save(promotion);
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
         return APIResponse.success(promotionResponse, "Create promotion for local successfully");
