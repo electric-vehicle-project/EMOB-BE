@@ -218,6 +218,36 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
+  public APIResponse<Void> deleteAccount(UUID id) {
+    Account account = AccountUtil.getCurrentUser();
+    Account targetAccount = accountRepository.findAccountById(id);
+    // nếu tài khoản tìm bằng tài khoản xóa => kh hợp lệ
+    if (account.getId().equals(id)) {
+      throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot delete your own account");
+    }
+    // case tài khoản bị xóa rồi
+    if (targetAccount.getStatus() == AccountStatus.BANNED) {
+      throw new GlobalException(ErrorCode.INVALID_CODE, "Account is already deleted");
+    }
+    // Kiểm tra quyền xóa
+    boolean canDelete = false;
+    if (account.getRole() == Role.ADMIN) {
+      canDelete = targetAccount.getRole() == Role.MANAGER ||
+              targetAccount.getRole() == Role.EVM_STAFF;
+    } else if (account.getRole() == Role.MANAGER) {
+      canDelete = targetAccount.getRole() == Role.DEALER_STAFF;
+    }
+    if (!canDelete) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to delete this account");
+    }
+    targetAccount.setStatus(AccountStatus.BANNED);
+    accountRepository.save(targetAccount);
+
+    return APIResponse.success(null, "Delete account successfully");
+    }
+
+
+  @Override
   public APIResponse<AccountResponse> login(LoginRequest request) {
     try {
       Authentication authentication =
