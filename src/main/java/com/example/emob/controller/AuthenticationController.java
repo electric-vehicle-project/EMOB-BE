@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -242,5 +243,12 @@ public class AuthenticationController {
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(authenticationService.getAllByAdmin(pageable));
+  }
+
+  @Operation(summary = "Delete account by ID")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @DeleteMapping("{id}")
+  public ResponseEntity<APIResponse<Void>> deleteAccount(@PathVariable UUID id) {
+    return ResponseEntity.ok(authenticationService.deleteAccount(id));
   }
 }

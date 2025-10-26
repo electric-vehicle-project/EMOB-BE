@@ -30,4 +30,6 @@ public interface IAuthentication {
   APIResponse<Void> resetPassword(String newPassword);
 
   APIResponse<Void> resendOtp(String email);
+
+  APIResponse<Void> deleteAccount (UUID id);
 }
