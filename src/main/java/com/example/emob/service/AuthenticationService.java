@@ -219,7 +219,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-  public APIResponse<Void> deleteAccount(UUID id, AccountStatus status) {
+  public APIResponse<Void> deleteAccount(UUID id) {
     Account account = AccountUtil.getCurrentUser();
     if (account.getRole().equals(Role.EVM_STAFF) || account.getRole().equals(Role.DEALER_STAFF)) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED);
@@ -245,11 +245,52 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to delete this account");
     }
     // chỉ set INACTIVE || BANNED
-    targetAccount.setStatus(status);
+    targetAccount.setStatus(AccountStatus.BANNED);
     accountRepository.save(targetAccount);
 
     return APIResponse.success(null, "Delete account successfully");
     }
+
+  @Override
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  public APIResponse<Void> changeStatus(UUID id) {
+    Account currentUser = AccountUtil.getCurrentUser();
+    if (currentUser.getRole().equals(Role.EVM_STAFF) || currentUser.getRole().equals(Role.DEALER_STAFF)) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED);
+    }
+    Account targetAccount = accountRepository.findAccountById(id);
+    if (targetAccount == null) {
+      throw new GlobalException(ErrorCode.NOT_FOUND, "Account not found");
+    }
+
+    if (currentUser.getId().equals(id)) {
+      throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot change your own account status");
+    }
+
+    boolean canChange = false;
+    if (currentUser.getRole() == Role.ADMIN) {
+      canChange = targetAccount.getRole() == Role.MANAGER ||
+              targetAccount.getRole() == Role.EVM_STAFF;
+    } else if (currentUser.getRole() == Role.MANAGER) {
+      canChange = targetAccount.getRole() == Role.DEALER_STAFF;
+    }
+
+    if (!canChange) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to change this account's status");
+    }
+
+    // change status
+    if (AccountStatus.INACTIVE.equals(targetAccount.getStatus())) {
+      targetAccount.setStatus(AccountStatus.ACTIVE);
+    } else if (AccountStatus.ACTIVE.equals(targetAccount.getStatus())) {
+      targetAccount.setStatus(AccountStatus.INACTIVE);
+    } else {
+      throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot change status for this account");
+    }
+
+    accountRepository.save(targetAccount);
+    return APIResponse.success(null, "Change account status successfully");
+  }
 
 
   @Override

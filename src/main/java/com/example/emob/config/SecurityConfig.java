@@ -80,6 +80,7 @@ public class SecurityConfig {
     "/api/delivery/**",
     "/api/contract/**",
     "/api/auth/{id}",
+          "/api/auth/change-status/{id}",
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

@@ -32,5 +32,7 @@ public interface IAuthentication {
 
   APIResponse<Void> resendOtp(String email);
 
-  APIResponse<Void> deleteAccount (UUID id, AccountStatus status);
+  APIResponse<Void> deleteAccount (UUID id);
+
+  APIResponse<Void> changeStatus (UUID id);
 }
