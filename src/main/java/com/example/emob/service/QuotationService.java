@@ -364,6 +364,20 @@ public class QuotationService implements IQuotation {
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
 
+  @PreAuthorize("hasRole('DEALER_STAFF')")
+  public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(Pageable pageable) {
+
+    Page<Quotation> page =
+            quotationRepository.findAllByIsDeletedFalseAndDealerAndAccount(
+                    AccountUtil.getCurrentUser().getDealer(),AccountUtil.getCurrentUser(), pageable);
+    // Gói kết quả vào PageResponse
+    PageResponse<QuotationResponse> pageResponse =
+            pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
+
+    return APIResponse.success(pageResponse, "Get all quotations successfully");
+  }
+
+
   private QuotationItem createQuotationItem(QuotationItemRequest request) {
     ElectricVehicle vehicle =
         electricVehicleRepository
@@ -385,6 +399,9 @@ public class QuotationService implements IQuotation {
         quotationRepository
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+    if(AccountUtil.getCurrentUser() != quotation.getAccount()){
+      throw new GlobalException(ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
+    }
     quotation.setStatus(QuotationStatus.APPROVED);
     Quotation savedQuotation = quotationRepository.save(quotation);
     saleOrderService.createSaleOrderFromQuotation(quotation, itemRequests, paymentStatus);

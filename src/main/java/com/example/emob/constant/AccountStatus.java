@@ -3,5 +3,7 @@ package com.example.emob.constant;
 
 public enum AccountStatus {
   BANNED,
-  ACTIVE
+  ACTIVE,
+  INACTIVE
+
 }

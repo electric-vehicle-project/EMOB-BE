@@ -2,6 +2,7 @@
 package com.example.emob.repository;
 
 import com.example.emob.constant.QuotationStatus;
+import com.example.emob.entity.Account;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Quotation;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
   Page<Quotation> findAllByIsDeletedFalseAndDealer(Dealer dealer, Pageable pageable);
+
+  Page<Quotation> findAllByIsDeletedFalseAndDealerAndAccount(Dealer dealer, Account account, Pageable pageable);
 
   List<Quotation> findAllByIsDeletedFalseAndStatus(QuotationStatus status);
 

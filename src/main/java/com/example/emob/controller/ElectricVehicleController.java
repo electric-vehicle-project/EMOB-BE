@@ -6,10 +6,7 @@ import com.example.emob.constant.VehicleType;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.ElectricVehicleResponse;
-import com.example.emob.model.response.PageResponse;
-import com.example.emob.model.response.VehicleUnitResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.service.ElectricVehicleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -282,5 +279,13 @@ public class ElectricVehicleController {
       @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId, pageable));
+  }
+
+  @GetMapping("/{leftId}/vs/{rightId}")
+  public APIResponse<List<VehicleCompareResponse>> compareByPath(
+          @PathVariable UUID leftId,
+          @PathVariable UUID rightId
+  ) {
+    return APIResponse.success(vehicleService.compare(leftId, rightId));
   }
 }

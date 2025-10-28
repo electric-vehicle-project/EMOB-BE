@@ -13,6 +13,8 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.*;
 import com.example.emob.service.impl.IDelivery;
 import com.example.emob.util.AccountUtil;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -331,7 +333,11 @@ public class DeliveryService implements IDelivery {
       delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));
     } else {
       // nếu giao xe cho khách thì chuyển thành đã bán
-      delivery.getVehicleUnits().forEach(vehicle -> vehicle.setStatus(VehicleStatus.SOLD));
+      delivery.getVehicleUnits().forEach(vehicle -> {
+        vehicle.setStatus(VehicleStatus.SOLD);
+        vehicle.setWarrantyStart(LocalDate.now());
+        vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
+      });
     }
     delivery.setCompletedAt(LocalDateTime.now());
     Delivery updatedDelivery = deliveryRepository.save(delivery);

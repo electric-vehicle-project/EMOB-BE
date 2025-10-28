@@ -6,7 +6,9 @@ import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
+import com.example.emob.model.response.SalesByStaffResponse;
 import com.example.emob.service.SaleOrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.Arrays;
@@ -62,6 +64,30 @@ public class SaleOrderControler {
     Pageable pageable = buildPageable(page, size, sort);
     APIResponse<PageResponse<SaleOrderResponse>> response =
             saleOrderService.getAllSaleOrdersByCustomer(statuses, pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/staff/current")
+  @Operation(summary = "Xem tất cả đơn hàng của nhân viên hiện tại")
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfStaff(
+          @RequestParam(required = false) List<OrderStatus> statuses,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    Pageable pageable = PageRequest.of(page, size);
+    APIResponse<PageResponse<SaleOrderResponse>> response =
+            saleOrderService.getAllSaleOrdersOfStaff(statuses, pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/sale-of-staff")
+  public ResponseEntity<APIResponse<PageResponse<SalesByStaffResponse>>> getAllSaleOrdersByEmployee(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    Pageable pageable = PageRequest.of(page, size);
+    APIResponse<PageResponse<SalesByStaffResponse>> response =
+            saleOrderService.getAllSaleOrdersByemployee(pageable);
     return ResponseEntity.ok(response);
   }
 

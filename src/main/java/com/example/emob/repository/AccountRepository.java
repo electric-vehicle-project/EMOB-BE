@@ -19,5 +19,7 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
   Page<Account> findByRoleAndDealer(Role role, Dealer dealer, Pageable pageable);
 
+  List<Account> findByRoleAndDealer(Role role, Dealer dealer);
+
   Page<Account> findByRoleIn(List<Role> roles, Pageable pageable);
 }
