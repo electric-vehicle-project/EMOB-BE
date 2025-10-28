@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import lombok.*;
@@ -50,6 +51,16 @@ public class VehicleUnit {
   @JsonIgnore
   Inventory inventory;
 
-  @OneToOne(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-  DeliveryItem deliveryItem;
+  @ManyToMany(mappedBy = "vehicleUnits")
+  Set<Delivery> deliveries = new HashSet<>();
+
+  @ManyToOne
+  @JoinColumn(name = "saleOrderItem_id")
+  @JsonIgnore
+  SaleOrderItem saleOrderItem;
+
+  @ManyToOne
+  @JoinColumn(name = "saleContractItem_id")
+  @JsonIgnore
+  SaleContractItem SaleContractItem;
 }

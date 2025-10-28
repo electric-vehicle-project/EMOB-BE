@@ -9,4 +9,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, UUID> {
   Inventory findInventoryByIsCompanyTrue();
 
   long countByIsCompanyTrue();
+
+  // Nếu cần lọc theo mẫu xe cụ thể
+
 }

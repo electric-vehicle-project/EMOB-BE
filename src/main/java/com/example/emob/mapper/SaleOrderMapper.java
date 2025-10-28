@@ -5,9 +5,7 @@ import com.example.emob.entity.*;
 import com.example.emob.model.response.SaleOrder.SaleOrderItemResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.mapstruct.*;
 
@@ -17,11 +15,14 @@ public interface SaleOrderMapper {
   // ==========================
   // 🔹 ENTITY → RESPONSE
   // ==========================
-  @Mapping(source = "dealer.id", target = "dealerId")
   @Mapping(source = "account.id", target = "accountId")
-  @Mapping(source = "customer.id", target = "customerId")
+  @Mapping(source = "vehicleRequest.dealer.id", target = "dealerId")
+  @Mapping(source = "quotation.customer.id", target = "customerId")
   SaleOrderResponse toSaleOrderResponse(SaleOrder saleOrder);
 
+  @Mapping(source = "vehicle.id", target = "vehicleId")
+  @Mapping(source = "promotion.id", target = "promotionId")
+  @Mapping(target = "vehicleUnitIds", expression = "java(mapVehicleUnitIds(item))")
   SaleOrderItemResponse toSaleOrderItemResponse(SaleOrderItem item);
 
   default Set<SaleOrderItemResponse> filterActiveItems(Set<SaleOrderItem> items) {
@@ -37,17 +38,26 @@ public interface SaleOrderMapper {
     response.setItems(filterActiveItems(saleOrder.getSaleOrderItems()));
   }
 
+  default Set<UUID> mapVehicleUnitIds(SaleOrderItem item) {
+    if (item == null || item.getVehicleUnits() == null || item.getVehicleUnits().isEmpty()) {
+      return Collections.emptySet();
+    }
+    return item.getVehicleUnits().stream()
+        .map(VehicleUnit::getId)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+  }
+
   // ==========================
   // 🔹 VEHICLE REQUEST → SALE ORDER
   // ==========================
   @Mapping(
       target = "saleOrderItems",
       expression = "java(toSaleOrderItems(vehicleRequest.getVehicleRequestItems()))")
-  @Mapping(target = "customer", ignore = true)
   @Mapping(target = "account", ignore = true)
   @Mapping(target = "vehicleRequest", source = "vehicleRequest")
   @Mapping(target = "status", ignore = true)
-  SaleOrder toSaleOrder(VehicleRequest vehicleRequest);
+  SaleOrder toSaleOrderFromVehicleRequest(VehicleRequest vehicleRequest);
 
   default Set<SaleOrderItem> toSaleOrderItems(Set<VehicleRequestItem> vehicleRequestItems) {
     if (vehicleRequestItems == null) return new HashSet<>();

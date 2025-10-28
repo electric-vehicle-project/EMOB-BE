@@ -1,11 +1,11 @@
-/* EMOB-2025 */
-package com.example.emob.model.request.delivery;
+package com.example.emob.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +13,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DeliveryRequest {
-  UUID contractId;
-  LocalDateTime deliveryDate;
+public class SalesByStaffResponse {
+    UUID accountId;
+    long orderCount;
+    BigDecimal amount;
 }

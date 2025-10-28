@@ -1,37 +1,38 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.DeliveryStatus;
 import com.example.emob.model.request.delivery.DeliveryRequest;
-import com.example.emob.model.request.delivery.UpdateDeliveryItemRequest;
-import com.example.emob.model.request.delivery.UpdateDeliveryRequest;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DeliveryItemResponse;
 import com.example.emob.model.response.DeliveryResponse;
 import com.example.emob.model.response.PageResponse;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IDelivery {
-  APIResponse<DeliveryResponse> createDelivery(DeliveryRequest request);
 
-  APIResponse<DeliveryResponse> updateDeliveryDate(UpdateDeliveryRequest request, UUID id);
+  APIResponse<DeliveryResponse> createDeliveryToDealer(DeliveryRequest request);
+
+  APIResponse<DeliveryResponse> createDeliveryToCustomer(DeliveryRequest request);
 
   APIResponse<DeliveryResponse> getDelivery(UUID id);
 
-  APIResponse<PageResponse<DeliveryResponse>> getAllDeliveries(Pageable pageable);
-
   APIResponse<Void> deleteDelivery(UUID id);
 
-  //     APIResponse<DeliveryItemResponse> createDeliveryItem (DeliveryItemRequest request, UUID
-  // deliveryId);
+  APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
+      List<DeliveryStatus> statuses, Pageable pageable);
 
-  APIResponse<DeliveryItemResponse> confirm(UUID id);
+  APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentCustomer(
+      UUID customerId, List<DeliveryStatus> statuses, Pageable pageable);
 
-  APIResponse<DeliveryItemResponse> viewDeliveryItem(UUID id);
+  APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentDealer(
+      List<DeliveryStatus> statuses, Pageable pageable);
 
-  APIResponse<PageResponse<DeliveryItemResponse>> viewDeliveriesItem(Pageable pageable);
+  APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesByCustomer(
+      List<DeliveryStatus> statuses, Pageable pageable);
 
-  APIResponse<DeliveryItemResponse> cancelDeliveryItem(UUID id);
+  APIResponse<DeliveryResponse> getDeliveryById(UUID deliveryId);
 
-  APIResponse<DeliveryItemResponse> updateDeliveryItem(UUID id, UpdateDeliveryItemRequest request);
+  APIResponse<DeliveryResponse> completeDelivery(UUID deliveryId);
 }

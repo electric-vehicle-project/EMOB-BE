@@ -15,8 +15,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeliveryResponse {
   UUID id;
-  Set<DeliveryItemResponse> deliveryItems;
+  UUID dealerId;
+  UUID customerId;
+  Set<UUID> vehicleIds;
   LocalDateTime deliveryDate;
   int quantity;
   DeliveryStatus status;
+  LocalDateTime createdAt;
+  LocalDateTime completedAt;
 }

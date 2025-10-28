@@ -1,36 +1,30 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
-import com.example.emob.constant.ContractStatus;
-import com.example.emob.constant.DeliveryItemStatus;
-import com.example.emob.constant.DeliveryStatus;
-import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.*;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
-import com.example.emob.mapper.DeliveryItemMapper;
 import com.example.emob.mapper.DeliveryMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.delivery.DeliveryRequest;
-import com.example.emob.model.request.delivery.UpdateDeliveryItemRequest;
-import com.example.emob.model.request.delivery.UpdateDeliveryRequest;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DeliveryItemResponse;
 import com.example.emob.model.response.DeliveryResponse;
 import com.example.emob.model.response.PageResponse;
-import com.example.emob.repository.DeliveryItemRepository;
-import com.example.emob.repository.DeliveryRepository;
-import com.example.emob.repository.SaleContractRepository;
-import com.example.emob.repository.VehicleUnitRepository;
+import com.example.emob.repository.*;
 import com.example.emob.service.impl.IDelivery;
+import com.example.emob.util.AccountUtil;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,94 +38,174 @@ public class DeliveryService implements IDelivery {
 
   @Autowired DeliveryMapper deliveryMapper;
 
-  @Autowired DeliveryItemRepository deliveryItemRepository;
-
-  @Autowired DeliveryItemMapper deliveryItemMapper;
-
   @Autowired VehicleUnitRepository vehicleUnitRepository;
+  @Autowired InventoryRepository inventoryRepository;
+  @Autowired CustomerRepository customerRepository;
 
   @Override
   @Transactional
-  public APIResponse<DeliveryResponse> createDelivery(DeliveryRequest request) {
+  @PreAuthorize("hasRole('EVM_STAFF')")
+  public APIResponse<DeliveryResponse> createDeliveryToDealer(DeliveryRequest request) {
+    // 1️⃣ Xác thực hợp đồng đủ điều kiện
     SaleContract contract =
         contractRepository
             .findById(request.getContractId())
-            .filter((item) -> item.getStatus().equals(ContractStatus.COMPLETED))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    System.out.println("vào chưa");
-    try {
-      // mapper
-      Delivery delivery = deliveryMapper.toDelivery(request);
-      if (request.getDeliveryItems() != null && !request.getDeliveryItems().isEmpty()) {
-        Set<DeliveryItem> items =
-            request.getDeliveryItems().stream()
-                .map(
-                    itemReq -> {
+            .filter(
+                c ->
+                    c.getStatus() == ContractStatus.SIGNED
+                        && c.getSaleContractItems() != null
+                        && !c.getSaleContractItems().isEmpty()
+                        &&
+                        // Hợp đồng giao cho dealer thì chưa có VehicleUnit
+                        c.getSaleContractItems().iterator().next().getVehicleUnits() == null)
+            .orElseThrow(
+                () ->
+                    new GlobalException(
+                        ErrorCode.NOT_FOUND,
+                        "Contract not found, not completed, or already assigned vehicles"));
 
-                      // tìm xe trong request
-                      VehicleUnit vehicleUnit =
-                          vehicleUnitRepository
-                              .findById(itemReq.getVehicleId())
-                              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-                      System.out.println(vehicleUnit.getId());
-                      // check trùng xe trong deliveryItem
-                      boolean isDup =
-                          deliveryItemRepository.existsByVehicleUnit_Id(vehicleUnit.getId());
-                      if (isDup) {
-                        throw new GlobalException(ErrorCode.VEHICLE_DUPLICATED);
-                      }
-                      DeliveryItem item = deliveryItemMapper.toDeliveryItem(itemReq);
-                      item.setVehicleUnit(vehicleUnit);
-                      item.setDelivery(delivery); // gắn quan hệ 2 chiều
-                      return item;
-                    })
-                .collect(Collectors.toSet());
-        delivery.setDeliveryItems(items);
-        delivery.setQuantity(items.size());
-      } else {
-        delivery.setQuantity(0);
-      }
+    try {
+      // 2️⃣ Khởi tạo entity Delivery từ mapper
+      Delivery delivery = deliveryMapper.toDelivery(request);
       delivery.setSaleContract(contract);
       delivery.setCreateAt(LocalDateTime.now());
-      // trạng thái chưa giao xong
       delivery.setStatus(DeliveryStatus.IN_PROGRESS);
-      deliveryRepository.save(delivery);
-      Delivery savedDelivery =
-          deliveryRepository
-              .findById(delivery.getId())
-              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
-      DeliveryResponse deliveryResponse = deliveryMapper.toDeliveryResponse(savedDelivery);
-      return APIResponse.success(deliveryResponse, "Create Delivery Successfully");
+      // 3️⃣ Xác định danh sách xe cần giao (theo từng item trong contract)
+      Set<VehicleUnit> vehiclesToDeliver =
+          contract.getSaleContractItems().stream()
+              .flatMap(
+                  item -> {
+                    int requiredQty = item.getQuantity();
+
+                    // Lấy danh sách xe khả dụng theo số lượng cần
+                    List<VehicleUnit> availableUnits =
+                        IntStream.range(0, requiredQty)
+                            .mapToObj(
+                                i ->
+                                    vehicleUnitRepository
+                                        .findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+                                            inventoryRepository.findInventoryByIsCompanyTrue(),
+                                            item.getVehicle(),
+                                            item.getColor(),
+                                            item.getVehicleStatus())
+                                        .orElse(null))
+                            .filter(Objects::nonNull)
+                            .toList();
+
+                    int foundQty = availableUnits.size();
+                    int missingQty = requiredQty - foundQty;
+
+                    if (missingQty > 0) {
+                      throw new GlobalException(
+                          ErrorCode.NOT_FOUND,
+                          "Missing "
+                              + missingQty
+                              + " of "
+                              + requiredQty
+                              + " vehicle unit(s) for model: "
+                              + item.getVehicle().getModel()
+                              + ", color: "
+                              + item.getColor()
+                              + ", type: "
+                              + item.getVehicleStatus());
+                    }
+
+                    return availableUnits.stream();
+                  })
+              .collect(Collectors.toSet());
+
+      if (vehiclesToDeliver.isEmpty()) {
+        throw new GlobalException(ErrorCode.DATA_INVALID, "No vehicle units found for delivery");
+      }
+
+      // 🔹 3.1 Gỡ inventory khỏi tất cả vehicle units (vì giao ra khỏi kho công ty)
+      vehiclesToDeliver.forEach(vehicle -> vehicle.setInventory(null));
+
+      // 4️⃣ Liên kết hai chiều giữa contract – delivery – vehicleUnits
+      delivery.setVehicleUnits(vehiclesToDeliver);
+      delivery.setQuantity(vehiclesToDeliver.size());
+      contract.setDelivery(delivery);
+
+      // 5️⃣ Lưu xuống DB
+      Delivery savedDelivery = deliveryRepository.save(delivery);
+
+      // 6️⃣ Map sang Response
+      DeliveryResponse response = deliveryMapper.toDeliveryResponse(savedDelivery);
+      return APIResponse.success(response, "Create Delivery Successfully");
+
     } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
+      throw new GlobalException(ErrorCode.DATA_INVALID, "Invalid delivery data");
     } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
+      throw new GlobalException(ErrorCode.DB_ERROR, "Database error while saving delivery");
     } catch (Exception ex) {
-      System.out.println("Exception: " + ex.getMessage());
-      throw new GlobalException(ErrorCode.OTHER);
+      throw new GlobalException(ErrorCode.OTHER, "Unexpected error: " + ex.getMessage());
     }
   }
 
   @Override
-  public APIResponse<DeliveryResponse> updateDeliveryDate(UpdateDeliveryRequest request, UUID id) {
-    Delivery delivery =
-        deliveryRepository
-            .findById(id)
-            .filter((item) -> !item.isDeleted())
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+  @Transactional
+  @PreAuthorize("hasRole('DEALER_STAFF')")
+  public APIResponse<DeliveryResponse> createDeliveryToCustomer(DeliveryRequest request) {
+    // ===== 1️⃣ Lấy hợp đồng đã hoàn tất & có xe =====
+    SaleContract contract =
+        contractRepository
+            .findById(request.getContractId())
+            .filter(
+                c ->
+                    c.getStatus() == ContractStatus.SIGNED
+                        && c.getSaleContractItems() != null
+                        && !c.getSaleContractItems().isEmpty()
+                        && c.getSaleContractItems().stream()
+                            .anyMatch(
+                                item ->
+                                    item.getVehicleUnits() != null
+                                        && !item.getVehicleUnits().isEmpty()))
+            .orElseThrow(
+                () ->
+                    new GlobalException(
+                        ErrorCode.NOT_FOUND,
+                        "Contract not found, not completed, or has no vehicles"));
+
     try {
-      delivery.setDeliveryDate(request.getDeliveryDate());
-      delivery.setUpdateAt(LocalDateTime.now());
-      deliveryRepository.save(delivery);
-      DeliveryResponse deliveryResponse = deliveryMapper.toDeliveryResponse(delivery);
-      return APIResponse.success(deliveryResponse, "Update delivery date successfully");
+      // ===== 2️⃣ Map Delivery entity từ request =====
+      Delivery delivery = deliveryMapper.toDelivery(request);
+      delivery.setSaleContract(contract);
+      delivery.setStatus(DeliveryStatus.IN_PROGRESS);
+      delivery.setCreateAt(LocalDateTime.now());
+
+      // ===== 3️⃣ Gom toàn bộ xe trong hợp đồng =====
+      Set<VehicleUnit> vehicleUnits =
+          contract.getSaleContractItems().stream()
+              .filter(Objects::nonNull)
+              .flatMap(item -> item.getVehicleUnits().stream())
+              .collect(Collectors.toSet());
+
+      if (vehicleUnits.isEmpty()) {
+        throw new GlobalException(ErrorCode.DATA_INVALID, "No vehicles found in this contract");
+      }
+
+      // 🔹 3.1 Gỡ inventory khỏi tất cả xe (vì giao ra khỏi đại lý cho khách)
+      vehicleUnits.forEach(vehicle -> vehicle.setInventory(null));
+
+      // ===== 4️⃣ Liên kết hai chiều =====
+      delivery.setVehicleUnits(vehicleUnits);
+      delivery.setQuantity(vehicleUnits.size());
+      contract.setDelivery(delivery);
+
+      // ===== 5️⃣ Lưu xuống DB =====
+      Delivery saved = deliveryRepository.save(delivery);
+
+      // ===== 6️⃣ Trả về response =====
+      DeliveryResponse response = deliveryMapper.toDeliveryResponse(saved);
+      return APIResponse.success(response, "Create Delivery Successfully");
+
     } catch (DataIntegrityViolationException ex) {
-      throw new GlobalException(ErrorCode.DATA_INVALID);
+      throw new GlobalException(ErrorCode.DATA_INVALID, "Invalid delivery data");
     } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR);
+      throw new GlobalException(ErrorCode.DB_ERROR, "Database error while saving delivery");
     } catch (Exception ex) {
-      throw new GlobalException(ErrorCode.OTHER);
+      throw new GlobalException(ErrorCode.OTHER, "Unexpected error: " + ex.getMessage());
     }
   }
 
@@ -144,14 +218,7 @@ public class DeliveryService implements IDelivery {
   }
 
   @Override
-  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveries(Pageable pageable) {
-    Page<Delivery> deliveries = deliveryRepository.findAll(pageable);
-    PageResponse<DeliveryResponse> pageResponse =
-        pageMapper.toPageResponse(deliveries, deliveryMapper::toDeliveryResponse);
-    return APIResponse.success(pageResponse, "View All Deliveries Item Successfully");
-  }
-
-  @Override
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
   public APIResponse<Void> deleteDelivery(UUID id) {
     Delivery delivery =
         deliveryRepository.findById(id).orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
@@ -160,132 +227,122 @@ public class DeliveryService implements IDelivery {
     return APIResponse.success(null, "Delete Delivery Successfully");
   }
 
-  //     @Override
-  //     public APIResponse<DeliveryItemResponse> createDeliveryItem(DeliveryItemRequest request,
-  // UUID deliveryId) {
-  //         Delivery delivery = deliveryRepository.findById(deliveryId)
-  //                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-  //
-  //         VehicleUnit vehicleUnit = vehicleUnitRepository.findById(request.getVehicleId())
-  //                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-  //         boolean isDup = deliveryItemRepository.existsByVehicleUnit_Id(vehicleUnit.getId());
-  //         if (isDup) {
-  //             throw new GlobalException(ErrorCode.VEHICLE_DUPLICATED);
-  //         }
-  //         try {
-  //             DeliveryItem deliveryItem = deliveryItemMapper.toDeliveryItem(request);
-  //             deliveryItem.setVehicleUnit(vehicleUnit);
-  //             deliveryItem.setDelivery(delivery);
-  //             // lấy ra số lượng xe đc thêm vào deliveryItem
-  //             int countDeliveryItem =
-  // deliveryItemRepository.findByDelivery_Id(delivery.getId()).size();
-  //             // check quantity
-  //             if (countDeliveryItem > delivery.getQuantity()) {
-  //                 throw new GlobalException(ErrorCode.INVALID_QUANTITY);
-  //             }
-  //             deliveryItem.setStatus(DeliveryItemStatus.PENDING);
-  //             deliveryItem.setCreateAt(LocalDateTime.now());
-  //             deliveryItemRepository.save(deliveryItem);
-  //             DeliveryItemResponse deliveryItemResponse =
-  // deliveryItemMapper.toDeliveryItemResponse(deliveryItem);
-  //             return APIResponse.success(deliveryItemResponse, "Create Delivery Item
-  // Successfully");
-  //         } catch (DataIntegrityViolationException ex) {
-  //             throw new GlobalException(ErrorCode.DATA_INVALID);
-  //         } catch (DataAccessException ex) {
-  //             throw new GlobalException(ErrorCode.DB_ERROR);
-  //         } catch (Exception ex) {
-  //             throw new GlobalException(ErrorCode.OTHER);
-  //         }
-  //     }
-  // check delivery đã giao hết số lượng chưa
-  public void checkQuantityInDelivery(DeliveryItem deliveryItem) {
-    Delivery delivery = deliveryItem.getDelivery();
-    long countDelivered = deliveryItemRepository.countNotDeliveredNative(delivery.getId());
-    // không còn thằng nào chưa giao
-    if (countDelivered == 0) {
-      delivery.setStatus(DeliveryStatus.SUCCESS);
-      delivery.setDeliveryDate(LocalDateTime.now());
-      deliveryRepository.save(delivery);
+  // ===========================================
+  // 🔹 1. Hãng xe xem tất cả delivery của đại lý
+  // ===========================================
+  @Override
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
+  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
+      List<DeliveryStatus> statuses, Pageable pageable) {
+    Page<Delivery> page = deliveryRepository.findAllWithVehicleRequest(statuses, pageable);
+
+    PageResponse<DeliveryResponse> response =
+        pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
+
+    return APIResponse.success(response);
+  }
+
+  // ===========================================
+  // 🔹 2. Đại lý xem delivery của khách hàng cụ thể
+  // ===========================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentCustomer(
+      UUID customerId, List<DeliveryStatus> statuses, Pageable pageable) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    Customer customer =
+        customerRepository
+            .findById(customerId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
+
+    Page<Delivery> page =
+        deliveryRepository.findAllWithQuotationByDealerAndCustomer(
+            dealer, customer, statuses, pageable);
+
+    PageResponse<DeliveryResponse> response =
+        pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
+
+    return APIResponse.success(response);
+  }
+
+  // ===========================================
+  // 🔹 3. Đại lý xem tất cả delivery của chính mình
+  // ===========================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentDealer(
+      List<DeliveryStatus> statuses, Pageable pageable) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
+    Page<Delivery> page =
+        deliveryRepository.findAllWithVehicleRequestByDealerAndStatuses(dealer, statuses, pageable);
+
+    PageResponse<DeliveryResponse> response =
+        pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
+
+    return APIResponse.success(response);
+  }
+
+  // ===========================================
+  // 🔹 4. Đại lý xem tất cả delivery đã báo giá (mọi khách hàng)
+  // ===========================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesByCustomer(
+      List<DeliveryStatus> statuses, Pageable pageable) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
+    Page<Delivery> page =
+        deliveryRepository.findAllWithQuotationByDealerAndStatuses(dealer, statuses, pageable);
+
+    PageResponse<DeliveryResponse> response =
+        pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
+
+    return APIResponse.success(response);
+  }
+
+  // ===========================================
+  // 🔹 5. Lấy chi tiết 1 delivery
+  // ===========================================
+  @Override
+  public APIResponse<DeliveryResponse> getDeliveryById(UUID deliveryId) {
+    Delivery delivery =
+        deliveryRepository
+            .findById(deliveryId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Delivery not found"));
+    return APIResponse.success(deliveryMapper.toDeliveryResponse(delivery));
+  }
+
+  @Override
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
+  public APIResponse<DeliveryResponse> completeDelivery(UUID deliveryId) {
+    Delivery delivery =
+        deliveryRepository
+            .findById(deliveryId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Delivery not found"));
+
+    if (delivery.getStatus() != DeliveryStatus.IN_PROGRESS) {
+      throw new GlobalException(
+          ErrorCode.DATA_INVALID, "Only deliveries in progress can be completed");
     }
-  }
 
-  @Override
-  @Transactional
-  public APIResponse<DeliveryItemResponse> confirm(UUID id) {
-    DeliveryItem deliveryItem =
-        deliveryItemRepository
-            .findById(id)
-            .filter((item) -> item.getStatus().equals(DeliveryItemStatus.PENDING))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    // check trường hợp giao đủ rồi
-    checkQuantityInDelivery(deliveryItem);
+    delivery.setStatus(DeliveryStatus.SUCCESS);
+    Dealer dealer = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
+    // nếu giao cho đại lý thì cập nhật kho cho xe
+    if (dealer != null) {
+      delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));
+    } else {
+      // nếu giao xe cho khách thì chuyển thành đã bán
+      delivery.getVehicleUnits().forEach(vehicle -> {
+        vehicle.setStatus(VehicleStatus.SOLD);
+        vehicle.setWarrantyStart(LocalDate.now());
+        vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
+      });
+    }
+    delivery.setCompletedAt(LocalDateTime.now());
+    Delivery updatedDelivery = deliveryRepository.save(delivery);
 
-    deliveryItem.setStatus(DeliveryItemStatus.DELIVERED);
-    deliveryItem.setConfirmAt(LocalDateTime.now());
-    deliveryItemRepository.save(deliveryItem);
-
-    DeliveryItemResponse deliveryItemResponse =
-        deliveryItemMapper.toDeliveryItemResponse(deliveryItem);
-    return APIResponse.success(deliveryItemResponse, "Confirm delivery successfully");
-  }
-
-  @Override
-  public APIResponse<DeliveryItemResponse> viewDeliveryItem(UUID id) {
-    DeliveryItem deliveryItem =
-        deliveryItemRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    DeliveryItemResponse deliveryItemResponse =
-        deliveryItemMapper.toDeliveryItemResponse(deliveryItem);
-    return APIResponse.success(deliveryItemResponse, "View delivery successfully");
-  }
-
-  @Override
-  public APIResponse<PageResponse<DeliveryItemResponse>> viewDeliveriesItem(Pageable pageable) {
-    Page<DeliveryItem> deliveryItems = deliveryItemRepository.findAll(pageable);
-    PageResponse<DeliveryItemResponse> deliveryItemResponsePageResponse =
-        pageMapper.toPageResponse(deliveryItems, deliveryItemMapper::toDeliveryItemResponse);
     return APIResponse.success(
-        deliveryItemResponsePageResponse, "View All Deliveries Item Successfully");
-  }
-
-  @Override
-  public APIResponse<DeliveryItemResponse> cancelDeliveryItem(UUID id) {
-    DeliveryItem deliveryItem =
-        deliveryItemRepository
-            .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    deliveryItem.setStatus(DeliveryItemStatus.CANCELED);
-    deliveryItemRepository.save(deliveryItem);
-    return APIResponse.success(null, "Cancel Delivery Item Successfully");
-  }
-
-  @Override
-  public APIResponse<DeliveryItemResponse> updateDeliveryItem(
-      UUID id, UpdateDeliveryItemRequest request) {
-    DeliveryItem deliveryItem =
-        deliveryItemRepository
-            .findById(id)
-            .filter((item) -> !item.getStatus().equals(DeliveryItemStatus.DELIVERED))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-
-    // check trùng xe
-    boolean isDup = deliveryItemRepository.existsByVehicleUnit_Id(request.getVehicleId());
-    if (isDup) {
-      throw new GlobalException(ErrorCode.VEHICLE_DUPLICATED);
-    }
-    VehicleUnit newVehicle =
-        vehicleUnitRepository
-            .findById(request.getVehicleId())
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    deliveryItem.setVehicleUnit(newVehicle);
-    deliveryItem.setUpdateAt(LocalDateTime.now());
-    deliveryItem.setRemarks(request.getRemarks());
-    deliveryItemRepository.save(deliveryItem);
-    DeliveryItemResponse deliveryItemResponse =
-        deliveryItemMapper.toDeliveryItemResponse(deliveryItem);
-    deliveryItemResponse.setRemarks(deliveryItem.getRemarks());
-    return APIResponse.success(deliveryItemResponse, "Update Delivery Item Successfully");
+        deliveryMapper.toDeliveryResponse(updatedDelivery), "Delivery completed successfully");
   }
 }

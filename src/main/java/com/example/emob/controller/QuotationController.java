@@ -35,21 +35,21 @@ public class QuotationController {
 
   @PutMapping("{id}")
   public ResponseEntity<APIResponse<QuotationResponse>> update(
-      @RequestParam UUID id,
+      @PathVariable UUID id,
       @RequestBody QuotationRequest<QuotationItemUpdateRequest> quotationRequest) {
     return ResponseEntity.ok(quotationService.update(id, quotationRequest));
   }
 
   @PutMapping("{id}/approved")
   public ResponseEntity<APIResponse<QuotationResponse>> approved(
-      @RequestParam UUID id,
+      @PathVariable UUID id,
       @RequestBody List<SaleOrderItemRequest> itemRequests,
       PaymentStatus paymentStatus) {
     return ResponseEntity.ok(quotationService.approveQuotation(id, itemRequests, paymentStatus));
   }
 
   @GetMapping("{id}")
-  public ResponseEntity<APIResponse<QuotationResponse>> get(@RequestParam UUID id) {
+  public ResponseEntity<APIResponse<QuotationResponse>> get(@PathVariable UUID id) {
     return ResponseEntity.ok(quotationService.get(id));
   }
 
@@ -63,5 +63,12 @@ public class QuotationController {
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(quotationService.getAll(pageable));
+  }
+
+  @GetMapping("/dealer-staff")
+  public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotationsOfStaff(
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(quotationService.getAllOfDealerStaff(pageable));
   }
 }

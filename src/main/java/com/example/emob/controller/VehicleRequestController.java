@@ -42,7 +42,7 @@ public class VehicleRequestController {
 
   @PutMapping("{id}/approved")
   public ResponseEntity<APIResponse<VehicleRequestResponse>> approved(
-      @RequestParam UUID id, @RequestBody PaymentStatus paymentStatus) {
+      @PathVariable UUID id, @RequestBody PaymentStatus paymentStatus) {
     return ResponseEntity.ok(vehiclerequestService.approveVehicleRequest(id, paymentStatus));
   }
 

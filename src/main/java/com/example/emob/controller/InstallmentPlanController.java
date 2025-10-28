@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.InstallmentStatus;
 import com.example.emob.model.request.installment.UpdateInstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.InstallmentResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -51,11 +53,40 @@ public class InstallmentPlanController {
     return ResponseEntity.ok(installmentPlanService.viewInstallmentPlan(id));
   }
 
-  @GetMapping("/view-all")
-  @Operation(summary = "Get All Installment Plans")
-  public ResponseEntity<APIResponse<PageResponse<InstallmentResponse>>> viewAllInstallments(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageResponse = PageRequest.of(page, size);
-    return ResponseEntity.ok(installmentPlanService.viewAllInstallmentPlans(pageResponse));
+  @GetMapping("/dealers")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfDealers(
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return installmentPlanService.getAllPlansOfDealers(statuses, pageable);
+  }
+
+  @GetMapping("/current-dealer")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentDealer(
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return installmentPlanService.getAllPlansOfCurrentDealer(statuses, pageable);
+  }
+
+  @GetMapping("/customer/{customerId}")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentCustomer(
+      @PathVariable UUID customerId,
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return installmentPlanService.getAllPlansOfCurrentCustomer(customerId, statuses, pageable);
+  }
+
+  @GetMapping("/by-customer")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansByCustomer(
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return installmentPlanService.getAllPlansByCustomer(statuses, pageable);
   }
 }

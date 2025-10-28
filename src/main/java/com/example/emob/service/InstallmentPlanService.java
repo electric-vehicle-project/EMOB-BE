@@ -4,6 +4,8 @@ package com.example.emob.service;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.InstallmentStatus;
 import com.example.emob.constant.PaymentStatus;
+import com.example.emob.entity.Customer;
+import com.example.emob.entity.Dealer;
 import com.example.emob.entity.InstallmentPlan;
 import com.example.emob.entity.SaleOrder;
 import com.example.emob.exception.GlobalException;
@@ -13,6 +15,7 @@ import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.InstallmentResponse;
 import com.example.emob.model.response.PageResponse;
+import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.InstallmentPlanRepository;
 import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IInstallmentPlan;
@@ -30,6 +33,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -43,6 +47,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Autowired PageMapper pageMapper;
 
   @Autowired EmailService emailService;
+  @Autowired CustomerRepository customerRepository;
 
   //    @Scheduled(cron = "0 0 8 * * *") // mỗi ngày 8h sẽ chạy tự dộng
   @Scheduled(cron = "0 0 0 * * *")
@@ -56,25 +61,26 @@ public class InstallmentPlanService implements IInstallmentPlan {
       if (p.getNextDueDate().isBefore(today) && p.getStatus() != InstallmentStatus.PAID) {
         p.setStatus(InstallmentStatus.OVERDUE);
       }
+      Customer customer = p.getSaleOrder().getQuotation().getCustomer();
 
-      // Gửi email nhắc quá hạn
-      String content =
-          remindInstallmentOverdue(
-              p.getSaleOrder().getCustomer().getFullName(),
-              p.getMonthlyAmount(),
-              p.getNextDueDate());
-      emailService.sendEmail(
-          "Thông báo quá hạn thanh toán đơn hàng ",
-          "Quá hạn thanh toán trả góp",
-          "Thanh toán hợp đồng trả góp bị trễ hạn",
-          NotificationHelper.INSTALLMENT_OVERDUE,
-          "Vui lòng thanh toán ngay để tránh bị tính phí trễ hạn.",
-          "",
-          content,
-          "Nếu đã thanh toán, vui lòng bỏ qua email này.",
-          p.getSaleOrder().getCustomer().getFullName(),
-          "Thanh toán ngay",
-          p.getSaleOrder().getCustomer().getEmail());
+      if (customer != null) {
+        // Gửi email nhắc quá hạn
+        String content =
+            remindInstallmentOverdue(
+                customer.getFullName(), p.getMonthlyAmount(), p.getNextDueDate());
+        emailService.sendEmail(
+            "Thông báo quá hạn thanh toán đơn hàng ",
+            "Quá hạn thanh toán trả góp",
+            "Thanh toán hợp đồng trả góp bị trễ hạn",
+            NotificationHelper.INSTALLMENT_OVERDUE,
+            "Vui lòng thanh toán ngay để tránh bị tính phí trễ hạn.",
+            "",
+            content,
+            "Nếu đã thanh toán, vui lòng bỏ qua email này.",
+            customer.getFullName(),
+            "Thanh toán ngay",
+            customer.getEmail());
+      }
 
       // cấm gửi trùng trong ngày
       p.setLastReminderDate(today);
@@ -201,27 +207,29 @@ public class InstallmentPlanService implements IInstallmentPlan {
       installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
       installmentPlan.setSaleOrder(order);
       installmentPlanRepository.save(installmentPlan);
-      String content =
-          sendInstallmentCreatedEmail(
-              installmentPlan.getSaleOrder().getCustomer().getFullName(),
-              installmentPlan.getTotalAmount(),
-              installmentPlan.getDeposit(),
-              installmentPlan.getMonthlyAmount(),
-              installmentPlan.getTermMonths(),
-              installmentPlan.getNextDueDate());
-      emailService.sendEmail(
-          "Xác nhận kế hoạch trả góp",
-          "Kế hoạch trả góp đã được tạo thành công",
-          "Cảm ơn quý khách đã tin tưởng Showroom Ô Tô EMOB",
-          NotificationHelper.INSTALLMENT_CREATED,
-          "Thông tin chi tiết về kế hoạch trả góp của bạn",
-          "",
-          content,
-          "Chúng tôi rất vui được phục vụ bạn!",
-          installmentPlan.getSaleOrder().getCustomer().getFullName(),
-          "Xem chi tiết hợp đồng",
-          installmentPlan.getSaleOrder().getCustomer().getEmail());
-
+      Customer customer = order.getQuotation().getCustomer();
+      if (customer != null) {
+        String content =
+            sendInstallmentCreatedEmail(
+                customer.getFullName(),
+                installmentPlan.getTotalAmount(),
+                installmentPlan.getDeposit(),
+                installmentPlan.getMonthlyAmount(),
+                installmentPlan.getTermMonths(),
+                installmentPlan.getNextDueDate());
+        emailService.sendEmail(
+            "Xác nhận kế hoạch trả góp",
+            "Kế hoạch trả góp đã được tạo thành công",
+            "Cảm ơn quý khách đã tin tưởng Showroom Ô Tô EMOB",
+            NotificationHelper.INSTALLMENT_CREATED,
+            "Thông tin chi tiết về kế hoạch trả góp của bạn",
+            "",
+            content,
+            "Chúng tôi rất vui được phục vụ bạn!",
+            customer.getFullName(),
+            "Xem chi tiết hợp đồng",
+            customer.getEmail());
+      }
       InstallmentResponse response = installmentPlanMapper.toInstallmentResponse(installmentPlan);
       return APIResponse.success(response, "Create installment plan successfully");
     } catch (DataIntegrityViolationException ex) {
@@ -261,13 +269,74 @@ public class InstallmentPlanService implements IInstallmentPlan {
     return APIResponse.success(response, "View Installment Successfully");
   }
 
+  // ============================================================
+  // 🔹 1. Hãng xe (EVM_STAFF, ADMIN) xem tất cả plan của các đại lý
+  // ============================================================
   @Override
-  public APIResponse<PageResponse<InstallmentResponse>> viewAllInstallmentPlans(Pageable pageable) {
-    Page<InstallmentPlan> planPage =
-        installmentPlanRepository.findAllBySaleOrder_Dealer(
-            AccountUtil.getCurrentUser().getDealer(), pageable);
+  @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfDealers(
+      List<InstallmentStatus> statuses, Pageable pageable) {
+
+    Page<InstallmentPlan> page =
+        installmentPlanRepository.findAllWithVehicleRequest(statuses, pageable);
     PageResponse<InstallmentResponse> response =
-        pageMapper.toPageResponse(planPage, installmentPlanMapper::toInstallmentResponse);
-    return APIResponse.success(response, "View All Installment Plan Successfully");
+        pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
+    return APIResponse.success(response);
+  }
+
+  // ============================================================
+  // 🔹 2. Đại lý (MANAGER, DEALER_STAFF) xem các plan của chính đại lý mình
+  // ============================================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentDealer(
+      List<InstallmentStatus> statuses, Pageable pageable) {
+
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    Page<InstallmentPlan> page =
+        installmentPlanRepository.findAllWithVehicleRequestByDealerAndStatuses(
+            dealer, statuses, pageable);
+    PageResponse<InstallmentResponse> response =
+        pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
+    return APIResponse.success(response);
+  }
+
+  // ============================================================
+  // 🔹 3. Đại lý xem các plan đã báo giá cho khách hàng cụ thể
+  // ============================================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentCustomer(
+      UUID customerId, List<InstallmentStatus> statuses, Pageable pageable) {
+
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    Customer customer =
+        customerRepository
+            .findById(customerId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
+
+    Page<InstallmentPlan> page =
+        installmentPlanRepository.findAllWithQuotationByDealerAndCustomer(
+            dealer, customer, statuses, pageable);
+    PageResponse<InstallmentResponse> response =
+        pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
+    return APIResponse.success(response);
+  }
+
+  // ============================================================
+  // 🔹 4. Đại lý xem tất cả plan đã báo giá (mọi khách hàng)
+  // ============================================================
+  @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
+  public APIResponse<PageResponse<InstallmentResponse>> getAllPlansByCustomer(
+      List<InstallmentStatus> statuses, Pageable pageable) {
+
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    Page<InstallmentPlan> page =
+        installmentPlanRepository.findAllWithQuotationByDealerAndStatuses(
+            dealer, statuses, pageable);
+    PageResponse<InstallmentResponse> response =
+        pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
+    return APIResponse.success(response);
   }
 }

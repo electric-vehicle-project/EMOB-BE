@@ -23,8 +23,8 @@ public class SaleOrderResponse {
   UUID dealerId;
   UUID accountId;
   BigDecimal totalPrice;
+  BigDecimal vatAmount;
   int totalQuantity;
-  int validUntil;
   OrderStatus status;
   LocalDateTime createdAt;
 }

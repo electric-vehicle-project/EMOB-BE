@@ -42,7 +42,6 @@ public class SecurityConfig {
     "/api/auth/verify-otp",
     "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/delivery/**",
     "/api/installment/**"
   };
 
@@ -58,11 +57,7 @@ public class SecurityConfig {
   };
 
   public static final String[] DEALER_STAFF = {
-    "/api/report/**",
-    "/api/test-drive/**",
-    "/api/contract/**",
-    "/api/customers/**",
-    "/api/quotation/**",
+    "/api/report/**", "/api/test-drive/**", "/api/customers/**", "/api/quotation/**",
   };
 
   public static final String[] EVM_STAFF = {
@@ -78,7 +73,12 @@ public class SecurityConfig {
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
-    "/api/notifications/**", "/api/promotion/**", "/api/auth/reset-password", "/api/sale-order/**",
+    "/api/notifications/**",
+    "/api/promotion/**",
+    "/api/auth/reset-password",
+    "/api/sale-order/**",
+    "/api/delivery/**",
+    "/api/contract/**",
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

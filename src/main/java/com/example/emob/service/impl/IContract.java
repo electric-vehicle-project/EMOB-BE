@@ -1,22 +1,35 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.ContractStatus;
+import com.example.emob.entity.SaleOrder;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.ContractResponse;
 import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.saleContract.ContractResponse;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
 public interface IContract {
-  APIResponse<ContractResponse> createContract(UUID orderId);
 
-  APIResponse<ContractResponse> viewContract(UUID contractId);
+  APIResponse<ContractResponse> createContract(SaleOrder saleOrder);
 
-  APIResponse<PageResponse<ContractResponse>> viewAllContracts(Pageable pageable);
+  APIResponse<PageResponse<ContractResponse>> getAllContractsOfDealers(
+      String keyword, List<ContractStatus> statuses, Pageable pageable);
+
+  APIResponse<PageResponse<ContractResponse>> getAllContractsByCustomer(
+      String keyword, List<ContractStatus> statuses, Pageable pageable);
+
+  APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentDealer(
+      String keyword, List<ContractStatus> statuses, Pageable pageable);
+
+  APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentCustomer(
+      UUID customerId, String keyword, List<ContractStatus> statuses, Pageable pageable);
+
+  APIResponse<ContractResponse> getContractById(UUID contractId);
+
+  APIResponse<ContractResponse> signContract(LocalDate date, UUID contractId);
 
   APIResponse<Void> cancelContract(UUID contractId);
-
-  APIResponse<ContractResponse> signContract(UUID contractId);
-
-  APIResponse<ContractResponse> updateContractStatus(UUID contractId);
 }
