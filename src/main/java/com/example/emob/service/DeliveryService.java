@@ -316,15 +316,11 @@ public class DeliveryService implements IDelivery {
     }
 
     delivery.setStatus(DeliveryStatus.SUCCESS);
-    Dealer dealer = null;
-    if(delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null){
-      dealer  = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
-    }
-
     // nếu giao cho đại lý thì cập nhật kho cho xe
-    if (dealer != null) {
+    if(delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null){
+      Dealer dealer  = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
       delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));
-    } else {
+    }else {
       // nếu giao xe cho khách thì chuyển thành đã bán
       delivery.getVehicleUnits().forEach(vehicle -> {
         vehicle.setStatus(VehicleStatus.SOLD);
@@ -332,6 +328,8 @@ public class DeliveryService implements IDelivery {
         vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
       });
     }
+
+
     delivery.setCompletedAt(LocalDateTime.now());
     Delivery updatedDelivery = deliveryRepository.save(delivery);
 
