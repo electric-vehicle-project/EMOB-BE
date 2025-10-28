@@ -2,6 +2,7 @@
 package com.example.emob.repository;
 
 import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Promotion;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
   Page<Promotion> findByScope(PromotionScope scope, Pageable pageable);

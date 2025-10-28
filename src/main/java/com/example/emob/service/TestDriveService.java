@@ -4,9 +4,8 @@ package com.example.emob.service;
 import com.example.emob.constant.AccountStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.TestStatus;
-import com.example.emob.entity.Account;
-import com.example.emob.entity.Customer;
-import com.example.emob.entity.TestDrive;
+import com.example.emob.constant.VehicleStatus;
+import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.TestDriveMapper;
@@ -15,19 +14,20 @@ import com.example.emob.model.request.schedule.UpdateTestDriveRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.TestDriveResponse;
-import com.example.emob.repository.AccountRepository;
-import com.example.emob.repository.CustomerRepository;
-import com.example.emob.repository.TestDriveRepository;
+import com.example.emob.repository.*;
 import com.example.emob.service.impl.ITestDrive;
+import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,21 +45,26 @@ public class TestDriveService implements ITestDrive {
 
   @Autowired private EmailService emailService;
 
+  @Autowired private InventoryRepository inventoryRepository;
+
+  @Autowired private VehicleUnitRepository vehicleUnitRepository;
+
   @Override
+  @PreAuthorize("hasRole('DEALER_STAFF')")
   public APIResponse<TestDriveResponse> createSchedule(TestDriveRequest request) {
     // khung giờ làm việc
     LocalDateTime date = request.getScheduledAt();
     LocalTime time = date.toLocalTime();
     Customer customer =
-        customerRepository
-            .findById(request.getCustomerId())
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+            customerRepository
+                    .findById(request.getCustomerId())
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
     Account salePerson =
-        accountRepository
-            .findById(request.getAccountId())
-            .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+            accountRepository
+                    .findById(request.getAccountId())
+                    .filter(account -> AccountStatus.ACTIVE.equals(account.getStatus()))
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
 
     if (time.isBefore(LocalTime.of(8, 0)) || time.isAfter(LocalTime.of(17, 30))) {
       throw new GlobalException(ErrorCode.INVALID_DATE);
@@ -83,17 +88,17 @@ public class TestDriveService implements ITestDrive {
       testDriveRepository.save(testDrive);
 
       emailService.sendEmail(
-          "Xác nhận lịch lái thử",
-          "Đặt lịch thành công",
-          "Chúng tôi cảm ơn",
-          NotificationHelper.CONFIRM_TEST_DRIVE,
-          "Lịch hẹn của bạn đã được xác nhận thành công",
-          "https://app.diagrams.net/#G1m4SbslLmKuduNeCj6kPdxNauEpzCLl4J#%7B%22pageId%22%3A%22rHYpNvzPq7mJ_Pk65GUX%22%7D",
-          "Cảm ơn quý khách",
-          "Quý khách nhớ đến đúng hẹn",
-          testDrive.getCustomer().getFullName(),
-          "Xác nhận",
-          "truong0345218921@gmail.com");
+              "Xác nhận lịch lái thử",
+              "Đặt lịch thành công",
+              "Chúng tôi cảm ơn",
+              NotificationHelper.CONFIRM_TEST_DRIVE,
+              "Lịch hẹn của bạn đã được xác nhận thành công",
+              "https://app.diagrams.net/#G1m4SbslLmKuduNeCj6kPdxNauEpzCLl4J#%7B%22pageId%22%3A%22rHYpNvzPq7mJ_Pk65GUX%22%7D",
+              "Cảm ơn quý khách",
+              "Quý khách nhớ đến đúng hẹn",
+              testDrive.getCustomer().getFullName(),
+              "Xác nhận",
+              "truong0345218921@gmail.com");
       TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
       return APIResponse.success(testDriveResponse, "Create schedule successfully");
     } catch (DataIntegrityViolationException ex) {
@@ -177,10 +182,28 @@ public class TestDriveService implements ITestDrive {
   }
 
   @Override
-  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
-    Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
+  @PreAuthorize("hasAnyRole('MANAGER', 'DEALER_STAFF')")
+  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(
+          Pageable pageable,
+          String keyword,
+          TestStatus status) {
+
+    Page<TestDrive> testDrives = testDriveRepository.searchAndFilter(keyword, status, pageable);
+
+    PageResponse<TestDriveResponse> testDriveResponsePageResponse =
+            pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
+
+    return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
+  }
+
+  @Override
+  @PreAuthorize("hasRole('DEALER_STAFF')")
+  public APIResponse<PageResponse<TestDriveResponse>> viewScheduleOfDealerStaff(Pageable pageable) {
+    // dealer staff xem lịch của mình
+    Account account = AccountUtil.getCurrentUser();
+    Page<TestDrive> testDrives = testDriveRepository.findAllBySalesperson(account, pageable);
     PageResponse<TestDriveResponse> testDriveResponsePageResponse =
         pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
-    return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
+    return APIResponse.success(testDriveResponsePageResponse, "View Schedule of Staff Successfully");
   }
 }
