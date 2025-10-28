@@ -8,10 +8,14 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
 import com.example.emob.service.SaleOrderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,39 +26,69 @@ import org.springframework.web.bind.annotation.*;
 public class SaleOrderControler {
   @Autowired SaleOrderService saleOrderService;
 
+  private Pageable buildPageable(int page, int size, String[] sort) {
+    Sort sortObj = Sort.by(Arrays.stream(sort)
+            .map(s -> {
+              String[] _s = s.split(",");
+              return new Sort.Order(
+                      _s.length > 1 && _s[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
+                      _s[0]
+              );
+            })
+            .toList());
+    return PageRequest.of(page, size, sortObj);
+  }
+
   @GetMapping("/current-dealer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
-      getAllSaleOrdersOfCurrentDealer(
-          @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfCurrentDealer(
+          @RequestParam(required = false) List<OrderStatus> statuses,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+    Pageable pageable = buildPageable(page, size, sort);
     APIResponse<PageResponse<SaleOrderResponse>> response =
-        saleOrderService.getAllSaleOrdersOfCurrentDealer(statuses, pageable);
+            saleOrderService.getAllSaleOrdersOfCurrentDealer(statuses, pageable);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/dealer/customers")
   public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersByCustomer(
-      @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+          @RequestParam(required = false) List<OrderStatus> statuses,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+    Pageable pageable = buildPageable(page, size, sort);
     APIResponse<PageResponse<SaleOrderResponse>> response =
-        saleOrderService.getAllSaleOrdersByCustomer(statuses, pageable);
+            saleOrderService.getAllSaleOrdersByCustomer(statuses, pageable);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/dealers")
   public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfDealer(
-      @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+          @RequestParam(required = false) List<OrderStatus> statuses,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+    Pageable pageable = buildPageable(page, size, sort);
     APIResponse<PageResponse<SaleOrderResponse>> response =
-        saleOrderService.getAllSaleOrdersOfDealer(statuses, pageable);
+            saleOrderService.getAllSaleOrdersOfDealer(statuses, pageable);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/customers/{customerId}")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
-      getAllSaleOrdersOfCurrentCustomer(
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfCurrentCustomer(
           @PathVariable UUID customerId,
           @RequestParam(required = false) List<OrderStatus> statuses,
-          Pageable pageable) {
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(defaultValue = "id,desc") String[] sort) {
+
+    Pageable pageable = buildPageable(page, size, sort);
     APIResponse<PageResponse<SaleOrderResponse>> response =
-        saleOrderService.getAllSaleOrdersOfCurrentCustomer(customerId, statuses, pageable);
+            saleOrderService.getAllSaleOrdersOfCurrentCustomer(customerId, statuses, pageable);
     return ResponseEntity.ok(response);
   }
 
