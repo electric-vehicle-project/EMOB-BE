@@ -25,16 +25,7 @@ public class VehicleUnitRequest {
   @NotBlank(message = "FIELD_REQUIRED")
   String color;
 
-  @PastOrPresent(message = "INVALID_DATE")
-  LocalDateTime purchaseDate;
 
-  @NotNull(message = "FIELD_REQUIRED")
-  @FutureOrPresent(message = "INVALID_DATE")
-  LocalDate warrantyStart;
-
-  @NotNull(message = "FIELD_REQUIRED")
-  @Future(message = "INVALID_DATE")
-  LocalDate warrantyEnd;
 
   @PastOrPresent(message = "INVALID_DATE")
   LocalDate productionYear;

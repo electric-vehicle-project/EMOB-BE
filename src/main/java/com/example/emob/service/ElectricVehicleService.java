@@ -9,10 +9,7 @@ import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.ElectricVehicleResponse;
-import com.example.emob.model.response.PageResponse;
-import com.example.emob.model.response.VehicleUnitResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
 import com.example.emob.repository.VehicleUnitRepository;
@@ -20,6 +17,7 @@ import com.example.emob.service.impl.IVehicle;
 import com.example.emob.util.AccountUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -298,23 +296,117 @@ public class ElectricVehicleService implements IVehicle {
     }
   }
 
-  //  @Transactional
-  //  @Override
-  //  public void autoUpdateVehiclePrices(BigDecimal basePrice) {
-  //    List<VehicleUnit> vehicles = vehicleUnitRepository.findAll();
-  //    for (VehicleUnit v : vehicles) {
-  //      // Lấy rule theo enum
-  //      if(v.getStatus().equals(VehicleStatus.SOLD) ||
-  // v.getStatus().equals(VehicleStatus.RESERVED)){
-  //        continue;
-  //      }
-  //      VehiclePriceRule rule = vehiclePriceRuleService.getRule(v.getStatus());
-  //      double multiplier = rule.getMultiplier();
-  //
-  //      BigDecimal finalPrice = basePrice.multiply(BigDecimal.valueOf(multiplier));
-  //      v.setPrice(finalPrice);
-  //      vehicleUnitRepository.save(v);
-  //    }
-  //  }
+
+  public List<VehicleCompareResponse> compare(UUID leftVehicleId, UUID rightVehicleId) {
+    ElectricVehicle leftVehicle =
+            vehicleRepository
+                    .findById(leftVehicleId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Left vehicle not found."));
+    ElectricVehicle rightVehicle =
+            vehicleRepository
+                    .findById(rightVehicleId)
+                    .orElseThrow(
+                            () -> new GlobalException(ErrorCode.NOT_FOUND, "Right vehicle not found."));
+    List<VehicleCompareResponse> compareResponses = new ArrayList<>();
+    // ========== THẤP HƠN TỐT HƠN ==========
+    compareResponses.add(buildRow(
+            "importPrice",
+            toDouble(leftVehicle.getImportPrice()),
+            toDouble(rightVehicle.getImportPrice()),
+            /*lowerIsBetter*/ true
+    ));
+    compareResponses.add(buildRow(
+            "retailPrice",
+            toDouble(leftVehicle.getRetailPrice()),
+            toDouble(rightVehicle.getRetailPrice()),
+            true
+    ));
+    compareResponses.add(buildRow(
+            "chargeTimeHr",
+            toDouble(leftVehicle.getChargeTimeHr()),
+            toDouble(rightVehicle.getChargeTimeHr()),
+            true
+    ));
+    compareResponses.add(buildRow(
+            "weightKg",
+            toDouble(leftVehicle.getWeightKg()),
+            toDouble(rightVehicle.getWeightKg()),
+            true
+    ));
+
+    // ========== CAO HƠN TỐT HƠN ==========
+    compareResponses.add(buildRow(
+            "batteryKwh",
+            toDouble(leftVehicle.getBatteryKwh()),
+            toDouble(rightVehicle.getBatteryKwh()),
+            /*lowerIsBetter*/ false
+    ));
+    compareResponses.add(buildRow(
+            "rangeKm",
+            toDouble(leftVehicle.getRangeKm()),
+            toDouble(rightVehicle.getRangeKm()),
+            false
+    ));
+    compareResponses.add(buildRow(
+            "powerKw",
+            toDouble(leftVehicle.getPowerKw()),
+            toDouble(rightVehicle.getPowerKw()),
+            false
+    ));
+    compareResponses.add(buildRow(
+            "topSpeedKmh",
+            toDouble(leftVehicle.getTopSpeedKmh()),
+            toDouble(rightVehicle.getTopSpeedKmh()),
+            false
+    ));
+
+    return compareResponses;
+
+  }
+
+  /**
+   * @param keyName        tên trường (ví dụ "importPrice")
+   * @param leftVal      giá trị xe 1 (LEFT)
+   * @param rightVal   giá trị xe 2 (RIGHT)
+   * @param lowerIsBetter  true nếu giá trị thấp hơn là tốt hơn
+   */
+  private VehicleCompareResponse buildRow(String keyName, Double leftVal, Double rightVal, boolean lowerIsBetter) {
+    // Chuẩn hoá null -> 0 để có chênh lệch
+    double l = (leftVal  == null) ? 0d : leftVal;
+    double r = (rightVal == null) ? 0d : rightVal;
+
+    double rawDelta = l - r;                    // chênh lệch LEFT - RIGHT
+    double magnitude = Math.abs(rawDelta);      // độ lớn dương
+    boolean different = Double.compare(l, r) != 0;
+
+    String betterFor = null;
+    if (different) {
+      int cmp = Double.compare(l, r);
+      if (lowerIsBetter) {
+        // thấp hơn tốt hơn
+        betterFor = (cmp < 0) ? "LEFT" : "RIGHT";
+      } else {
+        // cao hơn tốt hơn
+        betterFor = (cmp > 0) ? "LEFT" : "RIGHT";
+      }
+    }
+
+    // vehicleValue lấy độ lớn dương rồi đặt dấu theo "tính chất tốt/xấu" của chỉ số
+    double signedDelta = (lowerIsBetter ? -1 : 1) * magnitude;
+
+    VehicleCompareResponse res = new VehicleCompareResponse();
+    res.setKeyName(keyName);
+    res.setVehicleValue((float) signedDelta);   // ví dụ: -123.4 nếu "thấp hơn tốt hơn"
+    res.setDifferent(different);
+    res.setBetterFor(betterFor);
+    return res;
+  }
+
+  private static Double toDouble(BigDecimal n) {
+    return (n == null) ? null : n.doubleValue();
+  }
+  private static Double toDouble(Number n) {
+    return (n == null) ? null : n.doubleValue();
+  }
 
 }
