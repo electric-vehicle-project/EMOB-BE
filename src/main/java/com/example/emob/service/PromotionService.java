@@ -79,7 +79,7 @@ public class PromotionService implements IPromotion {
     }
   }
 
-  public Promotion autoUpdatePromotionStatus(Promotion promotion){
+  public Promotion autoUpdatePromotionStatus(Promotion promotion) {
     try {
       //                     nếu bị xóa rồi thì bỏ qua
       if (PromotionStatus.INACTIVE.equals(promotion.getStatus())) {
@@ -101,7 +101,6 @@ public class PromotionService implements IPromotion {
       ex.getStackTrace();
       return promotion;
     }
-
   }
 
   @Override
@@ -248,7 +247,9 @@ public class PromotionService implements IPromotion {
       if (promotion.getScope().equals(PromotionScope.GLOBAL)
           && AccountUtil.getCurrentUser().getRole().equals(Role.ADMIN)) {
         updatePromotionDetail(request, promotion);
-        PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
+        PromotionStatus status =
+            PromotionHelper.determinePromotionStatus(
+                promotion.getStartDate(), promotion.getEndDate());
         promotion.setStatus(status);
         promotionRepository.save(promotion);
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
@@ -256,7 +257,9 @@ public class PromotionService implements IPromotion {
       } else if (promotion.getScope().equals(PromotionScope.LOCAL)
           && Role.MANAGER.equals(AccountUtil.getCurrentUser().getRole())) {
         updatePromotionDetail(request, promotion);
-        PromotionStatus status = PromotionHelper.determinePromotionStatus(promotion.getStartDate(), promotion.getEndDate());
+        PromotionStatus status =
+            PromotionHelper.determinePromotionStatus(
+                promotion.getStartDate(), promotion.getEndDate());
         promotion.setStatus(status);
         promotionRepository.save(promotion);
         PromotionResponse promotionResponse = promotionMapper.toPromotionResponse(promotion);
@@ -304,39 +307,61 @@ public class PromotionService implements IPromotion {
 
   @Override
   public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-      Pageable pageable, List<PromotionScope> scope) {
+      Pageable pageable, List<PromotionScope> scopes) {
+
+    var currentUser = AccountUtil.getCurrentUser();
+    var dealer = currentUser.getDealer();
+
     Page<Promotion> promotions;
+    String message;
 
-    // Kiểm tra scope có giá trị hay không
-    if (scope != null && !scope.isEmpty()) {
-
-      if (scope.contains(PromotionScope.LOCAL) && !scope.contains(PromotionScope.GLOBAL)) {
-        promotions = promotionRepository.findByScope(PromotionScope.LOCAL, pageable);
-        return APIResponse.success(
-            pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
-            "Xem tất cả khuyến mãi LOCAL thành công");
-      }
-
-      if (scope.contains(PromotionScope.GLOBAL) && !scope.contains(PromotionScope.LOCAL)) {
+    // ========== CASE 1: dealer == null (user không thuộc đại lý) ==========
+    if (dealer == null) {
+      // Nếu có filter scope thì ưu tiên
+      if (scopes != null && !scopes.isEmpty()) {
+        if (scopes.contains(PromotionScope.GLOBAL)) {
+          promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
+          message = "Xem tất cả khuyến mãi GLOBAL thành công";
+        } else {
+          promotions = Page.empty(pageable);
+          message = "Không có khuyến mãi phù hợp";
+        }
+      } else {
         promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
-        return APIResponse.success(
-            pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
-            "Xem tất cả khuyến mãi GLOBAL thành công");
+        message = "Xem tất cả khuyến mãi GLOBAL (vì không thuộc đại lý)";
+      }
+    }
+
+    // ========== CASE 2: dealer != null ==========
+    else {
+      // Nếu không truyền scope hoặc truyền cả hai → lấy GLOBAL + LOCAL (có liên quan)
+      if (scopes == null
+          || scopes.isEmpty()
+          || (scopes.contains(PromotionScope.GLOBAL) && scopes.contains(PromotionScope.LOCAL))) {
+
+        promotions =
+            promotionRepository.findAllByScopeOrDealersContains(
+                PromotionScope.GLOBAL, dealer, pageable);
+        message = "Xem tất cả khuyến mãi GLOBAL và LOCAL của đại lý thành công";
       }
 
-      // Nếu có cả LOCAL và GLOBAL
-      promotions = promotionRepository.findAll(pageable);
-      return APIResponse.success(
-          pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
-          "Xem tất cả khuyến mãi (GLOBAL + LOCAL) thành công");
+      // Chỉ LOCAL
+      else if (scopes.contains(PromotionScope.LOCAL) && !scopes.contains(PromotionScope.GLOBAL)) {
+        promotions =
+            promotionRepository.findAllByScopeAndDealersContains(
+                PromotionScope.LOCAL, dealer, pageable);
+        message = "Xem tất cả khuyến mãi LOCAL của đại lý thành công";
+      }
 
-    } else {
-      // Mặc định: không truyền scope → lấy tất cả
-      promotions = promotionRepository.findAll(pageable);
-      return APIResponse.success(
-          pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse),
-          "Xem tất cả khuyến mãi thành công");
+      // Chỉ GLOBAL
+      else {
+        promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
+        message = "Xem tất cả khuyến mãi GLOBAL thành công";
+      }
     }
+
+    return APIResponse.success(
+        pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse), message);
   }
 
   @Override

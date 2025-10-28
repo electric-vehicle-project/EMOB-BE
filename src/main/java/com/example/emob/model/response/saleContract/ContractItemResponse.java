@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.model.response.SaleOrder;
+package com.example.emob.model.response.saleContract;
 
 import com.example.emob.constant.VehicleStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SaleOrderItemResponse {
+public class ContractItemResponse {
   UUID id;
   UUID vehicleId;
   Set<UUID> vehicleUnitIds;

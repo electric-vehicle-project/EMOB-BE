@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
@@ -21,4 +22,11 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
 
   Page<VehicleUnit> findAllByVehicleAndInventory(
       ElectricVehicle vehicle, Inventory inventory, Pageable pageable);
+
+  VehicleUnit findFirstByInventoryAndVehicleAndStatus(
+      Inventory inventory, ElectricVehicle vehicle, VehicleStatus status);
+
+  // 🔹 Tìm 1 chiếc xe trong kho cụ thể theo model, màu và trạng thái
+  Optional<VehicleUnit> findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+      Inventory inventory, ElectricVehicle vehicle, String color, VehicleStatus status);
 }

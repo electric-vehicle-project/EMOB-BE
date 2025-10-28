@@ -3,7 +3,11 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.ContractStatus;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +29,10 @@ public class SaleContract {
   @Column(unique = true)
   String contractNumber; // mã số hợp đồng
 
-  LocalDateTime signDate;
+  LocalDate signDate;
+  BigDecimal totalPrice;
+  BigDecimal vatAmount;
+  int totalQuantity;
 
   @Enumerated(EnumType.STRING)
   ContractStatus status;
@@ -42,4 +49,7 @@ public class SaleContract {
 
   @OneToOne(mappedBy = "saleContract", cascade = CascadeType.ALL)
   Delivery delivery;
+
+  @OneToMany(mappedBy = "saleContract", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<SaleContractItem> saleContractItems = new HashSet<>();
 }

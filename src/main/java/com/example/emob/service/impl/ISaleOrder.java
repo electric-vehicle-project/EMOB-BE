@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.OrderStatus;
 import com.example.emob.constant.PaymentStatus;
 import com.example.emob.entity.Quotation;
 import com.example.emob.entity.VehicleRequest;
@@ -21,10 +22,17 @@ public interface ISaleOrder {
 
   APIResponse<SaleOrderResponse> getSaleOrderById(UUID saleOrderId);
 
-  APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfDealer(Pageable pageable);
+  APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentDealer(
+      List<OrderStatus> statuses, Pageable pageable);
 
   APIResponse<SaleOrderResponse> createSaleOrderFromVehicleRequest(
       VehicleRequest vehicleRequest, PaymentStatus paymentStatus);
 
   APIResponse<SaleOrderResponse> completeSaleOrderById(InstallmentRequest request);
+
+  APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfDealer(
+      List<OrderStatus> statuses, Pageable pageable);
+
+  APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentCustomer(
+      UUID customerid, List<OrderStatus> statuses, Pageable pageable);
 }

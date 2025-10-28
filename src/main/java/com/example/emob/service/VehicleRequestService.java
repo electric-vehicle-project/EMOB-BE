@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,7 +77,7 @@ public class VehicleRequestService implements IVehicleRequest {
         BigDecimal importPrice = item.getVehicle().getImportPrice();
         if (dealerDiscountPolicy.getFinalPrice() != null) {
           // có giá cố định
-          basePrice = dealerDiscountPolicy.getFinalPrice();
+          basePrice = dealerDiscountPolicy.getFinalPrice().multiply(multiplier);
         } else {
           // áp dụng chiết khấu
           basePrice = importPrice.multiply(multiplier).multiply(customMultiplier);
@@ -327,12 +328,14 @@ public class VehicleRequestService implements IVehicleRequest {
   }
 
   @Transactional
+  @PreAuthorize("hasRole('ADMIN')")
   public APIResponse<VehicleRequestResponse> approveVehicleRequest(
       UUID id, PaymentStatus paymentStatus) {
     VehicleRequest vehicleRequest =
         vehiclerequestRepository
             .findById(id)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+            .orElseThrow(
+                () -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle Request not found"));
     vehicleRequest.setStatus(VehicleRequestStatus.APPROVED);
     VehicleRequest savedVehicleRequest = vehiclerequestRepository.save(vehicleRequest);
     saleOrderService.createSaleOrderFromVehicleRequest(vehicleRequest, paymentStatus);

@@ -12,8 +12,8 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
   @Mapping(target = "reportId", source = "id")
-  @Mapping(target = "accountId", source = "createBy.id")
   @Mapping(target = "fullName", source = "createBy.fullName")
+  @Mapping(target = "customerId", source = "reportBy.id")
   ReportResponse toReportResponse(Report request);
 
   Report toReport(CreateReportRequest request);

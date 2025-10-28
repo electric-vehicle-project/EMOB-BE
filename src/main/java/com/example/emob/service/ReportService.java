@@ -53,6 +53,7 @@ public class ReportService implements IReport {
       report.setStatus(ReportStatus.PENDING);
       report.setCreatedAt(LocalDateTime.now());
       report.setDealer(AccountUtil.getCurrentUser().getDealer());
+      report.setDealer(AccountUtil.getCurrentUser().getDealer());
       report.setCreateBy(AccountUtil.getCurrentUser());
       report.setReportBy(customer);
       reportRepository.save(report);

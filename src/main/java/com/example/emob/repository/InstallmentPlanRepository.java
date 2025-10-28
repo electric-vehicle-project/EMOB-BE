@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.constant.InstallmentStatus;
+import com.example.emob.entity.Customer;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.InstallmentPlan;
 import java.time.LocalDate;
@@ -22,5 +24,70 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
         """)
   List<InstallmentPlan> findAllOverdueNeedingReminder(@Param("today") LocalDate today);
 
-  Page<InstallmentPlan> findAllBySaleOrder_Dealer(Dealer dealer, Pageable pageable);
+  // ============================================================
+  // 🔹 1. Hãng xe (EVM_STAFF, ADMIN) xem tất cả InstallmentPlan của đại lý
+  // ============================================================
+  @Query(
+      """
+    SELECT ip
+    FROM InstallmentPlan ip
+    JOIN FETCH ip.saleOrder so
+    JOIN FETCH so.vehicleRequest vr
+    WHERE (:statuses IS NULL OR so.status IN :statuses)
+    """)
+  Page<InstallmentPlan> findAllWithVehicleRequest(
+      @Param("statuses") List<InstallmentStatus> statuses, Pageable pageable);
+
+  // ============================================================
+  // 🔹 2. Đại lý xem InstallmentPlan của chính đại lý mình (qua VehicleRequest)
+  // ============================================================
+  @Query(
+      """
+    SELECT ip
+    FROM InstallmentPlan ip
+    JOIN FETCH ip.saleOrder so
+    JOIN FETCH so.vehicleRequest vr
+    WHERE  vr.dealer = :dealer
+      AND (:statuses IS NULL OR so.status IN :statuses)
+    """)
+  Page<InstallmentPlan> findAllWithVehicleRequestByDealerAndStatuses(
+      @Param("dealer") Dealer dealer,
+      @Param("statuses") List<InstallmentStatus> statuses,
+      Pageable pageable);
+
+  // ============================================================
+  // 🔹 3. Đại lý xem InstallmentPlan của khách hàng cụ thể
+  // ============================================================
+  @Query(
+      """
+    SELECT ip
+    FROM InstallmentPlan ip
+    JOIN FETCH ip.saleOrder so
+    JOIN FETCH so.quotation q
+    WHERE  q.dealer = :dealer
+      AND q.customer = :customer
+      AND (:statuses IS NULL OR so.status IN :statuses)
+    """)
+  Page<InstallmentPlan> findAllWithQuotationByDealerAndCustomer(
+      @Param("dealer") Dealer dealer,
+      @Param("customer") Customer customer,
+      @Param("statuses") List<InstallmentStatus> statuses,
+      Pageable pageable);
+
+  // ============================================================
+  // 🔹 4. Đại lý xem tất cả InstallmentPlan đã báo giá (mọi khách hàng)
+  // ============================================================
+  @Query(
+      """
+    SELECT ip
+    FROM InstallmentPlan ip
+    JOIN FETCH ip.saleOrder so
+    JOIN FETCH so.quotation q
+    WHERE q.dealer = :dealer
+      AND (:statuses IS NULL OR so.status IN :statuses)
+    """)
+  Page<InstallmentPlan> findAllWithQuotationByDealerAndStatuses(
+      @Param("dealer") Dealer dealer,
+      @Param("statuses") List<InstallmentStatus> statuses,
+      Pageable pageable);
 }
