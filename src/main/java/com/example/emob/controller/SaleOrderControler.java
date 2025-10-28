@@ -1,15 +1,16 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.OrderStatus;
 import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
 import com.example.emob.service.SaleOrderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +22,40 @@ import org.springframework.web.bind.annotation.*;
 public class SaleOrderControler {
   @Autowired SaleOrderService saleOrderService;
 
-  @GetMapping("/of-dealer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfDealer(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(saleOrderService.getAllSaleOrdersOfDealer(pageable));
+  @GetMapping("/current-dealer")
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
+      getAllSaleOrdersOfCurrentDealer(
+          @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+    APIResponse<PageResponse<SaleOrderResponse>> response =
+        saleOrderService.getAllSaleOrdersOfCurrentDealer(statuses, pageable);
+    return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/of-customer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfCustomer(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(saleOrderService.getAllSaleOrdersByCustomer(pageable));
+  @GetMapping("/dealer/customers")
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersByCustomer(
+      @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+    APIResponse<PageResponse<SaleOrderResponse>> response =
+        saleOrderService.getAllSaleOrdersByCustomer(statuses, pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/dealers")
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfDealer(
+      @RequestParam(required = false) List<OrderStatus> statuses, Pageable pageable) {
+    APIResponse<PageResponse<SaleOrderResponse>> response =
+        saleOrderService.getAllSaleOrdersOfDealer(statuses, pageable);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/customers/{customerId}")
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
+      getAllSaleOrdersOfCurrentCustomer(
+          @PathVariable UUID customerId,
+          @RequestParam(required = false) List<OrderStatus> statuses,
+          Pageable pageable) {
+    APIResponse<PageResponse<SaleOrderResponse>> response =
+        saleOrderService.getAllSaleOrdersOfCurrentCustomer(customerId, statuses, pageable);
+    return ResponseEntity.ok(response);
   }
 
   // 2️⃣ Lấy chi tiết Sale Order theo ID

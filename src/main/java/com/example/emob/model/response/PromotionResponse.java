@@ -5,6 +5,7 @@ import com.example.emob.constant.PromotionScope;
 import com.example.emob.constant.PromotionStatus;
 import com.example.emob.constant.PromotionType;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,4 +27,6 @@ public class PromotionResponse {
   PromotionScope scope;
   PromotionStatus status;
   LocalDateTime createAt;
+  Set<UUID> dealerIds;
+  Set<UUID> vehicleIds;
 }

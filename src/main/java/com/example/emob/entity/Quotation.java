@@ -23,6 +23,7 @@ import org.hibernate.annotations.UuidGenerator;
 public class Quotation {
   @Id @UuidGenerator UUID id;
   BigDecimal totalPrice;
+  BigDecimal vatAmount;
   int totalQuantity;
   int validUntil;
   boolean isDeleted = false;

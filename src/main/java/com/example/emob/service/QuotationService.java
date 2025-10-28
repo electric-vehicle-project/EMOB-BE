@@ -250,6 +250,7 @@ public class QuotationService implements IQuotation {
 
         item.setUnitPrice(basePrice);
         item.setDiscountPrice(discountedPrice);
+
         item.setTotalPrice(discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
 
         updatedItems.add(item);
@@ -280,8 +281,8 @@ public class QuotationService implements IQuotation {
         totalPrice = totalPrice.add(item.getTotalPrice());
         totalQuantity += item.getQuantity();
       }
-
-      quotation.setTotalPrice(totalPrice);
+      quotation.setVatAmount(totalPrice);
+      quotation.setTotalPrice(totalPrice.multiply(BigDecimal.valueOf(1.1)));
       quotation.setTotalQuantity(totalQuantity);
       quotation.setUpdatedAt(LocalDateTime.now());
 

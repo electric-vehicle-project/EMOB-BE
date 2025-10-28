@@ -18,13 +18,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SaleOrderItem {
+public class SaleContractItem {
   @Id @GeneratedValue UUID id;
 
   BigDecimal unitPrice;
   BigDecimal totalPrice;
   BigDecimal discountPrice;
-  boolean isDeleted = false;
 
   @Enumerated(EnumType.STRING)
   VehicleStatus vehicleStatus;
@@ -36,7 +35,7 @@ public class SaleOrderItem {
   @JoinColumn(name = "promotion_id")
   Promotion promotion;
 
-  @OneToMany(mappedBy = "saleOrderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "SaleContractItem", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
   @ManyToOne
@@ -48,4 +47,9 @@ public class SaleOrderItem {
   @JoinColumn(name = "vehicle_id")
   @JsonIgnore
   ElectricVehicle vehicle;
+
+  @ManyToOne
+  @JoinColumn(name = "saleContract_id")
+  @JsonIgnore
+  SaleContract saleContract;
 }

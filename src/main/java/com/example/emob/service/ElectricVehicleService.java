@@ -156,7 +156,7 @@ public class ElectricVehicleService implements IVehicle {
                   unit.setInventory(inventory);
                   unit.setColor(request.getColor());
                   unit.setStatus(request.getStatus());
-                  unit.setPrice(vehicle.getImportPrice().multiply(BigDecimal.valueOf(multiplier)));
+                  unit.setPrice(vehicle.getRetailPrice().multiply(BigDecimal.valueOf(multiplier)));
                   return unit;
                 })
             .toList();

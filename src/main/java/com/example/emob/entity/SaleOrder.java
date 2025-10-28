@@ -25,6 +25,7 @@ public class SaleOrder {
 
   BigDecimal totalPrice;
   int totalQuantity;
+  BigDecimal vatAmount;
 
   LocalDateTime createdAt;
 
@@ -33,14 +34,6 @@ public class SaleOrder {
 
   @Enumerated(EnumType.STRING)
   OrderStatus status;
-
-  @ManyToOne
-  @JoinColumn(name = "customer_id", referencedColumnName = "id")
-  Customer customer;
-
-  @ManyToOne
-  @JoinColumn(name = "dealer_id", referencedColumnName = "id")
-  Dealer dealer;
 
   @ManyToOne
   @JoinColumn(name = "account_id", referencedColumnName = "id")

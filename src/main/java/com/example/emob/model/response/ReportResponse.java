@@ -3,7 +3,6 @@ package com.example.emob.model.response;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
-import com.example.emob.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,13 +16,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportResponse {
-  UUID accountId;
   UUID reportId;
   String title;
   String description;
   ReportType type;
   ReportStatus status;
-  Customer reportBy;
+  UUID customerId;
   String fullName;
   LocalDateTime createdAt;
   LocalDateTime updatedAt;

@@ -32,14 +32,16 @@ public class Delivery {
 
   LocalDateTime createAt;
 
-  LocalDateTime updateAt;
-
-  LocalDateTime confirmAt;
+  LocalDateTime completedAt;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "saleContract_id")
   SaleContract saleContract;
 
-  @OneToMany(mappedBy = "delivery", orphanRemoval = true, cascade = CascadeType.ALL)
-  Set<DeliveryItem> deliveryItems = new HashSet<>();
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "delivery_vehicle_unit",
+      joinColumns = @JoinColumn(name = "delivery_id"),
+      inverseJoinColumns = @JoinColumn(name = "vehicle_unit_id"))
+  private Set<VehicleUnit> vehicleUnits = new HashSet<>();
 }
