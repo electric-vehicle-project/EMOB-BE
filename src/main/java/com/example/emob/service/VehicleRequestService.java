@@ -300,17 +300,19 @@ public class VehicleRequestService implements IVehicleRequest {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable) {
-    // 🔹 Lấy danh sách VehicleRequest chưa bị xóa, theo dealer hiện tại
-    Page<VehicleRequest> page =
-        vehiclerequestRepository.findAllByIsDeletedFalseAndDealer(
-            AccountUtil.getCurrentUser().getDealer(), pageable);
+  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, List<VehicleRequestStatus> status) {
+      Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+      if (dealer == null) {
+        throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");
+      }
 
-    // 🔹 Ánh xạ sang DTO có phân trang
-    PageResponse<VehicleRequestResponse> pageResponse =
-        pageMapper.toPageResponse(page, vehicleRequestMapper::toVehicleRequestResponse);
+      Page<VehicleRequest> page = vehiclerequestRepository.searchAndFilter(
+              dealer, keyword, status, pageable);
 
-    return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
+      PageResponse<VehicleRequestResponse> pageResponse =
+              pageMapper.toPageResponse(page, vehicleRequestMapper::toVehicleRequestResponse);
+
+      return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
   }
 
   private VehicleRequestItem createVehicleRequestItem(VehicleRequestItemRequest request) {

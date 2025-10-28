@@ -2,6 +2,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.PaymentStatus;
+import com.example.emob.constant.QuotationStatus;
 import com.example.emob.model.request.SaleOrderItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
@@ -10,12 +11,14 @@ import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.quotation.QuotationResponse;
 import com.example.emob.service.QuotationService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,10 +62,20 @@ public class QuotationController {
   }
 
   @GetMapping
+  @Operation(summary = "Get all quotations with pagination and filtering")
   public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotations(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(quotationService.getAll(pageable));
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<QuotationStatus> status,
+          @RequestParam(defaultValue = "totalPrice") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    return ResponseEntity.ok(quotationService.getAll(pageable, keyword, status));
   }
 
   @GetMapping("/dealer-staff")

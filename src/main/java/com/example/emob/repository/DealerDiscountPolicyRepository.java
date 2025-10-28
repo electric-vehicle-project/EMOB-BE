@@ -8,7 +8,12 @@ import com.example.emob.entity.ElectricVehicle;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDiscountPolicy, UUID> {
   // Tìm tất cả policy theo danh sách dealer và vehicle
@@ -23,4 +28,22 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
 
   List<DealerDiscountPolicy> findAllByStatusAndEffectiveDateBefore(
       DiscountPolicyStatus status, LocalDate date);
+
+  @Query("""
+    SELECT d
+    FROM DealerDiscountPolicy d
+    WHERE 
+      (
+        :keyword IS NULL 
+        OR CAST(d.effectiveDate AS string) LIKE CONCAT('%', :keyword, '%')
+      )
+      AND (
+        :statuses IS NULL 
+        OR d.status IN :statuses
+      )
+""")
+  Page<DealerDiscountPolicy> searchAndFilter(
+          @Param("keyword") String keyword,
+          @Param("statuses") List<DiscountPolicyStatus> statuses,
+          Pageable pageable);
 }

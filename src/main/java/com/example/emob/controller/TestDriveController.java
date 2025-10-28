@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.TestStatus;
 import com.example.emob.model.request.schedule.TestDriveRequest;
 import com.example.emob.model.request.schedule.UpdateTestDriveRequest;
 import com.example.emob.model.response.APIResponse;
@@ -14,10 +15,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,8 +89,18 @@ public class TestDriveController {
   @GetMapping("/schedules")
   @Operation(summary = "View All Schedule Test Drive")
   public ResponseEntity<APIResponse<PageResponse<TestDriveResponse>>> viewAllSchedules(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(testDriveService.viewAllSchedules(pageable));
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<TestStatus> status,
+          @RequestParam(defaultValue = "scheduledAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    return ResponseEntity.ok(
+            testDriveService.viewAllSchedules(pageable, keyword, status));
   }
 }

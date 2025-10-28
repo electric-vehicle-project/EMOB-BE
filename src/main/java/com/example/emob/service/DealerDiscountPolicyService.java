@@ -245,20 +245,22 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
     return APIResponse.success(response);
   }
 
+//  @PreAuthorize("hasAnyRole('ADMIN')")
   @Override
-  @PreAuthorize("hasAnyRole('ADMIN')")
-  public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable) {
+  public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(
+          Pageable pageable,
+          String keyword,
+          List<DiscountPolicyStatus> status) {
     try {
-      // Lấy page từ repository
-      Page<DealerDiscountPolicy> page = dealerDiscountPolicyRepository.findAll(pageable);
+      Page<DealerDiscountPolicy> page =
+              dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);
 
-      // Map page sang PageResponse sử dụng pageMapper và dealerDiscountPolicyMapper
       PageResponse<DealerDiscountPolicyResponse> response =
-          pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
+              pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
 
-      return APIResponse.success(response);
+      return APIResponse.success(response, "Get all dealer discount policies successfully");
     } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+      throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer discount policies");
     }
   }
 }

@@ -346,15 +346,19 @@ public class QuotationService implements IQuotation {
   }
 
   @Override
-  @PreAuthorize("hasRole('MANAGER')")
-  public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable) {
+//  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
+  public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
+                                                             String keyword,
+                                                             List<QuotationStatus> status) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    if (dealer == null) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED, "Only dealers can view quotations.");
+    }
+    Page<Quotation> page = quotationRepository.searchAndFilter(
+            dealer, keyword, status, pageable);
 
-    Page<Quotation> page =
-        quotationRepository.findAllByIsDeletedFalseAndDealer(
-            AccountUtil.getCurrentUser().getDealer(), pageable);
-    // Gói kết quả vào PageResponse
     PageResponse<QuotationResponse> pageResponse =
-        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
+            pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
 
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }

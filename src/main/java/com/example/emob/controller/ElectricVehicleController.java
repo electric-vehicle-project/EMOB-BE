@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.VehicleStatus;
+import com.example.emob.constant.VehicleType;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,9 +113,18 @@ public class ElectricVehicleController {
   @GetMapping
   @Operation(summary = "Get all electric vehicles")
   public ResponseEntity<APIResponse<PageResponse<ElectricVehicleResponse>>> getAllVehicles(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(vehicleService.getAll(pageable));
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<VehicleType> type,
+          @RequestParam(defaultValue = "createdAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    return ResponseEntity.ok(vehicleService.getAll(pageable, keyword, type));
   }
 
   @PutMapping("/{id}")
@@ -245,9 +257,18 @@ public class ElectricVehicleController {
   @GetMapping("/unit/view-all")
   @Operation(summary = "Get all vehicles unit")
   public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable));
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<VehicleStatus> status,
+          @RequestParam(defaultValue = "color") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable, keyword, status));
   }
 
   @GetMapping("/unit/view-all-by-model/{modelId}")

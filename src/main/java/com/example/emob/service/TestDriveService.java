@@ -22,6 +22,7 @@ import com.example.emob.service.impl.ITestDrive;
 import com.example.emob.util.NotificationHelper;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -93,7 +94,7 @@ public class TestDriveService implements ITestDrive {
           "Quý khách nhớ đến đúng hẹn",
           testDrive.getCustomer().getFullName(),
           "Xác nhận",
-          "truong0345218921@gmail.com");
+          testDrive.getCustomer().getEmail());
       TestDriveResponse testDriveResponse = testDriveMapper.toTestDriveResponse(testDrive);
       return APIResponse.success(testDriveResponse, "Create schedule successfully");
     } catch (DataIntegrityViolationException ex) {
@@ -177,10 +178,15 @@ public class TestDriveService implements ITestDrive {
   }
 
   @Override
-  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
-    Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
-    PageResponse<TestDriveResponse> testDriveResponsePageResponse =
-        pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
-    return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
+  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable,
+                                                                           String keyword,
+                                                                           List<TestStatus> status) {
+    Page<TestDrive> testDrives =
+            testDriveRepository.searchAndFilter(keyword, status, pageable);
+
+    PageResponse<TestDriveResponse> response =
+            pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
+
+    return APIResponse.success(response, "View all schedules successfully");
   }
 }

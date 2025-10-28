@@ -1,12 +1,15 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.QuotationStatus;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.quotation.QuotationResponse;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -20,5 +23,7 @@ public interface IQuotation {
 
   APIResponse<QuotationResponse> get(UUID id);
 
-  APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
+                                                      String keyword,
+                                                      List<QuotationStatus> status);
 }
