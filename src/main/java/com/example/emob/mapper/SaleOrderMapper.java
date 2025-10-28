@@ -4,7 +4,6 @@ package com.example.emob.mapper;
 import com.example.emob.entity.*;
 import com.example.emob.model.response.SaleOrder.SaleOrderItemResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.mapstruct.*;
@@ -18,6 +17,7 @@ public interface SaleOrderMapper {
   @Mapping(source = "account.id", target = "accountId")
   @Mapping(source = "vehicleRequest.dealer.id", target = "dealerId")
   @Mapping(source = "quotation.customer.id", target = "customerId")
+  @Mapping(source = "contract.id", target = "saleContractId")
   SaleOrderResponse toSaleOrderResponse(SaleOrder saleOrder);
 
   @Mapping(source = "vehicle.id", target = "vehicleId")
@@ -51,32 +51,8 @@ public interface SaleOrderMapper {
   // ==========================
   // 🔹 VEHICLE REQUEST → SALE ORDER
   // ==========================
-  @Mapping(
-      target = "saleOrderItems",
-      expression = "java(toSaleOrderItems(vehicleRequest.getVehicleRequestItems()))")
   @Mapping(target = "account", ignore = true)
   @Mapping(target = "vehicleRequest", source = "vehicleRequest")
   @Mapping(target = "status", ignore = true)
   SaleOrder toSaleOrderFromVehicleRequest(VehicleRequest vehicleRequest);
-
-  default Set<SaleOrderItem> toSaleOrderItems(Set<VehicleRequestItem> vehicleRequestItems) {
-    if (vehicleRequestItems == null) return new HashSet<>();
-
-    return vehicleRequestItems.stream()
-        .filter(vri -> !vri.isDeleted()) // ✅ bỏ qua item bị xóa
-        .map(
-            vri -> {
-              SaleOrderItem item = new SaleOrderItem();
-              item.setUnitPrice(vri.getUnitPrice());
-              item.setTotalPrice(vri.getTotalPrice());
-              item.setDiscountPrice(BigDecimal.ZERO);
-              item.setQuantity(vri.getQuantity());
-              item.setColor(vri.getColor());
-              item.setVehicleStatus(vri.getVehicleStatus());
-              item.setVehicle(vri.getVehicle());
-              item.setDeleted(false); // mặc định là active
-              return item;
-            })
-        .collect(Collectors.toSet());
-  }
 }

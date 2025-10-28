@@ -51,6 +51,7 @@ public class ElectricVehicleService implements IVehicle {
     try {
       ElectricVehicle vehicle = vehicleMapper.toVehicle(request);
       vehicle.setCreatedAt(LocalDate.now());
+      vehicle.setBrand(request.getBrand());
       vehicleRepository.save(vehicle);
 
       return APIResponse.success(
@@ -116,13 +117,12 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(
-          Pageable pageable, String keyword, List<VehicleType> type) {
+      Pageable pageable, String keyword, List<VehicleType> type) {
     try {
-      Page<ElectricVehicle> page =
-              vehicleRepository.searchAndFilter(keyword, type, pageable);
+      Page<ElectricVehicle> page = vehicleRepository.searchAndFilter(keyword, type, pageable);
 
       PageResponse<ElectricVehicleResponse> response =
-              pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
+          pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
 
       return APIResponse.success(response, "Get all electric vehicles successfully");
     } catch (DataAccessException ex) {
@@ -248,8 +248,8 @@ public class ElectricVehicleService implements IVehicle {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable, String keyword,
-                                                                           List<VehicleStatus> status) {
+  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(
+      Pageable pageable, String keyword, List<VehicleStatus> status) {
     Account account = AccountUtil.getCurrentUser();
     Inventory inventory = null;
     if (account.getDealer() == null) { // admin || evm_staff
@@ -265,10 +265,10 @@ public class ElectricVehicleService implements IVehicle {
     }
     try {
       Page<VehicleUnit> page =
-              vehicleUnitRepository.searchAndFilter(inventory, keyword, status, pageable);
+          vehicleUnitRepository.searchAndFilter(inventory, keyword, status, pageable);
 
       PageResponse<VehicleUnitResponse> response =
-              pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
+          pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
 
       return APIResponse.success(response);
     } catch (Exception e) {
@@ -309,87 +309,86 @@ public class ElectricVehicleService implements IVehicle {
     }
   }
 
-
   public List<VehicleCompareResponse> compare(UUID leftVehicleId, UUID rightVehicleId) {
     ElectricVehicle leftVehicle =
-            vehicleRepository
-                    .findById(leftVehicleId)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Left vehicle not found."));
+        vehicleRepository
+            .findById(leftVehicleId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Left vehicle not found."));
     ElectricVehicle rightVehicle =
-            vehicleRepository
-                    .findById(rightVehicleId)
-                    .orElseThrow(
-                            () -> new GlobalException(ErrorCode.NOT_FOUND, "Right vehicle not found."));
+        vehicleRepository
+            .findById(rightVehicleId)
+            .orElseThrow(
+                () -> new GlobalException(ErrorCode.NOT_FOUND, "Right vehicle not found."));
     List<VehicleCompareResponse> compareResponses = new ArrayList<>();
     // ========== THẤP HƠN TỐT HƠN ==========
-    compareResponses.add(buildRow(
+    compareResponses.add(
+        buildRow(
             "importPrice",
             toDouble(leftVehicle.getImportPrice()),
             toDouble(rightVehicle.getImportPrice()),
-            /*lowerIsBetter*/ true
-    ));
-    compareResponses.add(buildRow(
+            /*lowerIsBetter*/ true));
+    compareResponses.add(
+        buildRow(
             "retailPrice",
             toDouble(leftVehicle.getRetailPrice()),
             toDouble(rightVehicle.getRetailPrice()),
-            true
-    ));
-    compareResponses.add(buildRow(
+            true));
+    compareResponses.add(
+        buildRow(
             "chargeTimeHr",
             toDouble(leftVehicle.getChargeTimeHr()),
             toDouble(rightVehicle.getChargeTimeHr()),
-            true
-    ));
-    compareResponses.add(buildRow(
+            true));
+    compareResponses.add(
+        buildRow(
             "weightKg",
             toDouble(leftVehicle.getWeightKg()),
             toDouble(rightVehicle.getWeightKg()),
-            true
-    ));
+            true));
 
     // ========== CAO HƠN TỐT HƠN ==========
-    compareResponses.add(buildRow(
+    compareResponses.add(
+        buildRow(
             "batteryKwh",
             toDouble(leftVehicle.getBatteryKwh()),
             toDouble(rightVehicle.getBatteryKwh()),
-            /*lowerIsBetter*/ false
-    ));
-    compareResponses.add(buildRow(
+            /*lowerIsBetter*/ false));
+    compareResponses.add(
+        buildRow(
             "rangeKm",
             toDouble(leftVehicle.getRangeKm()),
             toDouble(rightVehicle.getRangeKm()),
-            false
-    ));
-    compareResponses.add(buildRow(
+            false));
+    compareResponses.add(
+        buildRow(
             "powerKw",
             toDouble(leftVehicle.getPowerKw()),
             toDouble(rightVehicle.getPowerKw()),
-            false
-    ));
-    compareResponses.add(buildRow(
+            false));
+    compareResponses.add(
+        buildRow(
             "topSpeedKmh",
             toDouble(leftVehicle.getTopSpeedKmh()),
             toDouble(rightVehicle.getTopSpeedKmh()),
-            false
-    ));
+            false));
 
     return compareResponses;
-
   }
 
   /**
-   * @param keyName        tên trường (ví dụ "importPrice")
-   * @param leftVal      giá trị xe 1 (LEFT)
-   * @param rightVal   giá trị xe 2 (RIGHT)
-   * @param lowerIsBetter  true nếu giá trị thấp hơn là tốt hơn
+   * @param keyName tên trường (ví dụ "importPrice")
+   * @param leftVal giá trị xe 1 (LEFT)
+   * @param rightVal giá trị xe 2 (RIGHT)
+   * @param lowerIsBetter true nếu giá trị thấp hơn là tốt hơn
    */
-  private VehicleCompareResponse buildRow(String keyName, Double leftVal, Double rightVal, boolean lowerIsBetter) {
+  private VehicleCompareResponse buildRow(
+      String keyName, Double leftVal, Double rightVal, boolean lowerIsBetter) {
     // Chuẩn hoá null -> 0 để có chênh lệch
-    double l = (leftVal  == null) ? 0d : leftVal;
+    double l = (leftVal == null) ? 0d : leftVal;
     double r = (rightVal == null) ? 0d : rightVal;
 
-    double rawDelta = l - r;                    // chênh lệch LEFT - RIGHT
-    double magnitude = Math.abs(rawDelta);      // độ lớn dương
+    double rawDelta = l - r; // chênh lệch LEFT - RIGHT
+    double magnitude = Math.abs(rawDelta); // độ lớn dương
     boolean different = Double.compare(l, r) != 0;
 
     String betterFor = null;
@@ -409,7 +408,7 @@ public class ElectricVehicleService implements IVehicle {
 
     VehicleCompareResponse res = new VehicleCompareResponse();
     res.setKeyName(keyName);
-    res.setVehicleValue((float) signedDelta);   // ví dụ: -123.4 nếu "thấp hơn tốt hơn"
+    res.setVehicleValue((float) signedDelta); // ví dụ: -123.4 nếu "thấp hơn tốt hơn"
     res.setDifferent(different);
     res.setBetterFor(betterFor);
     return res;
@@ -418,8 +417,8 @@ public class ElectricVehicleService implements IVehicle {
   private static Double toDouble(BigDecimal n) {
     return (n == null) ? null : n.doubleValue();
   }
+
   private static Double toDouble(Number n) {
     return (n == null) ? null : n.doubleValue();
   }
-
 }

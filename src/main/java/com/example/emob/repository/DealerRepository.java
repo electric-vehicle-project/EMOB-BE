@@ -14,7 +14,8 @@ import org.springframework.stereotype.Repository;
 public interface DealerRepository extends JpaRepository<Dealer, UUID> {
   Page<Dealer> findAllByIsDeletedFalse(Pageable pageable);
 
-  @Query("""
+  @Query(
+      """
     SELECT d
     FROM Dealer d
     WHERE d.isDeleted = false
@@ -23,8 +24,6 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
            OR LOWER(d.address) LIKE LOWER(CONCAT('%', :keyword, '%')))
       AND (:country IS NULL OR LOWER(d.country) = LOWER(:country))
     """)
-    Page<Dealer> searchAndFilter(
-            @Param("keyword") String keyword,
-            @Param("country") String country,
-            Pageable pageable);
+  Page<Dealer> searchAndFilter(
+      @Param("keyword") String keyword, @Param("country") String country, Pageable pageable);
 }

@@ -16,7 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface ReportRepository extends JpaRepository<Report, UUID> {
   Page<Report> findAllByDealer(Dealer dealer, Pageable pageable);
 
-  @Query("""
+  @Query(
+      """
     SELECT r
     FROM Report r
     WHERE r.dealer = :dealer
@@ -25,8 +26,8 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
       AND (:status IS NULL OR r.status = :status)
     """)
   Page<Report> searchAndFilter(
-          @Param("dealer") Dealer dealer,
-          @Param("keyword") String keyword,
-          @Param("status") ReportStatus status,
-          Pageable pageable);
+      @Param("dealer") Dealer dealer,
+      @Param("keyword") String keyword,
+      @Param("status") ReportStatus status,
+      Pageable pageable);
 }

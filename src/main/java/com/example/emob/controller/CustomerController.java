@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,12 +87,12 @@ public class CustomerController {
   @GetMapping
   @Operation(summary = "Get all Customers (with pagination, filter, search, sort)")
   public ResponseEntity<APIResponse<PageResponse<CustomerResponse>>> getAll(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<CustomerStatus> status,
-          @RequestParam(defaultValue = "fullName") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<CustomerStatus> status,
+      @RequestParam(defaultValue = "fullName") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();

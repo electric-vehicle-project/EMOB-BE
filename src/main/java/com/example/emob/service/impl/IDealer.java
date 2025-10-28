@@ -17,5 +17,6 @@ public interface IDealer {
 
   APIResponse<DealerResponse> get(UUID id);
 
-  APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable, String keyword, String country);
+  APIResponse<PageResponse<DealerResponse>> getAll(
+      Pageable pageable, String keyword, String country);
 }

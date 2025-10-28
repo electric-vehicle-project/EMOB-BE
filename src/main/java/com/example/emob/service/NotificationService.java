@@ -4,6 +4,8 @@ package com.example.emob.service;
 import com.example.emob.entity.InstallmentPlan;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -14,9 +16,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,13 +25,13 @@ public class NotificationService {
   private final TemplateEngine templateEngine;
 
   public void sendInstallmentCreatedEmail(
-          String recipientEmail,
-          String cusName,
-          BigDecimal totalAmount,
-          BigDecimal deposit,
-          BigDecimal monthlyAmount,
-          int termMonths,
-          LocalDate nextDueDate) {
+      String recipientEmail,
+      String cusName,
+      BigDecimal totalAmount,
+      BigDecimal deposit,
+      BigDecimal monthlyAmount,
+      int termMonths,
+      LocalDate nextDueDate) {
 
     // Build context cho Thymeleaf
     Context context = new Context();
@@ -47,8 +46,7 @@ public class NotificationService {
     context.setVariable("greetingText", "Xin chào");
     context.setVariable("customerName", cusName);
     context.setVariable(
-            "greetingMessage",
-            "Kế hoạch trả góp cho đơn hàng của bạn đã được khởi tạo thành công");
+        "greetingMessage", "Kế hoạch trả góp cho đơn hàng của bạn đã được khởi tạo thành công");
 
     // Details section
     context.setVariable("detailsTitle", "📄 Chi tiết kế hoạch trả góp:");
@@ -67,8 +65,8 @@ public class NotificationService {
 
     // Payment reminder
     context.setVariable(
-            "paymentReminder",
-            "Quý khách vui lòng thanh toán đúng hạn để đảm bảo quyền lợi của mình. "
+        "paymentReminder",
+        "Quý khách vui lòng thanh toán đúng hạn để đảm bảo quyền lợi của mình. "
             + "Nếu đã thanh toán, vui lòng bỏ qua email này.");
 
     // Alert box
@@ -116,12 +114,12 @@ public class NotificationService {
   // Overload method để gọi từ entity Installment
   public void sendInstallmentCreatedEmail(InstallmentPlan installment) {
     sendInstallmentCreatedEmail(
-            installment.getSaleOrder().getQuotation().getCustomer().getEmail(),
-            installment.getSaleOrder().getQuotation().getCustomer().getFullName(),
-            installment.getTotalAmount(),
-            installment.getDeposit(),
-            installment.getMonthlyAmount(),
-            installment.getTermMonths(),
-            installment.getNextDueDate());
+        installment.getSaleOrder().getQuotation().getCustomer().getEmail(),
+        installment.getSaleOrder().getQuotation().getCustomer().getFullName(),
+        installment.getTotalAmount(),
+        installment.getDeposit(),
+        installment.getMonthlyAmount(),
+        installment.getTermMonths(),
+        installment.getNextDueDate());
   }
 }

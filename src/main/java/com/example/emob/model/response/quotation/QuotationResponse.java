@@ -22,6 +22,7 @@ public class QuotationResponse {
   UUID customerId;
   UUID dealerId;
   UUID accountId;
+  UUID saleOrderId;
   BigDecimal totalPrice;
   BigDecimal vatAmount;
   int totalQuantity;

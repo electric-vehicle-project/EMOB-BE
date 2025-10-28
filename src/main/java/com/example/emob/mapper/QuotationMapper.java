@@ -16,6 +16,7 @@ public interface QuotationMapper {
   @Mapping(source = "dealer.id", target = "dealerId")
   @Mapping(source = "account.id", target = "accountId")
   @Mapping(source = "customer.id", target = "customerId")
+  @Mapping(source = "saleOrder.id", target = "saleOrderId")
   @Mapping(source = "status", target = "status")
   QuotationResponse toQuotationResponse(Quotation quotation);
 

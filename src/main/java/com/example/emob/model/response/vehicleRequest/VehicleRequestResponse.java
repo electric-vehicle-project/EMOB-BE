@@ -20,6 +20,7 @@ public class VehicleRequestResponse {
   UUID id;
   Set<VehicleRequestItemResponse> items;
   UUID dealerId;
+  UUID saleOrderId;
   BigDecimal totalPrice;
   int totalQuantity;
   VehicleRequestStatus status;

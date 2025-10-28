@@ -92,7 +92,12 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
         policy.setFinalPrice(request.getFinalPrice());
         policy.setEffectiveDate(request.getEffectiveDate());
         policy.setExpiryDate(request.getExpiredDate());
-
+        DiscountPolicyStatus status =
+            determinePolicyStatus(
+                request.getEffectiveDate().atStartOfDay(),
+                request.getExpiredDate().atTime(23, 59, 59));
+        policy.setStatus(status);
+        policy.setCreateAt(LocalDateTime.now());
         policies.add(policy);
       }
     }
@@ -245,22 +250,27 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
     return APIResponse.success(response);
   }
 
-//  @PreAuthorize("hasAnyRole('ADMIN')")
+  //  @PreAuthorize("hasAnyRole('ADMIN')")
   @Override
   public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(
-          Pageable pageable,
-          String keyword,
-          List<DiscountPolicyStatus> status) {
+      Pageable pageable, String keyword, List<DiscountPolicyStatus> status) {
     try {
       Page<DealerDiscountPolicy> page =
-              dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);
+          dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);
 
       PageResponse<DealerDiscountPolicyResponse> response =
-              pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
+          pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
 
       return APIResponse.success(response, "Get all dealer discount policies successfully");
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer discount policies");
     }
+  }
+
+  public static DiscountPolicyStatus determinePolicyStatus(
+      LocalDateTime startDate, LocalDateTime endDate) {
+    if (startDate.isAfter(LocalDateTime.now())) return DiscountPolicyStatus.UPCOMING;
+    if (endDate.isBefore(LocalDateTime.now())) return DiscountPolicyStatus.EXPIRED;
+    return DiscountPolicyStatus.ACTIVE;
   }
 }

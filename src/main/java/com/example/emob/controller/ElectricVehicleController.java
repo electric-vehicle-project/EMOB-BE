@@ -113,12 +113,12 @@ public class ElectricVehicleController {
   @GetMapping
   @Operation(summary = "Get all electric vehicles")
   public ResponseEntity<APIResponse<PageResponse<ElectricVehicleResponse>>> getAllVehicles(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<VehicleType> type,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<VehicleType> type,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
@@ -220,9 +220,6 @@ public class ElectricVehicleController {
                                       "vehicleId": "nhập id vô đây",
                                       "quantity": 10,
                                       "color": "White",
-                                      "purchaseDate": "2025-10-05T10:00:00",
-                                      "warrantyStart": "2025-10-10",
-                                      "warrantyEnd": "2028-10-10",
                                       "productionYear": "2025-01-01",
                                       "status": "NORMAL"
                                     }
@@ -235,9 +232,6 @@ public class ElectricVehicleController {
                                       "vehicleId": "nhập id vô đây",
                                       "quantity": 3,
                                       "color": "Red",
-                                      "purchaseDate": "2025-10-05T10:00:00",
-                                      "warrantyStart": "2025-10-10",
-                                      "warrantyEnd": "2026-10-10",
                                       "productionYear": "2025-01-01",
                                       "status": "TEST_DRIVE"
                                     }
@@ -257,12 +251,12 @@ public class ElectricVehicleController {
   @GetMapping("/unit/view-all")
   @Operation(summary = "Get all vehicles unit")
   public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<VehicleStatus> status,
-          @RequestParam(defaultValue = "color") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<VehicleStatus> status,
+      @RequestParam(defaultValue = "color") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
@@ -283,9 +277,7 @@ public class ElectricVehicleController {
 
   @GetMapping("/{leftId}/vs/{rightId}")
   public APIResponse<List<VehicleCompareResponse>> compareByPath(
-          @PathVariable UUID leftId,
-          @PathVariable UUID rightId
-  ) {
+      @PathVariable UUID leftId, @PathVariable UUID rightId) {
     return APIResponse.success(vehicleService.compare(leftId, rightId));
   }
 }

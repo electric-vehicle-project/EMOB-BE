@@ -64,12 +64,12 @@ public class QuotationController {
   @GetMapping
   @Operation(summary = "Get all quotations with pagination and filtering")
   public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotations(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<QuotationStatus> status,
-          @RequestParam(defaultValue = "totalPrice") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<QuotationStatus> status,
+      @RequestParam(defaultValue = "totalPrice") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
@@ -80,7 +80,7 @@ public class QuotationController {
 
   @GetMapping("/dealer-staff")
   public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotationsOfStaff(
-          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(quotationService.getAllOfDealerStaff(pageable));
   }

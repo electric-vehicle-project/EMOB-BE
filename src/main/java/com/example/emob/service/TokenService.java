@@ -38,7 +38,7 @@ public class TokenService {
         .id(UUID.randomUUID().toString()) // jti
         .claim("token_type", "reset_password") // phân biệt loại token
         .issuedAt(Date.from(now))
-        .expiration(Date.from(now.plus(3, java.time.temporal.ChronoUnit.MINUTES))) // hết hạn nhanh
+        .expiration(Date.from(now.plus(30, java.time.temporal.ChronoUnit.MINUTES))) // hết hạn nhanh
         .signWith(getSignKey(), Jwts.SIG.HS256)
         .compact();
   }
@@ -75,15 +75,13 @@ public class TokenService {
   // verify_token
   public Account verifyToken(String token) {
     try {
-      Claims claims = Jwts.parser()
-              .verifyWith(getSignKey())
-              .build()
-              .parseSignedClaims(token)
-              .getPayload();
+      Claims claims =
+          Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
 
       UUID accountId = UUID.fromString(claims.getSubject());
-      return accountRepository.findById(accountId)
-              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Account not found"));
+      return accountRepository
+          .findById(accountId)
+          .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Account not found"));
 
     } catch (JwtException e) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "Invalid or expired token");

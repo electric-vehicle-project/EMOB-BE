@@ -35,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InstallmentPlanService implements IInstallmentPlan {
@@ -92,9 +93,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
     }
   }
 
-     public void createInstallmentPlanFromEntity(InstallmentPlan installment) {
-          emailService.sendInstallmentCreatedEmail(installment);
-      }
+  public void createInstallmentPlanFromEntity(InstallmentPlan installment) {
+    emailService.sendInstallmentCreatedEmail(installment);
+  }
 
   private String remindInstallmentOverdue(
       String cusName, BigDecimal monthlyAmount, LocalDate nextDueDate) {
@@ -117,40 +118,38 @@ public class InstallmentPlanService implements IInstallmentPlan {
   }
 
   public BigDecimal calculateMonthlyAmount(
-      BigDecimal totalAmount, BigDecimal deposit, float interestRate, int termMonths) {
+      BigDecimal deposit, int termMonths, float interestRate, BigDecimal totalPrice) {
 
-    // tổng tiền cần trả góp = tổng - tiền đặt cọc
-    BigDecimal principal = totalAmount.subtract(deposit);
+    // ✅ Tiền gốc cần trả góp = tổng giá - tiền đặt cọc
+    BigDecimal principal = totalPrice.subtract(deposit);
 
-    // lãi suất tháng (chia theo số tháng người dùng nhập)
+    // ✅ Lãi suất hàng tháng (từ % sang thập phân)
     BigDecimal monthlyRate =
         BigDecimal.valueOf(interestRate)
-            .divide(BigDecimal.valueOf(termMonths), 10, RoundingMode.HALF_UP)
-            .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+            .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
+            .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP); // lãi suất năm chia 12 tháng
 
-    // nếu không có lãi (interestRate = 0)
+    // ✅ Nếu không có lãi suất
     if (monthlyRate.compareTo(BigDecimal.ZERO) == 0) {
       return principal.divide(BigDecimal.valueOf(termMonths), 2, RoundingMode.HALF_UP);
     }
 
-    // (1 + r)^n
+    // ✅ (1 + r)^n
     BigDecimal onePlusRatePowN = monthlyRate.add(BigDecimal.ONE).pow(termMonths);
 
-    // tử số = r * (1 + r)^n
+    // ✅ Công thức EMI = P * [r(1+r)^n / ((1+r)^n - 1)]
     BigDecimal numerator = monthlyRate.multiply(onePlusRatePowN);
-
-    // mẫu số = (1 + r)^n - 1
     BigDecimal denominator = onePlusRatePowN.subtract(BigDecimal.ONE);
 
-    // công thức EMI = P * [r(1+r)^n / ((1+r)^n - 1)]
     BigDecimal monthlyPayment =
         principal.multiply(numerator).divide(denominator, 10, RoundingMode.HALF_UP);
 
-    // làm tròn 2 chữ số sau dấu phẩy (vd: 12345.67)
+    // ✅ Làm tròn 2 chữ số thập phân
     return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
   }
 
   @Override
+  @Transactional
   public APIResponse<InstallmentResponse> createInstallment(InstallmentRequest request) {
     if (request.getTermMonths() <= 0) {
       throw new GlobalException(ErrorCode.INVALID_TERM);
@@ -162,10 +161,10 @@ public class InstallmentPlanService implements IInstallmentPlan {
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     BigDecimal monthlyAmount =
         calculateMonthlyAmount(
-            request.getTotalAmount(),
             request.getDeposit(),
+            request.getTermMonths(),
             request.getInterestRate(),
-            request.getTermMonths());
+            order.getTotalPrice());
     try {
       InstallmentPlan installmentPlan = installmentPlanMapper.toInstallmentPlan(request);
       installmentPlan.setMonthlyAmount(monthlyAmount);
@@ -174,7 +173,10 @@ public class InstallmentPlanService implements IInstallmentPlan {
       installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
       installmentPlan.setSaleOrder(order);
       installmentPlanRepository.save(installmentPlan);
-      Customer customer = order.getQuotation().getCustomer();
+      Customer customer = null;
+      if (order != null && order.getQuotation() != null) {
+        customer = order.getQuotation().getCustomer();
+      }
       if (customer != null) {
         createInstallmentPlanFromEntity(installmentPlan);
       }

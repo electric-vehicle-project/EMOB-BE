@@ -18,6 +18,7 @@ public interface VehicleRequestMapper {
   VehicleRequest toVehicleRequest(VehicleRequestRequest request);
 
   @Mapping(source = "dealer.id", target = "dealerId")
+  @Mapping(source = "saleOrder.id", target = "saleOrderId")
   @Mapping(source = "status", target = "status")
   VehicleRequestResponse toVehicleRequestResponse(VehicleRequest request);
 

@@ -2,7 +2,7 @@
 package com.example.emob.model.request.delivery;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,5 +15,5 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeliveryRequest {
   UUID contractId;
-  LocalDateTime deliveryDate;
+  LocalDate deliveryDate;
 }

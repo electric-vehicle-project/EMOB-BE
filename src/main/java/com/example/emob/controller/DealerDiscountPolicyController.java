@@ -190,22 +190,22 @@ public class DealerDiscountPolicyController {
       summary = "Get all Dealer Discount Policies",
       description = "Retrieve paginated list of Dealer Discount Policies")
   public ResponseEntity<APIResponse<PageResponse<DealerDiscountPolicyResponse>>> getAll(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<DiscountPolicyStatus> status,
-          @RequestParam(defaultValue = "effectiveDate") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<DiscountPolicyStatus> status,
+      @RequestParam(defaultValue = "effectiveDate") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-      Sort sort = Sort.by(sortField);
-      sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
 
-      Pageable pageable = PageRequest.of(page, size, sort);
+    Pageable pageable = PageRequest.of(page, size, sort);
 
-      APIResponse<PageResponse<DealerDiscountPolicyResponse>> response =
-              dealerDiscountPolicyService.getAll(pageable, keyword, status);
+    APIResponse<PageResponse<DealerDiscountPolicyResponse>> response =
+        dealerDiscountPolicyService.getAll(pageable, keyword, status);
 
-      return ResponseEntity.ok(response);
+    return ResponseEntity.ok(response);
   }
 
   // =================  Get by ID =================

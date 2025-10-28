@@ -2,6 +2,7 @@
 package com.example.emob.model.response;
 
 import com.example.emob.constant.InstallmentStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class InstallmentResponse {
   UUID id;
   LocalDateTime downDate; // ngày đặt cọc

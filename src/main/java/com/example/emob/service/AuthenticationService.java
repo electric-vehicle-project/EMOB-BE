@@ -230,32 +230,35 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot delete your own account");
     }
     // case tài khoản bị xóa rồi
-    if (targetAccount.getStatus() == AccountStatus.BANNED || targetAccount.getStatus() == AccountStatus.INACTIVE) {
+    if (targetAccount.getStatus() == AccountStatus.BANNED
+        || targetAccount.getStatus() == AccountStatus.INACTIVE) {
       throw new GlobalException(ErrorCode.INVALID_CODE, "Account is already deleted");
     }
     // Kiểm tra quyền xóa
     boolean canDelete = false;
     if (account.getRole() == Role.ADMIN) {
-      canDelete = targetAccount.getRole() == Role.MANAGER ||
-              targetAccount.getRole() == Role.EVM_STAFF;
+      canDelete =
+          targetAccount.getRole() == Role.MANAGER || targetAccount.getRole() == Role.EVM_STAFF;
     } else if (account.getRole() == Role.MANAGER) {
       canDelete = targetAccount.getRole() == Role.DEALER_STAFF;
     }
     if (!canDelete) {
-      throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to delete this account");
+      throw new GlobalException(
+          ErrorCode.UNAUTHORIZED, "You are not allowed to delete this account");
     }
     // chỉ set INACTIVE || BANNED
     targetAccount.setStatus(AccountStatus.BANNED);
     accountRepository.save(targetAccount);
 
     return APIResponse.success(null, "Delete account successfully");
-    }
+  }
 
   @Override
   @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public APIResponse<Void> changeStatus(UUID id) {
     Account currentUser = AccountUtil.getCurrentUser();
-    if (currentUser.getRole().equals(Role.EVM_STAFF) || currentUser.getRole().equals(Role.DEALER_STAFF)) {
+    if (currentUser.getRole().equals(Role.EVM_STAFF)
+        || currentUser.getRole().equals(Role.DEALER_STAFF)) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED);
     }
     Account targetAccount = accountRepository.findAccountById(id);
@@ -269,14 +272,15 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
     boolean canChange = false;
     if (currentUser.getRole() == Role.ADMIN) {
-      canChange = targetAccount.getRole() == Role.MANAGER ||
-              targetAccount.getRole() == Role.EVM_STAFF;
+      canChange =
+          targetAccount.getRole() == Role.MANAGER || targetAccount.getRole() == Role.EVM_STAFF;
     } else if (currentUser.getRole() == Role.MANAGER) {
       canChange = targetAccount.getRole() == Role.DEALER_STAFF;
     }
 
     if (!canChange) {
-      throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to change this account's status");
+      throw new GlobalException(
+          ErrorCode.UNAUTHORIZED, "You are not allowed to change this account's status");
     }
 
     // change status
@@ -291,7 +295,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     accountRepository.save(targetAccount);
     return APIResponse.success(null, "Change account status successfully");
   }
-
 
   @Override
   public APIResponse<AccountResponse> login(LoginRequest request) {

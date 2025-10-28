@@ -21,6 +21,7 @@ public class SaleOrderResponse {
   Set<SaleOrderItemResponse> items;
   UUID customerId;
   UUID dealerId;
+  UUID saleContractId;
   UUID accountId;
   BigDecimal totalPrice;
   BigDecimal vatAmount;

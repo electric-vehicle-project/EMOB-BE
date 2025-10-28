@@ -39,11 +39,6 @@ public class SaleContractItem {
   Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
   @ManyToOne
-  @JoinColumn(name = "saleOrder_id")
-  @JsonIgnore
-  SaleOrder saleOrder;
-
-  @ManyToOne
   @JoinColumn(name = "vehicle_id")
   @JsonIgnore
   ElectricVehicle vehicle;

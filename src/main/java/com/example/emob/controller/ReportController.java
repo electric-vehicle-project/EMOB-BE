@@ -127,19 +127,18 @@ public class ReportController {
   @GetMapping("/view-all")
   @Operation(summary = "View All Reports")
   public ResponseEntity<APIResponse<PageResponse<ReportResponse>>> viewAllReports(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) ReportStatus status,
-          @RequestParam(defaultValue = "title") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) ReportStatus status,
+      @RequestParam(defaultValue = "title") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    return ResponseEntity.ok(
-            reportService.viewAllReport(pageable, keyword, status));
+    return ResponseEntity.ok(reportService.viewAllReport(pageable, keyword, status));
   }
 
   @PutMapping("/process-report/{reportId}")

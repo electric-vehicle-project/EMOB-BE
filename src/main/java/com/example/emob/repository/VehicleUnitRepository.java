@@ -5,7 +5,6 @@ import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,27 +29,41 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
   VehicleUnit findFirstByInventoryAndVehicleAndStatus(
       Inventory inventory, ElectricVehicle vehicle, VehicleStatus status);
 
-  // 🔹 Tìm 1 chiếc xe trong kho cụ thể theo model, màu và trạng thái
-  Optional<VehicleUnit> findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-      Inventory inventory, ElectricVehicle vehicle, String color, VehicleStatus status);
-
-  @Query("""
+  @Query(
+      """
     SELECT v
     FROM VehicleUnit v
     WHERE v.inventory = :inventory
       AND (
-        :keyword IS NULL 
+        :keyword IS NULL
         OR LOWER(v.vinNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
         OR LOWER(v.color) LIKE LOWER(CONCAT('%', :keyword, '%'))
       )
       AND (
-        :statuses IS NULL 
+        :statuses IS NULL
         OR v.status IN :statuses
       )
 """)
   Page<VehicleUnit> searchAndFilter(
-          @Param("inventory") Inventory inventory,
-          @Param("keyword") String keyword,
-          @Param("statuses") List<VehicleStatus> statuses,
-          Pageable pageable);
+      @Param("inventory") Inventory inventory,
+      @Param("keyword") String keyword,
+      @Param("statuses") List<VehicleStatus> statuses,
+      Pageable pageable);
+
+  @Query(
+      """
+    SELECT vu FROM VehicleUnit vu
+    WHERE vu.inventory = :inventory
+      AND vu.vehicle = :vehicle
+      AND LOWER(vu.color) = LOWER(:color)
+      AND vu.status = :status
+      AND vu.inventory IS NOT NULL
+    ORDER BY vu.productionYear ASC
+""")
+  List<VehicleUnit> findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+      @Param("inventory") Inventory inventory,
+      @Param("vehicle") ElectricVehicle vehicle,
+      @Param("color") String color,
+      @Param("status") VehicleStatus status,
+      Pageable pageable);
 }
