@@ -83,14 +83,15 @@ public class SaleOrderService implements ISaleOrder {
                   // === Tìm xe cụ thể trong kho ===
                   Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
-                  List<VehicleUnit> availableUnits = vehicleUnitRepository
+                  List<VehicleUnit> availableUnits =
+                      vehicleUnitRepository
                           .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-                                  AccountUtil.getCurrentUser().getDealer().getInventory(),
-                                  item.getVehicle(),
-                                  item.getColor(),
-                                  item.getVehicleStatus(),
-                                  PageRequest.of(0, item.getQuantity()) // limit = requiredQty
-                          );
+                              AccountUtil.getCurrentUser().getDealer().getInventory(),
+                              item.getVehicle(),
+                              item.getColor(),
+                              item.getVehicleStatus(),
+                              PageRequest.of(0, item.getQuantity()) // limit = requiredQty
+                              );
 
                   BigDecimal unitPrice =
                       Objects.requireNonNullElse(item.getUnitPrice(), BigDecimal.ZERO);
@@ -151,22 +152,23 @@ public class SaleOrderService implements ISaleOrder {
   public APIResponse<SaleOrderResponse> createSaleOrderFromVehicleRequest(
       VehicleRequest vehicleRequest, PaymentStatus paymentStatus) {
     SaleOrder saleOrder = saleOrderMapper.toSaleOrderFromVehicleRequest(vehicleRequest);
-    Set<SaleOrderItem> saleOrderItems = vehicleRequest.getVehicleRequestItems().stream()
-        .map(reqItem -> {
-          SaleOrderItem saleItem = new SaleOrderItem();
-          saleItem.setColor(reqItem.getColor());
-          saleItem.setVehicle(reqItem.getVehicle());
-          saleItem.setQuantity(reqItem.getQuantity());
-          saleItem.setUnitPrice(reqItem.getUnitPrice());
-          saleItem.setVehicleStatus(reqItem.getVehicleStatus());
-          saleItem.setTotalPrice(
-              Objects.requireNonNullElse(reqItem.getUnitPrice(), BigDecimal.ZERO)
-                  .multiply(BigDecimal.valueOf(reqItem.getQuantity()))
-          );
-          saleItem.setSaleOrder(saleOrder);
-          return saleItem;
-        })
-        .collect(Collectors.toSet());
+    Set<SaleOrderItem> saleOrderItems =
+        vehicleRequest.getVehicleRequestItems().stream()
+            .map(
+                reqItem -> {
+                  SaleOrderItem saleItem = new SaleOrderItem();
+                  saleItem.setColor(reqItem.getColor());
+                  saleItem.setVehicle(reqItem.getVehicle());
+                  saleItem.setQuantity(reqItem.getQuantity());
+                  saleItem.setUnitPrice(reqItem.getUnitPrice());
+                  saleItem.setVehicleStatus(reqItem.getVehicleStatus());
+                  saleItem.setTotalPrice(
+                      Objects.requireNonNullElse(reqItem.getUnitPrice(), BigDecimal.ZERO)
+                          .multiply(BigDecimal.valueOf(reqItem.getQuantity())));
+                  saleItem.setSaleOrder(saleOrder);
+                  return saleItem;
+                })
+            .collect(Collectors.toSet());
 
     saleOrder.setSaleOrderItems(saleOrderItems);
     saleOrder.setPaymentStatus(paymentStatus);
@@ -212,9 +214,10 @@ public class SaleOrderService implements ISaleOrder {
         saleOrderRepository
             .findById(request.getOrderId())
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Sale order not found"));
-    if(saleOrder.getAccount().getRole().equals(Role.DEALER_STAFF)){
-      if(AccountUtil.getCurrentUser() != saleOrder.getAccount()){
-        throw new GlobalException(ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
+    if (saleOrder.getAccount().getRole().equals(Role.DEALER_STAFF)) {
+      if (AccountUtil.getCurrentUser() != saleOrder.getAccount()) {
+        throw new GlobalException(
+            ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
       }
     }
 
@@ -308,23 +311,27 @@ public class SaleOrderService implements ISaleOrder {
 
   @PreAuthorize("hasRole('DEALER_STAFF')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfStaff(
-          List<OrderStatus> statuses, Pageable pageable) {
+      List<OrderStatus> statuses, Pageable pageable) {
     Page<SaleOrder> page =
-            saleOrderRepository.findAllWithQuotationByAccountAndStatuses(AccountUtil.getCurrentUser(), statuses, pageable);
+        saleOrderRepository.findAllWithQuotationByAccountAndStatuses(
+            AccountUtil.getCurrentUser(), statuses, pageable);
     PageResponse<SaleOrderResponse> response =
-            pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
     return APIResponse.success(response);
   }
 
   @PreAuthorize("hasRole('MANAGER')")
-  public APIResponse<PageResponse<SalesByStaffResponse>> getAllSaleOrdersByemployee(Pageable pageable) {
+  public APIResponse<PageResponse<SalesByStaffResponse>> getAllSaleOrdersByemployee(
+      Pageable pageable) {
     List<SalesByStaffResponse> salesByStaffResponses = new ArrayList<>();
-    for(Account staff: accountRepository.findByRoleAndDealer(Role.DEALER_STAFF,AccountUtil.getCurrentUser().getDealer())){
-      List<SaleOrder> orders =
-              saleOrderRepository.findAllSaleOrderByAccount(staff);
+    for (Account staff :
+        accountRepository.findByRoleAndDealer(
+            Role.DEALER_STAFF, AccountUtil.getCurrentUser().getDealer())) {
+      List<SaleOrder> orders = saleOrderRepository.findAllSaleOrderByAccount(staff);
       // Tính tổng số đơn và tổng doanh thu
       long orderCount = orders.size();
-      BigDecimal totalAmount = orders.stream()
+      BigDecimal totalAmount =
+          orders.stream()
               .map(SaleOrder::getTotalPrice)
               .filter(Objects::nonNull)
               .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -340,11 +347,11 @@ public class SaleOrderService implements ISaleOrder {
     int start = (int) pageable.getOffset();
     int end = Math.min((start + pageable.getPageSize()), salesByStaffResponses.size());
     List<SalesByStaffResponse> content = salesByStaffResponses.subList(start, end);
-    Page<SalesByStaffResponse> page = new PageImpl<>(content, pageable, salesByStaffResponses.size());
+    Page<SalesByStaffResponse> page =
+        new PageImpl<>(content, pageable, salesByStaffResponses.size());
 
     // ===== Chuyển sang PageResponse =====
     PageResponse<SalesByStaffResponse> response = pageMapper.toPageResponse(page, s -> s);
     return APIResponse.success(response);
   }
-
 }

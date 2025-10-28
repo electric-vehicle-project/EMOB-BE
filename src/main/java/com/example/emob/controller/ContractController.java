@@ -29,26 +29,30 @@ public class ContractController {
   @Autowired ContractService contractService;
 
   private Pageable buildPageable(int page, int size, String[] sort) {
-    Sort sortObj = Sort.by(Arrays.stream(sort)
-            .map(s -> {
-              String[] _s = s.split(",");
-              return new Sort.Order(
-                      _s.length > 1 && _s[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-                      _s[0]
-              );
-            })
-            .toList());
+    Sort sortObj =
+        Sort.by(
+            Arrays.stream(sort)
+                .map(
+                    s -> {
+                      String[] _s = s.split(",");
+                      return new Sort.Order(
+                          _s.length > 1 && _s[1].equalsIgnoreCase("desc")
+                              ? Sort.Direction.DESC
+                              : Sort.Direction.ASC,
+                          _s[0]);
+                    })
+                .toList());
     return PageRequest.of(page, size, sortObj);
   }
 
   @GetMapping("/dealers")
   @Operation(summary = "Hãng xe xem tất cả hợp đồng của đại lý")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsOfDealers(
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<ContractStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return contractService.getAllContractsOfDealers(keyword, statuses, pageable);
@@ -57,25 +61,26 @@ public class ContractController {
   @GetMapping("/customers/{customerId}")
   @Operation(summary = "Đại lý xem hợp đồng của khách hàng cụ thể (qua báo giá)")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentCustomer(
-          @PathVariable UUID customerId,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<ContractStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @PathVariable UUID customerId,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
-    return contractService.getAllContractsOfCurrentCustomer(customerId, keyword, statuses, pageable);
+    return contractService.getAllContractsOfCurrentCustomer(
+        customerId, keyword, statuses, pageable);
   }
 
   @GetMapping("/current-dealer")
   @Operation(summary = "Đại lý xem hợp đồng của chính mình")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentDealer(
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<ContractStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return contractService.getAllContractsOfCurrentDealer(keyword, statuses, pageable);
@@ -84,11 +89,11 @@ public class ContractController {
   @GetMapping("/dealer/customers")
   @Operation(summary = "Đại lý xem hợp đồng của tất cả khách hàng của mình (qua báo giá)")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsByCustomer(
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<ContractStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return contractService.getAllContractsByCustomer(keyword, statuses, pageable);

@@ -38,8 +38,6 @@ public class SaleContractItem {
   @OneToMany(mappedBy = "SaleContractItem", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
-
-
   @ManyToOne
   @JoinColumn(name = "vehicle_id")
   @JsonIgnore

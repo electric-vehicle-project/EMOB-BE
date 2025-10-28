@@ -5,7 +5,6 @@ import com.example.emob.constant.CustomerStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.Customer;
-import com.example.emob.entity.Dealer;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
 import com.example.emob.mapper.PageMapper;
@@ -16,13 +15,11 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.service.impl.ICustomer;
 import com.example.emob.util.AccountUtil;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -118,12 +115,10 @@ public class CustomerService implements ICustomer {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF','MANAGER')")
   public APIResponse<PageResponse<CustomerResponse>> getAll(
-          Pageable pageable,
-          String keyword,
-          List<CustomerStatus> status) {
+      Pageable pageable, String keyword, List<CustomerStatus> status) {
     Page<Customer> page = customerRepository.searchAndFilter(keyword, status, pageable);
     PageResponse<CustomerResponse> response =
-            pageMapper.toPageResponse(page, customerMapper::toCustomerResponse);
+        pageMapper.toPageResponse(page, customerMapper::toCustomerResponse);
     return APIResponse.success(response, "Get all customers successfully");
   }
 }

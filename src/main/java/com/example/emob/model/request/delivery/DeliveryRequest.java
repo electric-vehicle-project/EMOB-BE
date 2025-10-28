@@ -2,9 +2,7 @@
 package com.example.emob.model.request.delivery;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

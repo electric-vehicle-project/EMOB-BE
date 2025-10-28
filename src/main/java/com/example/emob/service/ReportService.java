@@ -127,19 +127,17 @@ public class ReportService implements IReport {
   // phân trang
   @Override
   @PreAuthorize("hasAnyRole('MANAGER' , 'DEALER_STAFF')")
-  public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable,
-                                                                     String keyword,
-                                                                     ReportStatus status) {
+  public APIResponse<PageResponse<ReportResponse>> viewAllReport(
+      Pageable pageable, String keyword, ReportStatus status) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     if (dealer == null) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");
     }
 
-    Page<Report> reports =
-            reportRepository.searchAndFilter(dealer, keyword, status, pageable);
+    Page<Report> reports = reportRepository.searchAndFilter(dealer, keyword, status, pageable);
 
     PageResponse<ReportResponse> responses =
-            pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
+        pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
 
     return APIResponse.success(responses, "View all reports successfully");
   }

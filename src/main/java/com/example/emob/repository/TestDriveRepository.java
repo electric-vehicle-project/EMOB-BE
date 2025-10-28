@@ -6,7 +6,6 @@ import com.example.emob.entity.TestDrive;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,22 +28,23 @@ public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
       @Param("newStart") LocalDateTime newStart,
       @Param("newEnd") LocalDateTime newEnd);
 
-  @Query("""
+  @Query(
+      """
     SELECT t
     FROM TestDrive t
     JOIN t.customer c
     WHERE (
-      :keyword IS NULL 
+      :keyword IS NULL
       OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
       OR LOWER(t.location) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
     AND (
-      :statuses IS NULL 
+      :statuses IS NULL
       OR t.status IN :statuses
     )
 """)
   Page<TestDrive> searchAndFilter(
-          @Param("keyword") String keyword,
-          @Param("statuses") List<TestStatus> statuses,
-          Pageable pageable);
+      @Param("keyword") String keyword,
+      @Param("statuses") List<TestStatus> statuses,
+      Pageable pageable);
 }

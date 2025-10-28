@@ -346,19 +346,17 @@ public class QuotationService implements IQuotation {
   }
 
   @Override
-//  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
-  public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
-                                                             String keyword,
-                                                             List<QuotationStatus> status) {
+  //  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
+  public APIResponse<PageResponse<QuotationResponse>> getAll(
+      Pageable pageable, String keyword, List<QuotationStatus> status) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     if (dealer == null) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "Only dealers can view quotations.");
     }
-    Page<Quotation> page = quotationRepository.searchAndFilter(
-            dealer, keyword, status, pageable);
+    Page<Quotation> page = quotationRepository.searchAndFilter(dealer, keyword, status, pageable);
 
     PageResponse<QuotationResponse> pageResponse =
-            pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
+        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
 
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
@@ -367,15 +365,14 @@ public class QuotationService implements IQuotation {
   public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(Pageable pageable) {
 
     Page<Quotation> page =
-            quotationRepository.findAllByIsDeletedFalseAndDealerAndAccount(
-                    AccountUtil.getCurrentUser().getDealer(),AccountUtil.getCurrentUser(), pageable);
+        quotationRepository.findAllByIsDeletedFalseAndDealerAndAccount(
+            AccountUtil.getCurrentUser().getDealer(), AccountUtil.getCurrentUser(), pageable);
     // Gói kết quả vào PageResponse
     PageResponse<QuotationResponse> pageResponse =
-            pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
+        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
 
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
-
 
   private QuotationItem createQuotationItem(QuotationItemRequest request) {
     ElectricVehicle vehicle =
@@ -398,8 +395,9 @@ public class QuotationService implements IQuotation {
         quotationRepository
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
-    if(AccountUtil.getCurrentUser() != quotation.getAccount()){
-      throw new GlobalException(ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
+    if (AccountUtil.getCurrentUser() != quotation.getAccount()) {
+      throw new GlobalException(
+          ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
     }
     quotation.setStatus(QuotationStatus.APPROVED);
     Quotation savedQuotation = quotationRepository.save(quotation);

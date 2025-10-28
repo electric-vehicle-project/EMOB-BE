@@ -300,19 +300,20 @@ public class VehicleRequestService implements IVehicleRequest {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, List<VehicleRequestStatus> status) {
-      Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-      if (dealer == null) {
-        throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");
-      }
+  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(
+      Pageable pageable, String keyword, List<VehicleRequestStatus> status) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    if (dealer == null) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");
+    }
 
-      Page<VehicleRequest> page = vehiclerequestRepository.searchAndFilter(
-              dealer, keyword, status, pageable);
+    Page<VehicleRequest> page =
+        vehiclerequestRepository.searchAndFilter(dealer, keyword, status, pageable);
 
-      PageResponse<VehicleRequestResponse> pageResponse =
-              pageMapper.toPageResponse(page, vehicleRequestMapper::toVehicleRequestResponse);
+    PageResponse<VehicleRequestResponse> pageResponse =
+        pageMapper.toPageResponse(page, vehicleRequestMapper::toVehicleRequestResponse);
 
-      return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
+    return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
   }
 
   private VehicleRequestItem createVehicleRequestItem(VehicleRequestItemRequest request) {

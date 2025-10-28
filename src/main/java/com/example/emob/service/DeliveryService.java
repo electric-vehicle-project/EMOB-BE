@@ -13,12 +13,10 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.*;
 import com.example.emob.service.impl.IDelivery;
 import com.example.emob.util.AccountUtil;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -53,7 +51,7 @@ public class DeliveryService implements IDelivery {
             .findById(request.getContractId())
             .filter(
                 c ->
-                        c.getStatus().equals(ContractStatus.SIGNED)
+                    c.getStatus().equals(ContractStatus.SIGNED)
                         && c.getSaleContractItems() != null
                         && !c.getSaleContractItems().isEmpty())
             .orElseThrow(
@@ -75,17 +73,18 @@ public class DeliveryService implements IDelivery {
               .flatMap(
                   item -> {
                     int requiredQty = item.getQuantity();
-                    System.out.println("requiredQty: "+ requiredQty);
+                    System.out.println("requiredQty: " + requiredQty);
 
                     // Lấy danh sách xe khả dụng theo số lượng cần
-                    List<VehicleUnit> availableUnits = vehicleUnitRepository
+                    List<VehicleUnit> availableUnits =
+                        vehicleUnitRepository
                             .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-                                    inventoryRepository.findInventoryByIsCompanyTrue(),
-                                    item.getVehicle(),
-                                    item.getColor(),
-                                    item.getVehicleStatus(),
-                                    PageRequest.of(0, requiredQty) // limit = requiredQty
-                            );
+                                inventoryRepository.findInventoryByIsCompanyTrue(),
+                                item.getVehicle(),
+                                item.getColor(),
+                                item.getVehicleStatus(),
+                                PageRequest.of(0, requiredQty) // limit = requiredQty
+                                );
 
                     int foundQty = availableUnits.size();
                     int missingQty = requiredQty - foundQty;
@@ -104,7 +103,7 @@ public class DeliveryService implements IDelivery {
                               + ", type: "
                               + item.getVehicleStatus());
                     }
-                    System.out.println("size: "+ availableUnits.size());
+                    System.out.println("size: " + availableUnits.size());
                     return availableUnits.stream();
                   })
               .collect(Collectors.toSet());
@@ -112,7 +111,7 @@ public class DeliveryService implements IDelivery {
       if (vehiclesToDeliver.isEmpty()) {
         throw new GlobalException(ErrorCode.DATA_INVALID, "No vehicle units found for delivery");
       }
-      System.out.println("vehiclesToDeliver size: "+ vehiclesToDeliver.size());
+      System.out.println("vehiclesToDeliver size: " + vehiclesToDeliver.size());
       // 🔹 3.1 Gỡ inventory khỏi tất cả vehicle units (vì giao ra khỏi kho công ty)
       vehiclesToDeliver.forEach(vehicle -> vehicle.setInventory(null));
 
@@ -317,18 +316,20 @@ public class DeliveryService implements IDelivery {
 
     delivery.setStatus(DeliveryStatus.SUCCESS);
     // nếu giao cho đại lý thì cập nhật kho cho xe
-    if(delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null){
-      Dealer dealer  = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
+    if (delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null) {
+      Dealer dealer = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
       delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));
-    }else {
+    } else {
       // nếu giao xe cho khách thì chuyển thành đã bán
-      delivery.getVehicleUnits().forEach(vehicle -> {
-        vehicle.setStatus(VehicleStatus.SOLD);
-        vehicle.setWarrantyStart(LocalDate.now());
-        vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
-      });
+      delivery
+          .getVehicleUnits()
+          .forEach(
+              vehicle -> {
+                vehicle.setStatus(VehicleStatus.SOLD);
+                vehicle.setWarrantyStart(LocalDate.now());
+                vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
+              });
     }
-
 
     delivery.setCompletedAt(LocalDateTime.now());
     Delivery updatedDelivery = deliveryRepository.save(delivery);

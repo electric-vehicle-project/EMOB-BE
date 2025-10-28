@@ -93,9 +93,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
     }
   }
 
-     public void createInstallmentPlanFromEntity(InstallmentPlan installment) {
-          emailService.sendInstallmentCreatedEmail(installment);
-      }
+  public void createInstallmentPlanFromEntity(InstallmentPlan installment) {
+    emailService.sendInstallmentCreatedEmail(installment);
+  }
 
   private String remindInstallmentOverdue(
       String cusName, BigDecimal monthlyAmount, LocalDate nextDueDate) {
@@ -118,16 +118,14 @@ public class InstallmentPlanService implements IInstallmentPlan {
   }
 
   public BigDecimal calculateMonthlyAmount(
-          BigDecimal deposit,
-          int termMonths,
-          float interestRate,
-          BigDecimal totalPrice) {
+      BigDecimal deposit, int termMonths, float interestRate, BigDecimal totalPrice) {
 
     // ✅ Tiền gốc cần trả góp = tổng giá - tiền đặt cọc
     BigDecimal principal = totalPrice.subtract(deposit);
 
     // ✅ Lãi suất hàng tháng (từ % sang thập phân)
-    BigDecimal monthlyRate = BigDecimal.valueOf(interestRate)
+    BigDecimal monthlyRate =
+        BigDecimal.valueOf(interestRate)
             .divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP)
             .divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP); // lãi suất năm chia 12 tháng
 
@@ -143,8 +141,8 @@ public class InstallmentPlanService implements IInstallmentPlan {
     BigDecimal numerator = monthlyRate.multiply(onePlusRatePowN);
     BigDecimal denominator = onePlusRatePowN.subtract(BigDecimal.ONE);
 
-    BigDecimal monthlyPayment = principal.multiply(numerator)
-            .divide(denominator, 10, RoundingMode.HALF_UP);
+    BigDecimal monthlyPayment =
+        principal.multiply(numerator).divide(denominator, 10, RoundingMode.HALF_UP);
 
     // ✅ Làm tròn 2 chữ số thập phân
     return monthlyPayment.setScale(2, RoundingMode.HALF_UP);
@@ -163,8 +161,10 @@ public class InstallmentPlanService implements IInstallmentPlan {
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     BigDecimal monthlyAmount =
         calculateMonthlyAmount(
-            request.getDeposit(),request.getTermMonths(), request.getInterestRate(), order.getTotalPrice())
-            ;
+            request.getDeposit(),
+            request.getTermMonths(),
+            request.getInterestRate(),
+            order.getTotalPrice());
     try {
       InstallmentPlan installmentPlan = installmentPlanMapper.toInstallmentPlan(request);
       installmentPlan.setMonthlyAmount(monthlyAmount);

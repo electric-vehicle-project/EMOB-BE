@@ -4,7 +4,6 @@ package com.example.emob.model.request.vehicle;
 import com.example.emob.constant.VehicleStatus;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -24,8 +23,6 @@ public class VehicleUnitRequest {
 
   @NotBlank(message = "FIELD_REQUIRED")
   String color;
-
-
 
   @PastOrPresent(message = "INVALID_DATE")
   LocalDate productionYear;

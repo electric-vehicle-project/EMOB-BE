@@ -4,7 +4,6 @@ package com.example.emob.mapper;
 import com.example.emob.entity.*;
 import com.example.emob.model.response.SaleOrder.SaleOrderItemResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.mapstruct.*;
@@ -18,6 +17,7 @@ public interface SaleOrderMapper {
   @Mapping(source = "account.id", target = "accountId")
   @Mapping(source = "vehicleRequest.dealer.id", target = "dealerId")
   @Mapping(source = "quotation.customer.id", target = "customerId")
+  @Mapping(source = "contract.id", target = "saleContractId")
   SaleOrderResponse toSaleOrderResponse(SaleOrder saleOrder);
 
   @Mapping(source = "vehicle.id", target = "vehicleId")
@@ -55,6 +55,4 @@ public interface SaleOrderMapper {
   @Mapping(target = "vehicleRequest", source = "vehicleRequest")
   @Mapping(target = "status", ignore = true)
   SaleOrder toSaleOrderFromVehicleRequest(VehicleRequest vehicleRequest);
-
-
 }

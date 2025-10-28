@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -253,7 +252,7 @@ public class AuthenticationController {
 
   @Operation(summary = "Change status account by ID")
   @PutMapping("/change-status/{id}")
-    public ResponseEntity<APIResponse<Void>> changeStatus(@PathVariable UUID id) {
-        return ResponseEntity.ok(authenticationService.changeStatus(id));
-    }
+  public ResponseEntity<APIResponse<Void>> changeStatus(@PathVariable UUID id) {
+    return ResponseEntity.ok(authenticationService.changeStatus(id));
+  }
 }

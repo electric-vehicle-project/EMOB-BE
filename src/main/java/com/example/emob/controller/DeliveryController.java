@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -48,25 +47,30 @@ public class DeliveryController {
       @RequestParam @PathVariable("id") UUID id) {
     return ResponseEntity.ok(deliveryService.deleteDelivery(id));
   }
+
   private Pageable buildPageable(int page, int size, String[] sort) {
-    Sort sortObj = Sort.by(Arrays.stream(sort)
-            .map(s -> {
-              String[] _s = s.split(",");
-              return new Sort.Order(
-                      _s.length > 1 && _s[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC,
-                      _s[0]
-              );
-            })
-            .toList());
+    Sort sortObj =
+        Sort.by(
+            Arrays.stream(sort)
+                .map(
+                    s -> {
+                      String[] _s = s.split(",");
+                      return new Sort.Order(
+                          _s.length > 1 && _s[1].equalsIgnoreCase("desc")
+                              ? Sort.Direction.DESC
+                              : Sort.Direction.ASC,
+                          _s[0]);
+                    })
+                .toList());
     return PageRequest.of(page, size, sortObj);
   }
 
   @GetMapping("/dealers")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
-          @RequestParam(required = false) List<DeliveryStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) List<DeliveryStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return deliveryService.getAllDeliveriesOfDealers(statuses, pageable);
@@ -74,10 +78,10 @@ public class DeliveryController {
 
   @GetMapping("/dealer/current")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentDealer(
-          @RequestParam(required = false) List<DeliveryStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) List<DeliveryStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return deliveryService.getAllDeliveriesOfCurrentDealer(statuses, pageable);
@@ -85,10 +89,10 @@ public class DeliveryController {
 
   @GetMapping("/customers")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesByCustomer(
-          @RequestParam(required = false) List<DeliveryStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) List<DeliveryStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return deliveryService.getAllDeliveriesByCustomer(statuses, pageable);
@@ -96,11 +100,11 @@ public class DeliveryController {
 
   @GetMapping("/customer/{customerId}")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentCustomer(
-          @PathVariable UUID customerId,
-          @RequestParam(required = false) List<DeliveryStatus> statuses,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @PathVariable UUID customerId,
+      @RequestParam(required = false) List<DeliveryStatus> statuses,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id,desc") String[] sort) {
 
     Pageable pageable = buildPageable(page, size, sort);
     return deliveryService.getAllDeliveriesOfCurrentCustomer(customerId, statuses, pageable);

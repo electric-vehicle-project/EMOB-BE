@@ -29,7 +29,6 @@ public interface IDealerDiscountPolicy {
 
   APIResponse<DealerDiscountPolicyResponse> get(UUID id);
 
-  APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable,
-                                                                 String keyword,
-                                                                 List<DiscountPolicyStatus> status);
+  APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(
+      Pageable pageable, String keyword, List<DiscountPolicyStatus> status);
 }

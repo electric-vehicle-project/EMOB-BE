@@ -97,13 +97,13 @@ public class DealerService implements IDealer {
   }
 
   @Override
-//  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
+  //  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<PageResponse<DealerResponse>> getAll(
-          Pageable pageable, String keyword, String country) {
+      Pageable pageable, String keyword, String country) {
     try {
       Page<Dealer> page = dealerRepository.searchAndFilter(keyword, country, pageable);
       PageResponse<DealerResponse> response =
-              pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
+          pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
 
       return APIResponse.success(response, "Get all dealers successfully");
     } catch (DataAccessException ex) {

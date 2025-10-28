@@ -3,7 +3,6 @@ package com.example.emob.service;
 
 import com.example.emob.constant.DiscountPolicyStatus;
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.PromotionStatus;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.DealerDiscountPolicy;
 import com.example.emob.entity.ElectricVehicle;
@@ -251,18 +250,16 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
     return APIResponse.success(response);
   }
 
-//  @PreAuthorize("hasAnyRole('ADMIN')")
+  //  @PreAuthorize("hasAnyRole('ADMIN')")
   @Override
   public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(
-          Pageable pageable,
-          String keyword,
-          List<DiscountPolicyStatus> status) {
+      Pageable pageable, String keyword, List<DiscountPolicyStatus> status) {
     try {
       Page<DealerDiscountPolicy> page =
-              dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);
+          dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);
 
       PageResponse<DealerDiscountPolicyResponse> response =
-              pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
+          pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
 
       return APIResponse.success(response, "Get all dealer discount policies successfully");
     } catch (Exception e) {
@@ -271,7 +268,7 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   }
 
   public static DiscountPolicyStatus determinePolicyStatus(
-          LocalDateTime startDate, LocalDateTime endDate) {
+      LocalDateTime startDate, LocalDateTime endDate) {
     if (startDate.isAfter(LocalDateTime.now())) return DiscountPolicyStatus.UPCOMING;
     if (endDate.isBefore(LocalDateTime.now())) return DiscountPolicyStatus.EXPIRED;
     return DiscountPolicyStatus.ACTIVE;

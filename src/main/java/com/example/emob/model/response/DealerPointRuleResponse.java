@@ -2,12 +2,9 @@
 package com.example.emob.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.math.BigDecimal;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
-
-import java.math.BigDecimal;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor

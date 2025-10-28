@@ -51,9 +51,8 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
       @Param("statuses") List<OrderStatus> statuses,
       Pageable pageable);
 
-
   @Query(
-          """
+      """
       SELECT s
       FROM SaleOrder s
       JOIN FETCH s.quotation q
@@ -61,21 +60,19 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
         AND (:statuses IS NULL OR s.status IN :statuses)
     """)
   Page<SaleOrder> findAllWithQuotationByAccountAndStatuses(
-          @Param("account") Account account,
-          @Param("statuses") List<OrderStatus> statuses,
-          Pageable pageable);
+      @Param("account") Account account,
+      @Param("statuses") List<OrderStatus> statuses,
+      Pageable pageable);
 
   @Query(
-          """
+      """
       SELECT s
       FROM SaleOrder s
       JOIN FETCH s.quotation q
       WHERE q.account = :account
         AND (s.status = 'COMPLETED')
     """)
-  List<SaleOrder> findAllSaleOrderByAccount(
-          @Param("account") Account account);
-
+  List<SaleOrder> findAllSaleOrderByAccount(@Param("account") Account account);
 
   @Query(
       """

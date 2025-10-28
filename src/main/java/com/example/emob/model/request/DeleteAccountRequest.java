@@ -1,3 +1,4 @@
+/* EMOB-2025 */
 package com.example.emob.model.request;
 
 import com.example.emob.constant.AccountStatus;
@@ -10,5 +11,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeleteAccountRequest {
-    AccountStatus status;
+  AccountStatus status;
 }

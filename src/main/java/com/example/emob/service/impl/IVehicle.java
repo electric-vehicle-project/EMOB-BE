@@ -23,7 +23,8 @@ public interface IVehicle {
 
   APIResponse<ElectricVehicleResponse> get(UUID id);
 
-  APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable, String keyword, List<VehicleType> type);
+  APIResponse<PageResponse<ElectricVehicleResponse>> getAll(
+      Pageable pageable, String keyword, List<VehicleType> type);
 
   APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
@@ -33,8 +34,8 @@ public interface IVehicle {
 
   APIResponse<VehicleUnitResponse> getVehicleUnit(UUID id);
 
-  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable, String keyword,
-                                                                    List<VehicleStatus> status);
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(
+      Pageable pageable, String keyword, List<VehicleStatus> status);
 
   APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
       UUID modelId, Pageable pageable);

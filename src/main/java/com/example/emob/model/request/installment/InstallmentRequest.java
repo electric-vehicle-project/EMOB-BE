@@ -26,7 +26,6 @@ public class InstallmentRequest {
   @NotNull(message = "Down payment date must not be null")
   LocalDateTime downPayment; // ngày trả góp
 
-
   @Min(value = 6, message = "Term must be at least 1 month")
   @Max(value = 36, message = "Term must not exceed 15 months")
   int termMonths;

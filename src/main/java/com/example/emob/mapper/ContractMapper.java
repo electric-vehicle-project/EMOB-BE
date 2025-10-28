@@ -28,10 +28,10 @@ public interface ContractMapper {
   @Mapping(source = "totalPrice", target = "totalPrice")
   SaleContractItem toSaleContractItem(SaleOrderItem orderItem);
 
-
   // 🔹 Map hợp đồng chính
   @Mapping(source = "id", target = "contractId")
   @Mapping(source = "saleOrder.id", target = "orderId")
+  @Mapping(source = "delivery.id", target = "deliveryId")
   @Mapping(source = "contractNumber", target = "contractNumber")
   @Mapping(source = "status", target = "status")
   ContractResponse toContractResponse(SaleContract contract);
