@@ -69,7 +69,7 @@ public class SecurityConfig {
     "/api/report/process-report/**",
     "api/auth/by-manager",
     "/api/auth/register-by-manager",
-    "/api/vehicle-request/**"
+    "/api/vehicle-request/**",
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
@@ -79,6 +79,7 @@ public class SecurityConfig {
     "/api/sale-order/**",
     "/api/delivery/**",
     "/api/contract/**",
+    "/api/auth/{id}",
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

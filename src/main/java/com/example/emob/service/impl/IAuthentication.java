@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.AccountStatus;
 import com.example.emob.model.request.*;
 import com.example.emob.model.response.*;
 import java.util.UUID;
@@ -31,5 +32,5 @@ public interface IAuthentication {
 
   APIResponse<Void> resendOtp(String email);
 
-  APIResponse<Void> deleteAccount (UUID id);
+  APIResponse<Void> deleteAccount (UUID id, AccountStatus status);
 }

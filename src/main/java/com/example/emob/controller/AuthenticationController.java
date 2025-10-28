@@ -246,9 +246,8 @@ public class AuthenticationController {
   }
 
   @Operation(summary = "Delete account by ID")
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   @DeleteMapping("{id}")
-  public ResponseEntity<APIResponse<Void>> deleteAccount(@PathVariable UUID id) {
-    return ResponseEntity.ok(authenticationService.deleteAccount(id));
+  public ResponseEntity<APIResponse<Void>> deleteAccount(@PathVariable UUID id, @RequestBody DeleteAccountRequest request) {
+    return ResponseEntity.ok(authenticationService.deleteAccount(id, request.getStatus()));
   }
 }

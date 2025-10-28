@@ -218,15 +218,19 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
-  public APIResponse<Void> deleteAccount(UUID id) {
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  public APIResponse<Void> deleteAccount(UUID id, AccountStatus status) {
     Account account = AccountUtil.getCurrentUser();
+    if (account.getRole().equals(Role.EVM_STAFF) || account.getRole().equals(Role.DEALER_STAFF)) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED);
+    }
     Account targetAccount = accountRepository.findAccountById(id);
     // nếu tài khoản tìm bằng tài khoản xóa => kh hợp lệ
     if (account.getId().equals(id)) {
       throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot delete your own account");
     }
     // case tài khoản bị xóa rồi
-    if (targetAccount.getStatus() == AccountStatus.BANNED) {
+    if (targetAccount.getStatus() == AccountStatus.BANNED || targetAccount.getStatus() == AccountStatus.INACTIVE) {
       throw new GlobalException(ErrorCode.INVALID_CODE, "Account is already deleted");
     }
     // Kiểm tra quyền xóa
@@ -240,7 +244,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     if (!canDelete) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "You are not allowed to delete this account");
     }
-    targetAccount.setStatus(AccountStatus.BANNED);
+    // chỉ set INACTIVE || BANNED
+    targetAccount.setStatus(status);
     accountRepository.save(targetAccount);
 
     return APIResponse.success(null, "Delete account successfully");
@@ -258,6 +263,14 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
         throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
       }
       Account account = (Account) principal;
+
+      if (AccountStatus.BANNED.equals(account.getStatus())) {
+        throw new GlobalException(ErrorCode.ACCOUNT_BANNED);
+      }
+
+      if (AccountStatus.INACTIVE.equals(account.getStatus())) {
+        throw new GlobalException(ErrorCode.ACCOUNT_INACTIVE);
+      }
 
       AccountResponse accountResponse = accountMapper.toAccountResponse(account);
 
