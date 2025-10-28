@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.VehicleRequestStatus;
 import com.example.emob.model.request.vehicleRequest.VehicleRequestItemRequest;
 import com.example.emob.model.request.vehicleRequest.VehicleRequestItemUpdateRequest;
 import com.example.emob.model.request.vehicleRequest.VehicleRequestRequest;
@@ -21,5 +22,5 @@ public interface IVehicleRequest {
 
   APIResponse<VehicleRequestResponse> get(UUID id);
 
-  APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, VehicleRequestStatus status);
 }

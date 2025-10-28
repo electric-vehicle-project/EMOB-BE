@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.DiscountPolicyStatus;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyBulkDeleteRequest;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyBulkRequest;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyRequest;
@@ -28,5 +29,7 @@ public interface IDealerDiscountPolicy {
 
   APIResponse<DealerDiscountPolicyResponse> get(UUID id);
 
-  APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable,
+                                                                 String keyword,
+                                                                 DiscountPolicyStatus status);
 }

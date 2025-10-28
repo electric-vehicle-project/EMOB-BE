@@ -21,7 +21,9 @@ public interface IReport {
 
   APIResponse<ReportResponse> viewReport(UUID reportId);
 
-  APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable);
+  APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable,
+                                                          String keyword,
+                                                          ReportStatus status);
 
   // xử lý
   APIResponse<ReportResponse> changeStatus(

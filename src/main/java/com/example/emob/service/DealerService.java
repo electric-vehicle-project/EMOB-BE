@@ -16,6 +16,7 @@ import com.example.emob.service.impl.IDealer;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -96,16 +97,19 @@ public class DealerService implements IDealer {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
-  public APIResponse<PageResponse<DealerResponse>> getAll(Pageable pageable) {
+//  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
+  public APIResponse<PageResponse<DealerResponse>> getAll(
+          Pageable pageable, String keyword, String country) {
     try {
-      Page<Dealer> page = dealerRepository.findAllByIsDeletedFalse(pageable);
+      Page<Dealer> page = dealerRepository.searchAndFilter(keyword, country, pageable);
       PageResponse<DealerResponse> response =
-          pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
+              pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
 
-      return APIResponse.success(response);
-    } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+      return APIResponse.success(response, "Get all dealers successfully");
+    } catch (DataAccessException ex) {
+      throw new GlobalException(ErrorCode.DB_ERROR, "Database access error");
+    } catch (Exception ex) {
+      throw new GlobalException(ErrorCode.OTHER, "Unexpected error occurred");
     }
   }
 }

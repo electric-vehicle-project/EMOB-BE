@@ -4,6 +4,7 @@ package com.example.emob.service;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.entity.Customer;
+import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Report;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
@@ -126,12 +127,20 @@ public class ReportService implements IReport {
   // phân trang
   @Override
   @PreAuthorize("hasAnyRole('MANAGER' , 'DEALER_STAFF')")
-  public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable) {
+  public APIResponse<PageResponse<ReportResponse>> viewAllReport(Pageable pageable,
+                                                                     String keyword,
+                                                                     ReportStatus status) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    if (dealer == null) {
+      throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");
+    }
+
     Page<Report> reports =
-        reportRepository.findAllByDealer(AccountUtil.getCurrentUser().getDealer(), pageable);
-    // map từng Report trong trang thành ReportResponse
+            reportRepository.searchAndFilter(dealer, keyword, status, pageable);
+
     PageResponse<ReportResponse> responses =
-        pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
+            pageMapper.toPageResponse(reports, reportMapper::toReportResponse);
+
     return APIResponse.success(responses, "View all reports successfully");
   }
 

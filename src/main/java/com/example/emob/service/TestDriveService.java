@@ -177,10 +177,15 @@ public class TestDriveService implements ITestDrive {
   }
 
   @Override
-  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable) {
-    Page<TestDrive> testDrives = testDriveRepository.findAll(pageable);
-    PageResponse<TestDriveResponse> testDriveResponsePageResponse =
-        pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
-    return APIResponse.success(testDriveResponsePageResponse, "View All Schedules Successfully");
+  public APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(Pageable pageable,
+                                                                           String keyword,
+                                                                           TestStatus status) {
+    Page<TestDrive> testDrives =
+            testDriveRepository.searchAndFilter(keyword, status, pageable);
+
+    PageResponse<TestDriveResponse> response =
+            pageMapper.toPageResponse(testDrives, testDriveMapper::toTestDriveResponse);
+
+    return APIResponse.success(response, "View all schedules successfully");
   }
 }

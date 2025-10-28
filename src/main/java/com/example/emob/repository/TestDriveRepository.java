@@ -1,9 +1,13 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.constant.TestStatus;
 import com.example.emob.entity.TestDrive;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +27,20 @@ public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
       @Param("salespersonId") UUID salePersonId,
       @Param("newStart") LocalDateTime newStart,
       @Param("newEnd") LocalDateTime newEnd);
+
+  @Query("""
+    SELECT t
+    FROM TestDrive t
+    JOIN t.customer c
+    WHERE (
+      :keyword IS NULL 
+      OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      OR LOWER(t.location) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+    AND (:status IS NULL OR t.status = :status)
+""")
+  Page<TestDrive> searchAndFilter(
+          @Param("keyword") String keyword,
+          @Param("status") TestStatus status,
+          Pageable pageable);
 }

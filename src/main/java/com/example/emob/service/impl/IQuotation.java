@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.QuotationStatus;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemUpdateRequest;
 import com.example.emob.model.request.quotation.QuotationRequest;
@@ -20,5 +21,7 @@ public interface IQuotation {
 
   APIResponse<QuotationResponse> get(UUID id);
 
-  APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
+                                                      String keyword,
+                                                      QuotationStatus status);
 }

@@ -5,17 +5,30 @@ import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.DealerPointRule;
 import com.example.emob.exception.GlobalException;
+import com.example.emob.mapper.DealerPointRuleMapper;
+import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.response.APIResponse;
+import com.example.emob.model.response.DealerPointRuleResponse;
+import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.DealerPointRuleRepository;
 import com.example.emob.service.impl.IDealerPointRule;
+
 import java.math.BigDecimal;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DealerPointRuleService implements IDealerPointRule {
   @Autowired static DealerPointRuleRepository dealerPointRepository;
+
+  @Autowired
+  PageMapper pageMapper;
+
+  @Autowired
+  DealerPointRuleMapper dealerPointRuleMapper;
 
   public APIResponse<String> saveRule(
       MemberShipLevel level, String dealerId, int minPoints, BigDecimal price) {
@@ -51,11 +64,18 @@ public class DealerPointRuleService implements IDealerPointRule {
         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
   }
 
-  public APIResponse<List<DealerPointRule>> getAllRules() {
-    List<DealerPointRule> rules = new ArrayList<>();
-    // tìm xong lấy phàn tử và thêm vào
-    dealerPointRepository.findAll().forEach(rules::add);
-    return APIResponse.success(rules);
+  @Override
+  public APIResponse<PageResponse<DealerPointRuleResponse>> getAllRules(
+          Pageable pageable, String keyword, Integer minPoints) {
+    try {
+      Page<DealerPointRule> page =
+              dealerPointRepository.searchAndFilter(keyword, minPoints, pageable);
+      PageResponse<DealerPointRuleResponse> response =
+              pageMapper.toPageResponse(page, dealerPointRuleMapper::toDealerPointRuleResponse);
+      return APIResponse.success(response, "Get all dealer point rules successfully");
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer point rules");
+    }
   }
 
   public static MemberShipLevel determineMembership(int point, String dealerId) {

@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.VehicleStatus;
+import com.example.emob.constant.VehicleType;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -21,7 +23,7 @@ public interface IVehicle {
 
   APIResponse<ElectricVehicleResponse> get(UUID id);
 
-  APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable);
+  APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable, String keyword, VehicleType type);
 
   APIResponse<List<VehicleUnitResponse>> createBulkVehicles(VehicleUnitRequest request);
 
@@ -31,7 +33,8 @@ public interface IVehicle {
 
   APIResponse<VehicleUnitResponse> getVehicleUnit(UUID id);
 
-  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable);
+  APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable, String keyword,
+                                                                    VehicleStatus status);
 
   APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
       UUID modelId, Pageable pageable);

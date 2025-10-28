@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.DiscountPolicyStatus;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyBulkDeleteRequest;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyBulkRequest;
 import com.example.emob.model.request.dealerDiscountPolicy.DealerDiscountPolicyRequest;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -188,11 +190,22 @@ public class DealerDiscountPolicyController {
       summary = "Get all Dealer Discount Policies",
       description = "Retrieve paginated list of Dealer Discount Policies")
   public ResponseEntity<APIResponse<PageResponse<DealerDiscountPolicyResponse>>> getAll(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    APIResponse<PageResponse<DealerDiscountPolicyResponse>> response =
-        dealerDiscountPolicyService.getAll(pageable);
-    return ResponseEntity.ok(response);
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) DiscountPolicyStatus status,
+          @RequestParam(defaultValue = "effectiveDate") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+      Sort sort = Sort.by(sortField);
+      sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+
+      Pageable pageable = PageRequest.of(page, size, sort);
+
+      APIResponse<PageResponse<DealerDiscountPolicyResponse>> response =
+              dealerDiscountPolicyService.getAll(pageable, keyword, status);
+
+      return ResponseEntity.ok(response);
   }
 
   // =================  Get by ID =================

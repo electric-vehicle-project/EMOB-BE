@@ -2,6 +2,8 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.VehicleStatus;
+import com.example.emob.constant.VehicleType;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ElectricVehicleMapper;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -114,14 +117,20 @@ public class ElectricVehicleService implements IVehicle {
   }
 
   @Override
-  public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(Pageable pageable) {
+  public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(
+          Pageable pageable, String keyword, VehicleType type) {
     try {
-      Page<ElectricVehicle> page = vehicleRepository.findAllByIsDeletedFalse(pageable);
+      Page<ElectricVehicle> page =
+              vehicleRepository.searchAndFilter(keyword, type, pageable);
+
       PageResponse<ElectricVehicleResponse> response =
-          pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
-      return APIResponse.success(response);
-    } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+              pageMapper.toPageResponse(page, vehicleMapper::toVehicleResponse);
+
+      return APIResponse.success(response, "Get all electric vehicles successfully");
+    } catch (DataAccessException ex) {
+      throw new GlobalException(ErrorCode.DB_ERROR, "Database error while fetching vehicles");
+    } catch (Exception ex) {
+      throw new GlobalException(ErrorCode.OTHER, "Unexpected error occurred");
     }
   }
 
@@ -241,7 +250,8 @@ public class ElectricVehicleService implements IVehicle {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable) {
+  public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable, String keyword,
+                                                                           VehicleStatus status) {
     Account account = AccountUtil.getCurrentUser();
     Inventory inventory = null;
     if (account.getDealer() == null) { // admin || evm_staff
@@ -256,9 +266,12 @@ public class ElectricVehicleService implements IVehicle {
       }
     }
     try {
-      Page<VehicleUnit> page = vehicleUnitRepository.findAllByInventory(inventory, pageable);
+      Page<VehicleUnit> page =
+              vehicleUnitRepository.searchAndFilter(inventory, keyword, status, pageable);
+
       PageResponse<VehicleUnitResponse> response =
-          pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
+              pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
+
       return APIResponse.success(response);
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);

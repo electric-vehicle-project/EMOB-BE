@@ -10,6 +10,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,4 +31,18 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
   // 🔹 Tìm 1 chiếc xe trong kho cụ thể theo model, màu và trạng thái
   Optional<VehicleUnit> findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
       Inventory inventory, ElectricVehicle vehicle, String color, VehicleStatus status);
+
+  @Query("""
+    SELECT v
+    FROM VehicleUnit v
+    WHERE v.inventory = :inventory
+      AND (:keyword IS NULL OR LOWER(v.vinNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(v.color) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (:status IS NULL OR v.status = :status)
+    """)
+  Page<VehicleUnit> searchAndFilter(
+          @Param("inventory") Inventory inventory,
+          @Param("keyword") String keyword,
+          @Param("status") VehicleStatus status,
+          Pageable pageable);
 }
