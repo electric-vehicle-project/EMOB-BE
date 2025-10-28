@@ -300,7 +300,7 @@ public class VehicleRequestService implements IVehicleRequest {
   }
 
   @Override
-  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, VehicleRequestStatus status) {
+  public APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, List<VehicleRequestStatus> status) {
       Dealer dealer = AccountUtil.getCurrentUser().getDealer();
       if (dealer == null) {
         throw new GlobalException(ErrorCode.UNAUTHORIZED, "Dealer not found for current account");

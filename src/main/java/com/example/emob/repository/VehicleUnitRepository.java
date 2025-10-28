@@ -5,6 +5,8 @@ import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -36,13 +38,19 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
     SELECT v
     FROM VehicleUnit v
     WHERE v.inventory = :inventory
-      AND (:keyword IS NULL OR LOWER(v.vinNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
-           OR LOWER(v.color) LIKE LOWER(CONCAT('%', :keyword, '%')))
-      AND (:status IS NULL OR v.status = :status)
-    """)
+      AND (
+        :keyword IS NULL 
+        OR LOWER(v.vinNumber) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(v.color) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+      AND (
+        :statuses IS NULL 
+        OR v.status IN :statuses
+      )
+""")
   Page<VehicleUnit> searchAndFilter(
           @Param("inventory") Inventory inventory,
           @Param("keyword") String keyword,
-          @Param("status") VehicleStatus status,
+          @Param("statuses") List<VehicleStatus> statuses,
           Pageable pageable);
 }

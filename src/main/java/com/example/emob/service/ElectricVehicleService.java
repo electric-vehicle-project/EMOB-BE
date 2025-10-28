@@ -116,7 +116,7 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<PageResponse<ElectricVehicleResponse>> getAll(
-          Pageable pageable, String keyword, VehicleType type) {
+          Pageable pageable, String keyword, List<VehicleType> type) {
     try {
       Page<ElectricVehicle> page =
               vehicleRepository.searchAndFilter(keyword, type, pageable);
@@ -249,7 +249,7 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnits(Pageable pageable, String keyword,
-                                                                           VehicleStatus status) {
+                                                                           List<VehicleStatus> status) {
     Account account = AccountUtil.getCurrentUser();
     Inventory inventory = null;
     if (account.getDealer() == null) { // admin || evm_staff

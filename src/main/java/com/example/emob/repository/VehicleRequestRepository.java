@@ -4,6 +4,8 @@ package com.example.emob.repository;
 import com.example.emob.constant.VehicleRequestStatus;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.VehicleRequest;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +24,18 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
     JOIN vr.dealer d
     WHERE vr.isDeleted = false
       AND d = :dealer
-      AND (:keyword IS NULL OR LOWER(CAST(vr.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%')))
-      AND (:status IS NULL OR vr.status = :status)
+      AND (
+        :keyword IS NULL 
+        OR LOWER(CAST(vr.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+      AND (
+        :statuses IS NULL 
+        OR vr.status IN :statuses
+      )
 """)
   Page<VehicleRequest> searchAndFilter(
           @Param("dealer") Dealer dealer,
           @Param("keyword") String keyword,
-          @Param("status") VehicleRequestStatus status,
+          @Param("statuses") List<VehicleRequestStatus> statuses,
           Pageable pageable);
 }

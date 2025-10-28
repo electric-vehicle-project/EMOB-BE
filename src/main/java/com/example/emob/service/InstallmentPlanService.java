@@ -46,7 +46,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
 
   @Autowired PageMapper pageMapper;
 
-  @Autowired EmailService emailService;
+  @Autowired NotificationService emailService;
+
+  @Autowired EmailService sendEmail;
   @Autowired CustomerRepository customerRepository;
 
   //    @Scheduled(cron = "0 0 8 * * *") // mỗi ngày 8h sẽ chạy tự dộng
@@ -68,7 +70,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
         String content =
             remindInstallmentOverdue(
                 customer.getFullName(), p.getMonthlyAmount(), p.getNextDueDate());
-        emailService.sendEmail(
+        sendEmail.sendEmail(
             "Thông báo quá hạn thanh toán đơn hàng ",
             "Quá hạn thanh toán trả góp",
             "Thanh toán hợp đồng trả góp bị trễ hạn",
@@ -90,44 +92,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
     }
   }
 
-  private String sendInstallmentCreatedEmail(
-      String cusName,
-      BigDecimal totalAmount,
-      BigDecimal deposit,
-      BigDecimal monthlyAmount,
-      int termMonths,
-      LocalDate nextDueDate) {
-    return String.format(
-        """
-        <p style="font-size:15px; color:#2d3748; line-height:1.6; text-align:center;">
-            Kính gửi <strong>%s</strong>,<br>
-            Kế hoạch trả góp cho đơn hàng
-            đã được khởi tạo thành công.
-        </p>
-
-        <div style="margin: 20px auto; width: 80%%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px;">
-            <p style="font-size:14px; color:#4a5568;">📄 <strong>Chi tiết kế hoạch trả góp:</strong></p>
-            <ul style="list-style-type:none; padding-left:0; font-size:14px; color:#4a5568;">
-                <li>Tổng giá trị: <strong style="color:#2b6cb0;">%,.0f VND</strong></li>
-                <li>Tiền đặt cọc: <strong style="color:#2b6cb0;">%,.0f VND</strong></li>
-                <li>Thời hạn: <strong>%d tháng</strong></li>
-                <li>Số tiền trả mỗi tháng: <strong style="color:#e53e3e;">%,.0f VND</strong></li>
-                <li>Kỳ thanh toán đầu tiên: <strong>%s</strong></li>
-            </ul>
-        </div>
-
-        <p style="font-size:14px; color:#718096; text-align:center;">
-            Quý khách vui lòng thanh toán đúng hạn để đảm bảo quyền lợi của mình.<br>
-            Nếu đã thanh toán, vui lòng bỏ qua email này.
-        </p>
-
-        <p style="font-size:14px; color:#4a5568; text-align:center;">
-            Mọi thắc mắc xin liên hệ: <strong>Hotline 1900 1234</strong> hoặc
-            <a href="mailto:support@emob.vn" style="color:#3182ce;">support@emob.vn</a>.
-        </p>
-        """,
-        cusName, totalAmount, deposit, termMonths, monthlyAmount, nextDueDate);
-  }
+     public void createInstallmentPlanFromEntity(InstallmentPlan installment) {
+          emailService.sendInstallmentCreatedEmail(installment);
+      }
 
   private String remindInstallmentOverdue(
       String cusName, BigDecimal monthlyAmount, LocalDate nextDueDate) {
@@ -209,26 +176,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
       installmentPlanRepository.save(installmentPlan);
       Customer customer = order.getQuotation().getCustomer();
       if (customer != null) {
-        String content =
-            sendInstallmentCreatedEmail(
-                customer.getFullName(),
-                installmentPlan.getTotalAmount(),
-                installmentPlan.getDeposit(),
-                installmentPlan.getMonthlyAmount(),
-                installmentPlan.getTermMonths(),
-                installmentPlan.getNextDueDate());
-        emailService.sendEmail(
-            "Xác nhận kế hoạch trả góp",
-            "Kế hoạch trả góp đã được tạo thành công",
-            "Cảm ơn quý khách đã tin tưởng Showroom Ô Tô EMOB",
-            NotificationHelper.INSTALLMENT_CREATED,
-            "Thông tin chi tiết về kế hoạch trả góp của bạn",
-            "",
-            content,
-            "Chúng tôi rất vui được phục vụ bạn!",
-            customer.getFullName(),
-            "Xem chi tiết hợp đồng",
-            customer.getEmail());
+        createInstallmentPlanFromEntity(installmentPlan);
       }
       InstallmentResponse response = installmentPlanMapper.toInstallmentResponse(installmentPlan);
       return APIResponse.success(response, "Create installment plan successfully");

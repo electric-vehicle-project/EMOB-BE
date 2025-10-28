@@ -42,7 +42,7 @@ public class SecurityConfig {
     "/api/auth/verify-otp",
     "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/installment/**"
+    "/api/installment/**",
   };
 
   // ADMIN
@@ -53,7 +53,8 @@ public class SecurityConfig {
     "/api/auth/register-by-admin",
     "/api/auth/by-admin",
     "/api/dealer-discount-policy/**",
-    "/api/vehicle-price-rules/**"
+    "/api/vehicle-price-rules/**",
+          "/api/dealer-point-rules/**",
   };
 
   public static final String[] DEALER_STAFF = {

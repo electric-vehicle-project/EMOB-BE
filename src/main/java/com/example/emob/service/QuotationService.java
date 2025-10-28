@@ -349,8 +349,7 @@ public class QuotationService implements IQuotation {
 //  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
   public APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
                                                              String keyword,
-                                                             QuotationStatus status
-                                                            ) {
+                                                             List<QuotationStatus> status) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     if (dealer == null) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "Only dealers can view quotations.");

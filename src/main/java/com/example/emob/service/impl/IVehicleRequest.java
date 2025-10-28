@@ -8,6 +8,8 @@ import com.example.emob.model.request.vehicleRequest.VehicleRequestRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.vehicleRequest.VehicleRequestResponse;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -22,5 +24,5 @@ public interface IVehicleRequest {
 
   APIResponse<VehicleRequestResponse> get(UUID id);
 
-  APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, VehicleRequestStatus status);
+  APIResponse<PageResponse<VehicleRequestResponse>> getAll(Pageable pageable, String keyword, List<VehicleRequestStatus> status);
 }

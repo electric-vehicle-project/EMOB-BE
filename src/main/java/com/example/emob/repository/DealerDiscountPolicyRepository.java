@@ -38,12 +38,12 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
         OR CAST(d.effectiveDate AS string) LIKE CONCAT('%', :keyword, '%')
       )
       AND (
-        :status IS NULL 
-        OR d.status = :status
+        :statuses IS NULL 
+        OR d.status IN :statuses
       )
-    """)
+""")
   Page<DealerDiscountPolicy> searchAndFilter(
           @Param("keyword") String keyword,
-          @Param("status") DiscountPolicyStatus status,
+          @Param("statuses") List<DiscountPolicyStatus> statuses,
           Pageable pageable);
 }

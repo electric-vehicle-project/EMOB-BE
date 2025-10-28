@@ -23,19 +23,22 @@ public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
   List<Quotation> findAllByIsDeletedFalseAndStatus(QuotationStatus status);
 
   @Query("""
-      SELECT q
-      FROM Quotation q
-      WHERE q.isDeleted = false
-        AND q.dealer = :dealer
-        AND (
-          :keyword IS NULL 
-          OR LOWER(CAST(q.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        )
-        AND (:status IS NULL OR q.status = :status)
-      """)
+  SELECT q
+  FROM Quotation q
+  WHERE q.isDeleted = false
+    AND q.dealer = :dealer
+    AND (
+      :keyword IS NULL 
+      OR LOWER(CAST(q.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    )
+    AND (
+      :statuses IS NULL 
+      OR q.status IN :statuses
+    )
+""")
   Page<Quotation> searchAndFilter(
           @Param("dealer") Dealer dealer,
           @Param("keyword") String keyword,
-          @Param("status") QuotationStatus status,
+          @Param("statuses") List<QuotationStatus> statuses,
           Pageable pageable);
 }

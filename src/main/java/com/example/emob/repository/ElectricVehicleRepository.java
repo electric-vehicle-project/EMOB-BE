@@ -4,6 +4,8 @@ package com.example.emob.repository;
 import com.example.emob.constant.VehicleStatus;
 import com.example.emob.constant.VehicleType;
 import com.example.emob.entity.ElectricVehicle;
+
+import java.util.List;
 import java.util.UUID;
 
 import com.example.emob.entity.Inventory;
@@ -21,12 +23,20 @@ public interface ElectricVehicleRepository extends JpaRepository<ElectricVehicle
 SELECT e
 FROM ElectricVehicle e
 WHERE e.isDeleted = false
-  AND (:keyword IS NULL OR LOWER(e.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
-       OR LOWER(e.model) LIKE LOWER(CONCAT('%', :keyword, '%')))
-  AND (:type IS NULL OR e.type = :type)
+  AND (
+        :keyword IS NULL 
+        OR (
+            LOWER(e.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(e.model) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
+      )
+  AND (
+        :types IS NULL 
+        OR e.type IN :types
+      )
 """)
   Page<ElectricVehicle> searchAndFilter(
           @Param("keyword") String keyword,
-          @Param("type") VehicleType type,
+          @Param("types") List<VehicleType> types,
           Pageable pageable);
 }

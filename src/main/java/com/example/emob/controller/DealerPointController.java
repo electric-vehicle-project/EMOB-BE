@@ -3,12 +3,14 @@ package com.example.emob.controller;
 
 import com.example.emob.entity.DealerPointRule;
 import com.example.emob.model.request.DealerPointRequest;
+import com.example.emob.model.request.DealerPointRuleRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.DealerPointRuleResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.service.DealerPointRuleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,42 +43,45 @@ public class DealerPointController {
               content =
                   @Content(
                       mediaType = "application/json",
-                      schema = @Schema(implementation = DealerPointRequest.class))))
-  public ResponseEntity<APIResponse<String>> saveRule(
-      @RequestBody @Valid DealerPointRequest request) {
-    return ResponseEntity.ok(
-        dealerPointRuleService.saveRule(
-            request.getMembershipLevel(),
-            request.getDealerId(),
-            request.getMinPoints(),
-            request.getPrice()));
-  }
+                      schema = @Schema(implementation = DealerPointRuleRequest.class),
+                          examples = {
+                                  @ExampleObject(
+                                          name = "Rules Array",
+                                          value =
+                                                  """
+                          [
+                            {
+                                "level": "BRONZE",
+                                "dealerId": "string",
+                                "minPoints": 0,
+                                "price": 0
+                            },
+                            {
+                                "level": "BRONZE",
+                                "dealerId": "string",
+                                "minPoints": 0,
+                                "price": 0
+                            }
+                          ]
+                            """)
+                      })))
+                    public ResponseEntity<APIResponse<String>> saveRule(
+                        @RequestBody List<DealerPointRuleRequest> requests) {
+                      dealerPointRuleService.saveRule(requests);
+                      return ResponseEntity.ok(APIResponse.success("", "Create rule for dealer successfully"));
+                    }
 
-  @GetMapping("/{dealerId}")
-  @Operation(summary = "Get Dealer Point Rule", description = "Get Dealer Point Rule By Status")
-  public ResponseEntity<APIResponse<List<DealerPointRule>>> getRule(@PathVariable String dealerId) {
-    return ResponseEntity.ok(APIResponse.success(dealerPointRuleService.getRule(dealerId)));
-  }
+                    @GetMapping("/{dealerId}")
+                    @Operation(summary = "Get Dealer Point Rule", description = "Get Dealer Point Rule By Status")
+                    public ResponseEntity<APIResponse<List<DealerPointRule>>> getRule(@PathVariable String dealerId) {
+                      return ResponseEntity.ok(APIResponse.success(dealerPointRuleService.getRule(dealerId)));
+                    }
 
-  @GetMapping
-  @Operation(
-      summary = "Get All Dealer Point Rules",
-      description = "Get All Dealer Point Rules By Status")
-  public ResponseEntity<APIResponse<PageResponse<DealerPointRuleResponse>>> getAllRules(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) Integer minPoints,
-          @RequestParam(defaultValue = "membershipLevel") String sortField,
-          @RequestParam(defaultValue = "asc") String sortDir) {
-
-    Sort sort = Sort.by(sortField);
-    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
-    Pageable pageable = PageRequest.of(page, size, sort);
-
-    APIResponse<PageResponse<DealerPointRuleResponse>> response =
-            dealerPointRuleService.getAllRules(pageable, keyword, minPoints);
-
-    return ResponseEntity.ok(response);
-  }
-}
+                    @GetMapping
+                    @Operation(
+                        summary = "Get All Dealer Point Rules",
+                        description = "Get All Dealer Point Rules By Status")
+                    public ResponseEntity<APIResponse<List<DealerPointRule>>> getAllRules() {
+                      return ResponseEntity.ok(dealerPointRuleService.getAllRules());
+                    }
+                  }

@@ -250,7 +250,7 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(
           Pageable pageable,
           String keyword,
-          DiscountPolicyStatus status) {
+          List<DiscountPolicyStatus> status) {
     try {
       Page<DealerDiscountPolicy> page =
               dealerDiscountPolicyRepository.searchAndFilter(keyword, status, pageable);

@@ -116,7 +116,7 @@ public class ElectricVehicleController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) VehicleType type,
+          @RequestParam(required = false) List<VehicleType> type,
           @RequestParam(defaultValue = "createdAt") String sortField,
           @RequestParam(defaultValue = "desc") String sortDir) {
 
@@ -260,7 +260,7 @@ public class ElectricVehicleController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) VehicleStatus status,
+          @RequestParam(required = false) List<VehicleStatus> status,
           @RequestParam(defaultValue = "color") String sortField,
           @RequestParam(defaultValue = "desc") String sortDir) {
 

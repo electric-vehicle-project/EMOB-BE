@@ -31,5 +31,5 @@ public interface IDealerDiscountPolicy {
 
   APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAll(Pageable pageable,
                                                                  String keyword,
-                                                                 DiscountPolicyStatus status);
+                                                                 List<DiscountPolicyStatus> status);
 }

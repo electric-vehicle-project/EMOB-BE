@@ -16,6 +16,8 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.service.impl.ICustomer;
 import com.example.emob.util.AccountUtil;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -118,7 +120,7 @@ public class CustomerService implements ICustomer {
   public APIResponse<PageResponse<CustomerResponse>> getAll(
           Pageable pageable,
           String keyword,
-          CustomerStatus status) {
+          List<CustomerStatus> status) {
     Page<Customer> page = customerRepository.searchAndFilter(keyword, status, pageable);
     PageResponse<CustomerResponse> response =
             pageMapper.toPageResponse(page, customerMapper::toCustomerResponse);

@@ -4,6 +4,7 @@ package com.example.emob.repository;
 import com.example.emob.constant.TestStatus;
 import com.example.emob.entity.TestDrive;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -37,10 +38,13 @@ public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
       OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
       OR LOWER(t.location) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
-    AND (:status IS NULL OR t.status = :status)
+    AND (
+      :statuses IS NULL 
+      OR t.status IN :statuses
+    )
 """)
   Page<TestDrive> searchAndFilter(
           @Param("keyword") String keyword,
-          @Param("status") TestStatus status,
+          @Param("statuses") List<TestStatus> statuses,
           Pageable pageable);
 }

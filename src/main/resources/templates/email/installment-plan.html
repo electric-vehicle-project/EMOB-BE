@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${emailTitle}">Thông báo kế hoạch trả góp</title>
+</head>
+<body
+        style="
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #e8f5e9;
+    "
+>
+<!-- Wrapper Table -->
+<table
+        width="100%"
+        border="0"
+        cellspacing="0"
+        cellpadding="0"
+        style="background-color: #e8f5e9; padding: 20px 0"
+>
+  <tr>
+    <td align="center">
+      <!-- Main Container -->
+      <table
+              width="600"
+              border="0"
+              cellspacing="0"
+              cellpadding="0"
+              style="
+              background-color: #ffffff;
+              border-radius: 16px;
+              overflow: hidden;
+              max-width: 600px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            "
+      >
+        <!-- Header -->
+        <tr>
+          <td
+                  style="
+                  background-color: #56ab2f;
+                  padding: 40px 30px;
+                  text-align: center;
+                "
+          >
+            <!-- Icon Circle -->
+            <table
+                    width="100"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                    align="center"
+                    style="margin-bottom: 20px"
+            >
+              <tr>
+                <td
+                        style="
+                        text-align: center;
+                        vertical-align: middle;
+                        font-size: 50px;
+                        line-height: 100px;
+                      "
+                        th:text="${headerIcon}"
+                >
+                  📋
+                </td>
+              </tr>
+            </table>
+
+            <h1
+                    style="
+                    color: #ffffff;
+                    font-size: 28px;
+                    margin: 0 0 10px 0;
+                    font-weight: bold;
+                    font-family: Arial, sans-serif;
+                  "
+                    th:text="${headerTitle}"
+            >
+              Kế hoạch trả góp đã được tạo
+            </h1>
+            <p
+                    style="
+                    color: #ffffff;
+                    font-size: 16px;
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                  "
+                    th:text="${headerSubtitle}"
+            >
+              Chi tiết thông tin trả góp của bạn
+            </p>
+          </td>
+        </tr>
+
+        <!-- Content -->
+        <tr>
+          <td style="padding: 40px 30px">
+            <!-- Greeting Section -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td style="text-align: center; padding-bottom: 30px">
+                  <h2
+                          style="
+                          color: #2d3748;
+                          font-size: 24px;
+                          margin: 0 0 10px 0;
+                          font-family: Arial, sans-serif;
+                        "
+                  >
+                    <span th:text="${greetingText}">Xin chào</span>,
+                    <span style="color: #56ab2f" th:text="${customerName}"
+                    >Khách hàng</span
+                    >!
+                  </h2>
+                  <p
+                          style="
+                          color: #718096;
+                          font-size: 15px;
+                          margin: 0;
+                          font-family: Arial, sans-serif;
+                        "
+                          th:text="${greetingMessage}"
+                  >
+                    Kế hoạch trả góp cho đơn hàng của bạn đã được khởi tạo
+                    thành công
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Info Card -->
+            <table
+                    width="100%"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                    style="
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    margin-bottom: 20px;
+                    padding: 20px;
+                  "
+            >
+              <tr>
+                <td
+                        style="color: #2d3748; font-size: 15px; line-height: 1.6"
+                >
+                  <p
+                          style="
+                          font-size: 15px;
+                          color: #2d3748;
+                          margin-bottom: 15px;
+                        "
+                  >
+                    <strong th:text="${detailsTitle}"
+                    >📄 Chi tiết kế hoạch trả góp:</strong
+                    >
+                  </p>
+                  <table
+                          width="100%"
+                          style="font-size: 14px; color: #4a5568"
+                  >
+                    <tr>
+                      <td
+                              style="padding: 8px 0"
+                              th:text="${labelTotalAmount}"
+                      >
+                        Tổng giá trị:
+                      </td>
+                      <td style="padding: 8px 0; text-align: right">
+                        <strong
+                                style="color: #56ab2f; font-size: 15px"
+                                th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                        >0 VND</strong
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                              th:text="${labelDeposit}"
+                      >
+                        Tiền đặt cọc:
+                      </td>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              text-align: right;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                      >
+                        <strong
+                                style="color: #56ab2f; font-size: 15px"
+                                th:text="${#numbers.formatDecimal(deposit, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                        >0 VND</strong
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                              th:text="${labelTermMonths}"
+                      >
+                        Thời hạn:
+                      </td>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              text-align: right;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                      >
+                        <strong
+                                style="color: #2d3748"
+                                th:text="${termMonths} + ' tháng'"
+                        >0 tháng</strong
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                              th:text="${labelMonthlyAmount}"
+                      >
+                        Số tiền trả mỗi tháng:
+                      </td>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              text-align: right;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                      >
+                        <strong
+                                style="color: #e53e3e; font-size: 16px"
+                                th:text="${#numbers.formatDecimal(monthlyAmount, 0, 'COMMA', 0, 'POINT')} + ' VND'"
+                        >0 VND</strong
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                              th:text="${labelNextDueDate}"
+                      >
+                        Kỳ thanh toán đầu tiên:
+                      </td>
+                      <td
+                              style="
+                              padding: 8px 0;
+                              text-align: right;
+                              border-top: 1px solid #e2e8f0;
+                            "
+                      >
+                        <strong
+                                style="color: #2d3748"
+                                th:text="${#temporals.format(nextDueDate, 'dd/MM/yyyy')}"
+                        >01/01/2025</strong
+                        >
+                      </td>
+                    </tr>
+                  </table>
+
+                  <p
+                          style="
+                          font-size: 14px;
+                          color: #718096;
+                          text-align: center;
+                          margin-top: 20px;
+                          margin-bottom: 0;
+                        "
+                          th:text="${paymentReminder}"
+                  >
+                    Quý khách vui lòng thanh toán đúng hạn để đảm bảo quyền
+                    lợi của mình. Nếu đã thanh toán, vui lòng bỏ qua email
+                    này.
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Alert Box -->
+            <table
+                    width="100%"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                    style="
+                    background-color: #fff8e1;
+                    border-left: 4px solid #ff9800;
+                    border-radius: 4px;
+                    margin: 25px 0;
+                  "
+            >
+              <tr>
+                <td style="padding: 20px">
+                  <p
+                          style="
+                          color: #995c00;
+                          font-size: 14px;
+                          line-height: 1.6;
+                          margin: 0;
+                          font-family: Arial, sans-serif;
+                        "
+                  >
+                    💡 <strong>Lưu ý:</strong>
+                    <span th:text="${alertMessage}"
+                    >Vui lòng thanh toán đúng hạn.</span
+                    >
+                    Mọi thắc mắc xin liên hệ:
+                    <strong th:text="${hotline}">Hotline 1900 1234</strong>
+                    hoặc
+                    <a
+                            th:href="'mailto:' + ${supportEmail}"
+                            style="color: #ff9800; text-decoration: none"
+                            th:text="${supportEmail}"
+                    >support@emob.vn</a
+                    >
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Button -->
+            <table
+                    width="100%"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="0"
+                    style="margin-top: 30px"
+            >
+              <tr>
+                <td align="center">
+                  <table border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td
+                              style="
+                              background-color: #56ab2f;
+                              border-radius: 8px;
+                              text-align: center;
+                            "
+                      >
+                        <a
+                                th:href="${buttonUrl}"
+                                style="
+                                display: inline-block;
+                                padding: 16px 40px;
+                                color: #ffffff;
+                                text-decoration: none;
+                                font-size: 16px;
+                                font-weight: bold;
+                                font-family: Arial, sans-serif;
+                              "
+                                th:text="${buttonText}"
+                        >
+                          Xem chi tiết đơn hàng
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td
+                  style="
+                  background-color: #f7fafc;
+                  padding: 25px 30px;
+                  text-align: center;
+                  border-top: 1px solid #e2e8f0;
+                "
+          >
+            <p
+                    style="
+                    color: #718096;
+                    font-size: 13px;
+                    margin: 0 0 10px 0;
+                    font-family: Arial, sans-serif;
+                  "
+                    th:text="${footerSupportText}"
+            >
+              Bạn cần hỗ trợ?
+            </p>
+            <p style="margin: 0 0 15px 0; font-family: Arial, sans-serif">
+              <a
+                      th:href="'tel:' + ${footerPhone}"
+                      style="
+                      color: #56ab2f;
+                      font-weight: 600;
+                      text-decoration: none;
+                      font-size: 14px;
+                    "
+              >📞 <span th:text="${footerPhone}">1900 1234</span></a
+              >
+              <span style="color: #a0aec0"> | </span>
+              <a
+                      th:href="'mailto:' + ${footerEmail}"
+                      style="
+                      color: #56ab2f;
+                      font-weight: 600;
+                      text-decoration: none;
+                      font-size: 14px;
+                    "
+              >✉️ <span th:text="${footerEmail}">support@emob.vn</span></a
+              >
+            </p>
+
+            <!-- Logo Section -->
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td align="center">
+                  <p
+                          style="
+                          color: #a0aec0;
+                          font-size: 12px;
+                          margin: 0;
+                          font-family: Arial, sans-serif;
+                        "
+                          th:text="${footerCopyright}"
+                  >
+                    © 2025 Showroom Ô Tô EMOB
+                  </p>
+                  <img
+                          src="cid:logoImage"
+                          alt="https://raw.githubusercontent.com/electric-vehicle-project/EMOB-BE/refs/heads/main/src/main/resources/templates/email/logo_swp-removebg-preview.png"
+                          style="width: 50px; height: auto; margin-top: 10px"
+                  />
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

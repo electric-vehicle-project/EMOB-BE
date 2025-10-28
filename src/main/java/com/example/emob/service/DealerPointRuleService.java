@@ -4,25 +4,24 @@ package com.example.emob.service;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.DealerPointRule;
+import com.example.emob.entity.VehiclePriceRule;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerPointRuleMapper;
 import com.example.emob.mapper.PageMapper;
+import com.example.emob.model.request.DealerPointRuleRequest;
 import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerPointRuleResponse;
-import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.DealerPointRuleRepository;
 import com.example.emob.service.impl.IDealerPointRule;
 
-import java.math.BigDecimal;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DealerPointRuleService implements IDealerPointRule {
-  @Autowired static DealerPointRuleRepository dealerPointRepository;
+  @Autowired
+  DealerPointRuleRepository dealerPointRepository;
 
   @Autowired
   PageMapper pageMapper;
@@ -30,20 +29,24 @@ public class DealerPointRuleService implements IDealerPointRule {
   @Autowired
   DealerPointRuleMapper dealerPointRuleMapper;
 
+  @PreAuthorize("hasRole('ADMIN')")
+  @Override
   public APIResponse<String> saveRule(
-      MemberShipLevel level, String dealerId, int minPoints, BigDecimal price) {
+          List<DealerPointRuleRequest> requests) {
     // Sử dụng Builder để tạo đối tượng một cách rõ ràng
     try {
-      DealerPointRule rule =
-          DealerPointRule.builder()
-              .dealerId(dealerId)
-              .membershipLevel(level.toString())
-              .minPoints(minPoints)
-              .price(price)
-              .build();
-
-      // Lưu đối tượng vào cơ sở dữ liệu
-      dealerPointRepository.save(rule);
+      for (DealerPointRuleRequest req : requests) {
+        String memberShipLevel = req.getLevel().toString();
+        DealerPointRule rule =
+                DealerPointRule.builder()
+                        .membershipLevel(memberShipLevel)
+                        .dealerId(req.getDealerId())
+                        .minPoints(req.getMinPoints())
+                        .price(req.getPrice())
+                        .build();
+        // Lưu đối tượng vào cơ sở dữ liệu
+        dealerPointRepository.save(rule);
+      }
     } catch (Exception ex) {
       System.out.println("Exception: " + ex.getMessage());
     }
@@ -65,34 +68,13 @@ public class DealerPointRuleService implements IDealerPointRule {
   }
 
   @Override
-  public APIResponse<PageResponse<DealerPointRuleResponse>> getAllRules(
-          Pageable pageable, String keyword, Integer minPoints) {
+  public APIResponse<List<DealerPointRule>> getAllRules() {
     try {
-      Page<DealerPointRule> page =
-              dealerPointRepository.searchAndFilter(keyword, minPoints, pageable);
-      PageResponse<DealerPointRuleResponse> response =
-              pageMapper.toPageResponse(page, dealerPointRuleMapper::toDealerPointRuleResponse);
-      return APIResponse.success(response, "Get all dealer point rules successfully");
+      List<DealerPointRule> rules = new ArrayList<>();
+      dealerPointRepository.findAll().forEach(rules::add);
+      return APIResponse.success(rules);
     } catch (Exception e) {
-      throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer point rules");
+      throw new GlobalException(ErrorCode.OTHER,"Error: " + e.getMessage());
     }
-  }
-
-  public static MemberShipLevel determineMembership(int point, String dealerId) {
-    List<DealerPointRule> rules =
-        dealerPointRepository
-            .findByDealerId(dealerId)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Dealer not found"));
-
-    // Sắp xếp theo minPoints giảm dần
-    rules.sort(Comparator.comparingInt(DealerPointRule::getMinPoints).reversed());
-
-    for (DealerPointRule rule : rules) {
-      if (point >= rule.getMinPoints()) {
-        return MemberShipLevel.valueOf(rule.getMembershipLevel());
-      }
-    }
-
-    return MemberShipLevel.NORMAL;
   }
 }

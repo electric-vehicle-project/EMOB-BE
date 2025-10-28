@@ -8,6 +8,8 @@ import com.example.emob.model.request.quotation.QuotationRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.quotation.QuotationResponse;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -23,5 +25,5 @@ public interface IQuotation {
 
   APIResponse<PageResponse<QuotationResponse>> getAll(Pageable pageable,
                                                       String keyword,
-                                                      QuotationStatus status);
+                                                      List<QuotationStatus> status);
 }

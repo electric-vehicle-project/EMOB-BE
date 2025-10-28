@@ -193,7 +193,7 @@ public class DealerDiscountPolicyController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) DiscountPolicyStatus status,
+          @RequestParam(required = false) List<DiscountPolicyStatus> status,
           @RequestParam(defaultValue = "effectiveDate") String sortField,
           @RequestParam(defaultValue = "desc") String sortDir) {
 

@@ -12,6 +12,8 @@ import com.example.emob.model.response.vehicleRequest.VehicleRequestResponse;
 import com.example.emob.service.VehicleRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -69,7 +71,7 @@ public class VehicleRequestController {
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) VehicleRequestStatus status,
+          @RequestParam(required = false) List<VehicleRequestStatus> status,
           @RequestParam(defaultValue = "createdAt") String sortField,
           @RequestParam(defaultValue = "desc") String sortDir) {
 

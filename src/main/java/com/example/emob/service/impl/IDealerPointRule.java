@@ -3,6 +3,7 @@ package com.example.emob.service.impl;
 
 import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.DealerPointRule;
+import com.example.emob.model.request.DealerPointRuleRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.DealerPointRuleResponse;
 import com.example.emob.model.response.PageResponse;
@@ -13,11 +14,11 @@ import java.util.List;
 
 public interface IDealerPointRule {
   APIResponse<String> saveRule(
-      MemberShipLevel level, String dealerId, int minPoints, BigDecimal price);
+          List<DealerPointRuleRequest> requests);
 
   List<DealerPointRule> getRule(String dealerId);
 
-  APIResponse<PageResponse<DealerPointRuleResponse>> getAllRules(Pageable pageable, String keyword, Integer minPoints);
+  APIResponse<List<DealerPointRule>> getAllRules();
 
   DealerPointRule getRule(String dealerId, String membershipLevel);
 }
