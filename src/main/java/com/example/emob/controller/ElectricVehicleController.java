@@ -220,9 +220,6 @@ public class ElectricVehicleController {
                                       "vehicleId": "nhập id vô đây",
                                       "quantity": 10,
                                       "color": "White",
-                                      "purchaseDate": "2025-10-05T10:00:00",
-                                      "warrantyStart": "2025-10-10",
-                                      "warrantyEnd": "2028-10-10",
                                       "productionYear": "2025-01-01",
                                       "status": "NORMAL"
                                     }
@@ -235,9 +232,6 @@ public class ElectricVehicleController {
                                       "vehicleId": "nhập id vô đây",
                                       "quantity": 3,
                                       "color": "Red",
-                                      "purchaseDate": "2025-10-05T10:00:00",
-                                      "warrantyStart": "2025-10-10",
-                                      "warrantyEnd": "2026-10-10",
                                       "productionYear": "2025-01-01",
                                       "status": "TEST_DRIVE"
                                     }

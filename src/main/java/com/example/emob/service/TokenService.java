@@ -38,7 +38,7 @@ public class TokenService {
         .id(UUID.randomUUID().toString()) // jti
         .claim("token_type", "reset_password") // phân biệt loại token
         .issuedAt(Date.from(now))
-        .expiration(Date.from(now.plus(3, java.time.temporal.ChronoUnit.MINUTES))) // hết hạn nhanh
+        .expiration(Date.from(now.plus(30, java.time.temporal.ChronoUnit.MINUTES))) // hết hạn nhanh
         .signWith(getSignKey(), Jwts.SIG.HS256)
         .compact();
   }

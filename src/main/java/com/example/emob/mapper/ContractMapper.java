@@ -28,35 +28,6 @@ public interface ContractMapper {
   @Mapping(source = "totalPrice", target = "totalPrice")
   SaleContractItem toSaleContractItem(SaleOrderItem orderItem);
 
-  // 🔹 Map danh sách (Set)
-  default Set<SaleContractItem> toSaleContractItems(Set<SaleOrderItem> orderItems) {
-    if (orderItems == null) return new HashSet<>();
-
-    return orderItems.stream()
-        .map(
-            orderItem -> {
-              // 1️⃣ Map cơ bản sang SaleContractItem
-              SaleContractItem contractItem = toSaleContractItem(orderItem);
-
-              // 2️⃣ Copy danh sách VehicleUnits
-              if (orderItem.getVehicleUnits() != null && !orderItem.getVehicleUnits().isEmpty()) {
-                Set<VehicleUnit> vehicleUnits =
-                    orderItem.getVehicleUnits().stream()
-                        .map(
-                            unit -> {
-                              unit.setSaleContractItem(contractItem); // ✅ Gán ngược lại quan hệ
-                              return unit;
-                            })
-                        .collect(Collectors.toSet());
-                contractItem.setVehicleUnits(vehicleUnits);
-              } else {
-                contractItem.setVehicleUnits(Collections.emptySet());
-              }
-
-              return contractItem;
-            })
-        .collect(Collectors.toSet());
-  }
 
   // 🔹 Map hợp đồng chính
   @Mapping(source = "id", target = "contractId")

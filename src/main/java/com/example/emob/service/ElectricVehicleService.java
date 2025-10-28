@@ -51,6 +51,7 @@ public class ElectricVehicleService implements IVehicle {
     try {
       ElectricVehicle vehicle = vehicleMapper.toVehicle(request);
       vehicle.setCreatedAt(LocalDate.now());
+      vehicle.setBrand(request.getBrand());
       vehicleRepository.save(vehicle);
 
       return APIResponse.success(

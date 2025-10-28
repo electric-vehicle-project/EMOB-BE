@@ -134,7 +134,7 @@ public class SaleOrderControler {
 
   @PostMapping("/completed")
   public ResponseEntity<APIResponse<SaleOrderResponse>> completeSaleOrderById(
-      InstallmentRequest request) {
+      @RequestBody InstallmentRequest request) {
     return ResponseEntity.ok(saleOrderService.completeSaleOrderById(request));
   }
 }

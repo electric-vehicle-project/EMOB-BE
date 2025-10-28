@@ -15,11 +15,13 @@ import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IContract;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -87,11 +89,26 @@ public class ContractService implements IContract {
     contract.setAccount(AccountUtil.getCurrentUser());
 
     // 🔹 3. Map từ SaleOrderItem → SaleContractItem (dùng mapper)
-    Set<SaleContractItem> contractItems =
-        contractMapper.toSaleContractItems(saleOrder.getSaleOrderItems());
-
-    // Gán quan hệ ngược cho JPA
-    contractItems.forEach(item -> item.setSaleContract(contract));
+    Set<SaleContractItem> contractItems = saleOrder.getSaleOrderItems().stream().filter(vri -> !vri.isDeleted()) // bỏ qua item bị xóa
+                 .map(vri -> {
+                   SaleContractItem item = new SaleContractItem();
+                   item.setUnitPrice(vri.getUnitPrice());
+                   item.setTotalPrice(vri.getTotalPrice());
+                   item.setDiscountPrice(BigDecimal.ZERO);
+                   item.setQuantity(vri.getQuantity());
+                   item.setColor(vri.getColor());
+                   item.setVehicleStatus(vri.getVehicleStatus());
+                   item.setVehicle(vri.getVehicle()); // đảm bảo vehicle đã managed
+                   item.setSaleContract(contract);
+                   // Tạo vehicleUnits riêng cho item, không share với item khác
+                   item.getVehicleUnits().forEach((unit) -> {
+                     unit.setSaleContractItem(item);
+                   });
+                   return item;
+                 })
+                 .collect(Collectors.toSet());
+    System.out.println("Items count: " + contractItems.size());
+    contractItems.forEach(i -> System.out.println(i));
     contract.setSaleContractItems(contractItems);
     saleOrder.setContract(contract);
     // 🔹 4. Lưu hợp đồng
@@ -126,7 +143,8 @@ public class ContractService implements IContract {
             .filter((item) -> item.getStatus().equals(ContractStatus.PENDING))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     contract.setStatus(ContractStatus.SIGNED);
-    if (contract.getSaleOrder().getQuotation().getCustomer() != null) {
+
+    if (contract.getSaleOrder().getQuotation() != null) {
       String email = contract.getSaleOrder().getQuotation().getCustomer().getEmail();
       String cusName = contract.getSaleOrder().getQuotation().getCustomer().getFullName();
       contract.getSaleContractItems()

@@ -26,12 +26,9 @@ public class InstallmentRequest {
   @NotNull(message = "Down payment date must not be null")
   LocalDateTime downPayment; // ngày trả góp
 
-  @NotNull(message = "Total amount must not be null")
-  @DecimalMin(value = "0.0", inclusive = false, message = "Total amount must be greater than 0")
-  BigDecimal totalAmount; // tổng tiền cần trả góp
 
-  @Min(value = 1, message = "Term must be at least 1 month")
-  @Max(value = 15, message = "Term must not exceed 15 months")
+  @Min(value = 6, message = "Term must be at least 1 month")
+  @Max(value = 36, message = "Term must not exceed 15 months")
   int termMonths;
 
   @PositiveOrZero(message = "Interest rate cannot be negative")

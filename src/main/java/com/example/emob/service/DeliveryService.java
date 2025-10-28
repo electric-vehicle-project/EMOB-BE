@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -52,12 +53,9 @@ public class DeliveryService implements IDelivery {
             .findById(request.getContractId())
             .filter(
                 c ->
-                    c.getStatus() == ContractStatus.SIGNED
+                        c.getStatus().equals(ContractStatus.SIGNED)
                         && c.getSaleContractItems() != null
-                        && !c.getSaleContractItems().isEmpty()
-                        &&
-                        // Hợp đồng giao cho dealer thì chưa có VehicleUnit
-                        c.getSaleContractItems().iterator().next().getVehicleUnits() == null)
+                        && !c.getSaleContractItems().isEmpty())
             .orElseThrow(
                 () ->
                     new GlobalException(
@@ -77,21 +75,17 @@ public class DeliveryService implements IDelivery {
               .flatMap(
                   item -> {
                     int requiredQty = item.getQuantity();
+                    System.out.println("requiredQty: "+ requiredQty);
 
                     // Lấy danh sách xe khả dụng theo số lượng cần
-                    List<VehicleUnit> availableUnits =
-                        IntStream.range(0, requiredQty)
-                            .mapToObj(
-                                i ->
-                                    vehicleUnitRepository
-                                        .findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-                                            inventoryRepository.findInventoryByIsCompanyTrue(),
-                                            item.getVehicle(),
-                                            item.getColor(),
-                                            item.getVehicleStatus())
-                                        .orElse(null))
-                            .filter(Objects::nonNull)
-                            .toList();
+                    List<VehicleUnit> availableUnits = vehicleUnitRepository
+                            .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+                                    inventoryRepository.findInventoryByIsCompanyTrue(),
+                                    item.getVehicle(),
+                                    item.getColor(),
+                                    item.getVehicleStatus(),
+                                    PageRequest.of(0, requiredQty) // limit = requiredQty
+                            );
 
                     int foundQty = availableUnits.size();
                     int missingQty = requiredQty - foundQty;
@@ -110,7 +104,7 @@ public class DeliveryService implements IDelivery {
                               + ", type: "
                               + item.getVehicleStatus());
                     }
-
+                    System.out.println("size: "+ availableUnits.size());
                     return availableUnits.stream();
                   })
               .collect(Collectors.toSet());
@@ -118,7 +112,7 @@ public class DeliveryService implements IDelivery {
       if (vehiclesToDeliver.isEmpty()) {
         throw new GlobalException(ErrorCode.DATA_INVALID, "No vehicle units found for delivery");
       }
-
+      System.out.println("vehiclesToDeliver size: "+ vehiclesToDeliver.size());
       // 🔹 3.1 Gỡ inventory khỏi tất cả vehicle units (vì giao ra khỏi kho công ty)
       vehiclesToDeliver.forEach(vehicle -> vehicle.setInventory(null));
 
@@ -153,14 +147,9 @@ public class DeliveryService implements IDelivery {
             .findById(request.getContractId())
             .filter(
                 c ->
-                    c.getStatus() == ContractStatus.SIGNED
+                    c.getStatus().equals(ContractStatus.SIGNED)
                         && c.getSaleContractItems() != null
-                        && !c.getSaleContractItems().isEmpty()
-                        && c.getSaleContractItems().stream()
-                            .anyMatch(
-                                item ->
-                                    item.getVehicleUnits() != null
-                                        && !item.getVehicleUnits().isEmpty()))
+                        && !c.getSaleContractItems().isEmpty())
             .orElseThrow(
                 () ->
                     new GlobalException(
@@ -327,7 +316,11 @@ public class DeliveryService implements IDelivery {
     }
 
     delivery.setStatus(DeliveryStatus.SUCCESS);
-    Dealer dealer = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
+    Dealer dealer = null;
+    if(delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null){
+      dealer  = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
+    }
+
     // nếu giao cho đại lý thì cập nhật kho cho xe
     if (dealer != null) {
       delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));

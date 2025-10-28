@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -82,32 +83,14 @@ public class SaleOrderService implements ISaleOrder {
                   // === Tìm xe cụ thể trong kho ===
                   Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
-                  for (int i = 0; i < item.getQuantity(); i++) {
-                    VehicleUnit vehicleUnit =
-                        vehicleUnitRepository
-                            .findFirstByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-                                AccountUtil.getCurrentUser().getDealer().getInventory(),
-                                item.getVehicle(),
-                                item.getColor(),
-                                item.getVehicleStatus())
-                            .orElseThrow(
-                                () ->
-                                    new GlobalException(
-                                        ErrorCode.NOT_FOUND,
-                                        "Not found vehicle unit in inventory have model:"
-                                            + item.getVehicle().getModel()
-                                            + " color: "
-                                            + item.getColor()
-                                            + " type: "
-                                            + item.getVehicleStatus()));
-                    ;
-                    if (vehicleUnit == null) {
-                      throw new GlobalException(
-                          ErrorCode.NOT_FOUND, "Vehicle unit not found in inventory");
-                    }
-                    vehicleUnit.setStatus(VehicleStatus.RESERVED);
-                    vehicleUnits.add(vehicleUnit);
-                  }
+                  List<VehicleUnit> availableUnits = vehicleUnitRepository
+                          .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+                                  AccountUtil.getCurrentUser().getDealer().getInventory(),
+                                  item.getVehicle(),
+                                  item.getColor(),
+                                  item.getVehicleStatus(),
+                                  PageRequest.of(0, item.getQuantity()) // limit = requiredQty
+                          );
 
                   BigDecimal unitPrice =
                       Objects.requireNonNullElse(item.getUnitPrice(), BigDecimal.ZERO);
@@ -168,9 +151,28 @@ public class SaleOrderService implements ISaleOrder {
   public APIResponse<SaleOrderResponse> createSaleOrderFromVehicleRequest(
       VehicleRequest vehicleRequest, PaymentStatus paymentStatus) {
     SaleOrder saleOrder = saleOrderMapper.toSaleOrderFromVehicleRequest(vehicleRequest);
+    Set<SaleOrderItem> saleOrderItems = vehicleRequest.getVehicleRequestItems().stream()
+        .map(reqItem -> {
+          SaleOrderItem saleItem = new SaleOrderItem();
+          saleItem.setColor(reqItem.getColor());
+          saleItem.setVehicle(reqItem.getVehicle());
+          saleItem.setQuantity(reqItem.getQuantity());
+          saleItem.setUnitPrice(reqItem.getUnitPrice());
+          saleItem.setVehicleStatus(reqItem.getVehicleStatus());
+          saleItem.setTotalPrice(
+              Objects.requireNonNullElse(reqItem.getUnitPrice(), BigDecimal.ZERO)
+                  .multiply(BigDecimal.valueOf(reqItem.getQuantity()))
+          );
+          saleItem.setSaleOrder(saleOrder);
+          return saleItem;
+        })
+        .collect(Collectors.toSet());
+
+    saleOrder.setSaleOrderItems(saleOrderItems);
     saleOrder.setPaymentStatus(paymentStatus);
     saleOrder.setVehicleRequest(vehicleRequest);
     saleOrder.setCreatedAt(LocalDateTime.now());
+    saleOrder.setAccount(AccountUtil.getCurrentUser());
     vehicleRequest.setSaleOrder(saleOrder);
     saleOrder.setStatus(OrderStatus.CREATED);
     // ✅ Lưu vào DB
@@ -204,6 +206,7 @@ public class SaleOrderService implements ISaleOrder {
 
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'EVM_STAFF')")
+  @Transactional
   public APIResponse<SaleOrderResponse> completeSaleOrderById(InstallmentRequest request) {
     SaleOrder saleOrder =
         saleOrderRepository

@@ -3,6 +3,7 @@ package com.example.emob.service;
 
 import com.example.emob.constant.DiscountPolicyStatus;
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.DealerDiscountPolicy;
 import com.example.emob.entity.ElectricVehicle;
@@ -92,7 +93,12 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
         policy.setFinalPrice(request.getFinalPrice());
         policy.setEffectiveDate(request.getEffectiveDate());
         policy.setExpiryDate(request.getExpiredDate());
-
+        DiscountPolicyStatus status =
+            determinePolicyStatus(
+                request.getEffectiveDate().atStartOfDay(),
+                request.getExpiredDate().atTime(23, 59, 59));
+        policy.setStatus(status);
+        policy.setCreateAt(LocalDateTime.now());
         policies.add(policy);
       }
     }
@@ -262,5 +268,12 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer discount policies");
     }
+  }
+
+  public static DiscountPolicyStatus determinePolicyStatus(
+          LocalDateTime startDate, LocalDateTime endDate) {
+    if (startDate.isAfter(LocalDateTime.now())) return DiscountPolicyStatus.UPCOMING;
+    if (endDate.isBefore(LocalDateTime.now())) return DiscountPolicyStatus.EXPIRED;
+    return DiscountPolicyStatus.ACTIVE;
   }
 }

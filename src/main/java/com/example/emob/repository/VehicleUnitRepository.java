@@ -53,4 +53,5 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
           @Param("keyword") String keyword,
           @Param("statuses") List<VehicleStatus> statuses,
           Pageable pageable);
+
 }
