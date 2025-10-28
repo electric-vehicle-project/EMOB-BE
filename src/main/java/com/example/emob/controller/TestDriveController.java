@@ -3,6 +3,7 @@ package com.example.emob.controller;
 
 import com.example.emob.model.request.schedule.TestDriveRequest;
 import com.example.emob.model.request.schedule.UpdateTestDriveRequest;
+import com.example.emob.model.request.schedule.ViewAllTestDriveRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.TestDriveResponse;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,8 +87,24 @@ public class TestDriveController {
   @GetMapping("/schedules")
   @Operation(summary = "View All Schedule Test Drive")
   public ResponseEntity<APIResponse<PageResponse<TestDriveResponse>>> viewAllSchedules(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, ViewAllTestDriveRequest request) {
     Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(testDriveService.viewAllSchedules(pageable));
+    return ResponseEntity.ok(testDriveService.viewAllSchedules(pageable, request.getKeyword(), request.getStatus()) );
   }
+
+  @GetMapping("schedules/salesperson")
+  @Operation(summary = "View All Schedule Test Drive By Salesperson")
+    public ResponseEntity<APIResponse<PageResponse<TestDriveResponse>>> viewAllSchedulesBySalesperson(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "scheduledAt") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+    Pageable pageable = PageRequest.of(
+            page,
+            size,
+            sortDir.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending()
+    );
+        return ResponseEntity.ok(testDriveService.viewScheduleOfDealerStaff(pageable));
+    }
+
+
 }
