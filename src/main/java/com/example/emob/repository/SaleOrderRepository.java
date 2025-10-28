@@ -2,6 +2,7 @@
 package com.example.emob.repository;
 
 import com.example.emob.constant.OrderStatus;
+import com.example.emob.entity.Account;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.SaleOrder;
@@ -49,6 +50,32 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
       @Param("dealer") Dealer dealer,
       @Param("statuses") List<OrderStatus> statuses,
       Pageable pageable);
+
+
+  @Query(
+          """
+      SELECT s
+      FROM SaleOrder s
+      JOIN FETCH s.quotation q
+      WHERE q.account = :account
+        AND (:statuses IS NULL OR s.status IN :statuses)
+    """)
+  Page<SaleOrder> findAllWithQuotationByAccountAndStatuses(
+          @Param("account") Account account,
+          @Param("statuses") List<OrderStatus> statuses,
+          Pageable pageable);
+
+  @Query(
+          """
+      SELECT s
+      FROM SaleOrder s
+      JOIN FETCH s.quotation q
+      WHERE q.account = :account
+        AND (s.status = 'COMPLETED')
+    """)
+  List<SaleOrder> findAllSaleOrderByAccount(
+          @Param("account") Account account);
+
 
   @Query(
       """

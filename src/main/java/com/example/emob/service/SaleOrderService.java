@@ -1,10 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
-import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.OrderStatus;
-import com.example.emob.constant.PaymentStatus;
-import com.example.emob.constant.VehicleStatus;
+import com.example.emob.constant.*;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
@@ -14,6 +11,7 @@ import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
+import com.example.emob.model.response.SalesByStaffResponse;
 import com.example.emob.repository.*;
 import com.example.emob.service.impl.ISaleOrder;
 import com.example.emob.util.AccountUtil;
@@ -24,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -40,6 +39,7 @@ public class SaleOrderService implements ISaleOrder {
   @Autowired private VehicleUnitRepository vehicleUnitRepository;
   @Autowired private CustomerRepository customerRepository;
   @Autowired private ContractService contractService;
+  @Autowired private AccountRepository accountRepository;
 
   @Override
   @Transactional
@@ -209,6 +209,12 @@ public class SaleOrderService implements ISaleOrder {
         saleOrderRepository
             .findById(request.getOrderId())
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Sale order not found"));
+    if(saleOrder.getAccount().getRole().equals(Role.DEALER_STAFF)){
+      if(AccountUtil.getCurrentUser() != saleOrder.getAccount()){
+        throw new GlobalException(ErrorCode.UNAUTHENTICATED, "You are not allowed to approve this quotation");
+      }
+    }
+
     saleOrder.setStatus(OrderStatus.COMPLETED);
     if (saleOrder.getPaymentStatus().equals(PaymentStatus.INSTALLMENT)) {
       installmentPlanService.createInstallment(request);
@@ -296,4 +302,46 @@ public class SaleOrderService implements ISaleOrder {
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
     return APIResponse.success(response);
   }
+
+  @PreAuthorize("hasRole('DEALER_STAFF')")
+  public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfStaff(
+          List<OrderStatus> statuses, Pageable pageable) {
+    Page<SaleOrder> page =
+            saleOrderRepository.findAllWithQuotationByAccountAndStatuses(AccountUtil.getCurrentUser(), statuses, pageable);
+    PageResponse<SaleOrderResponse> response =
+            pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+    return APIResponse.success(response);
+  }
+
+  @PreAuthorize("hasRole('MANAGER')")
+  public APIResponse<PageResponse<SalesByStaffResponse>> getAllSaleOrdersByemployee(Pageable pageable) {
+    List<SalesByStaffResponse> salesByStaffResponses = new ArrayList<>();
+    for(Account staff: accountRepository.findByRoleAndDealer(Role.DEALER_STAFF,AccountUtil.getCurrentUser().getDealer())){
+      List<SaleOrder> orders =
+              saleOrderRepository.findAllSaleOrderByAccount(staff);
+      // Tính tổng số đơn và tổng doanh thu
+      long orderCount = orders.size();
+      BigDecimal totalAmount = orders.stream()
+              .map(SaleOrder::getTotalPrice)
+              .filter(Objects::nonNull)
+              .reduce(BigDecimal.ZERO, BigDecimal::add);
+      // Chuyển sang response
+      SalesByStaffResponse dto = new SalesByStaffResponse();
+      dto.setAccountId(staff.getId());
+      dto.setOrderCount(orderCount);
+      dto.setAmount(totalAmount);
+      salesByStaffResponses.add(dto);
+    }
+
+    // ===== Chuyển List sang Page =====
+    int start = (int) pageable.getOffset();
+    int end = Math.min((start + pageable.getPageSize()), salesByStaffResponses.size());
+    List<SalesByStaffResponse> content = salesByStaffResponses.subList(start, end);
+    Page<SalesByStaffResponse> page = new PageImpl<>(content, pageable, salesByStaffResponses.size());
+
+    // ===== Chuyển sang PageResponse =====
+    PageResponse<SalesByStaffResponse> response = pageMapper.toPageResponse(page, s -> s);
+    return APIResponse.success(response);
+  }
+
 }

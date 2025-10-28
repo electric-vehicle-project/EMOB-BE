@@ -64,4 +64,11 @@ public class QuotationController {
     Pageable pageable = PageRequest.of(page, size);
     return ResponseEntity.ok(quotationService.getAll(pageable));
   }
+
+  @GetMapping("/dealer-staff")
+  public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotationsOfStaff(
+          @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(quotationService.getAllOfDealerStaff(pageable));
+  }
 }

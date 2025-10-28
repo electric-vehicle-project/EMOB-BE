@@ -129,6 +129,9 @@ public class ContractService implements IContract {
     if (contract.getSaleOrder().getQuotation().getCustomer() != null) {
       String email = contract.getSaleOrder().getQuotation().getCustomer().getEmail();
       String cusName = contract.getSaleOrder().getQuotation().getCustomer().getFullName();
+      contract.getSaleContractItems()
+              .forEach(item -> item.getVehicleUnits()
+                      .forEach(unit -> unit.setPurchaseDate(LocalDateTime.now())));
       signContract(email, cusName);
     }
     contract.setSignDate(date);
