@@ -56,11 +56,16 @@ public class Filter extends OncePerRequestFilter {
 
     if (token != null) {
       try {
-
         Account account = tokenService.verifyToken(token);
-        if (account.getStatus().equals(AccountStatus.BANNED)) {
+        if (AccountStatus.BANNED.equals(account.getStatus())) {
           resolver.resolveException(
-              request, response, null, new GlobalException(ErrorCode.ACCOUNT_BANNED));
+                  request, response, null, new GlobalException(ErrorCode.ACCOUNT_BANNED));
+          return;
+        }
+
+        if (AccountStatus.INACTIVE.equals(account.getStatus())) {
+          resolver.resolveException(
+                  request, response, null, new GlobalException(ErrorCode.ACCOUNT_INACTIVE));
           return;
         }
         UsernamePasswordAuthenticationToken authentication =
