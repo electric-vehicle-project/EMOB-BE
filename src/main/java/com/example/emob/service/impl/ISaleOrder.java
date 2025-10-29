@@ -23,7 +23,9 @@ public interface ISaleOrder {
   APIResponse<SaleOrderResponse> getSaleOrderById(UUID saleOrderId);
 
   APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentDealer(
-      List<OrderStatus> statuses, Pageable pageable);
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable);
 
   APIResponse<SaleOrderResponse> createSaleOrderFromVehicleRequest(
       VehicleRequest vehicleRequest, PaymentStatus paymentStatus);
@@ -31,8 +33,11 @@ public interface ISaleOrder {
   APIResponse<SaleOrderResponse> completeSaleOrderById(InstallmentRequest request);
 
   APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfDealer(
-      List<OrderStatus> statuses, Pageable pageable);
+          List<OrderStatus> statuses, String keyword, Pageable pageable);
 
   APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentCustomer(
-      UUID customerid, List<OrderStatus> statuses, Pageable pageable);
+          UUID customerId,
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable);
 }

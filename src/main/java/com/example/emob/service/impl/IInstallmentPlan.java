@@ -18,17 +18,17 @@ public interface IInstallmentPlan {
   APIResponse<InstallmentResponse> viewInstallmentPlan(UUID id);
 
   APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfDealers(
-      List<InstallmentStatus> statuses, Pageable pageable);
+          List<InstallmentStatus> statuses, Pageable pageable, String keyword);
 
   // 2️⃣ Đại lý xem plan của chính đại lý mình
   APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentDealer(
-      List<InstallmentStatus> statuses, Pageable pageable);
+          List<InstallmentStatus> statuses, Pageable pageable, String keyword);
 
   // 3️⃣ Đại lý xem các plan đã báo giá cho khách hàng cụ thể
   APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentCustomer(
-      UUID customerId, List<InstallmentStatus> statuses, Pageable pageable);
+     UUID customerId, List<InstallmentStatus> statuses, Pageable pageable, String keyword);
 
   // 4️⃣ Đại lý xem tất cả plan đã báo giá (mọi khách hàng)
   APIResponse<PageResponse<InstallmentResponse>> getAllPlansByCustomer(
-      List<InstallmentStatus> statuses, Pageable pageable);
+      List<InstallmentStatus> statuses, Pageable pageable, String keyword);
 }

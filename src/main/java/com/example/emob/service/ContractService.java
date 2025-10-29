@@ -170,11 +170,16 @@ public class ContractService implements IContract {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsOfDealers(
-      String keyword, List<ContractStatus> statuses, Pageable pageable) {
+          String keyword,
+          List<ContractStatus> statuses,
+          Pageable pageable) {
+
     Page<SaleContract> page =
-        contractRepository.findAllWithVehicleRequest(statuses, keyword, pageable);
+            contractRepository.findAllWithVehicleRequest(statuses, keyword, pageable);
+
     PageResponse<ContractResponse> response =
-        pageMapper.toPageResponse(page, contractMapper::toContractResponse);
+            pageMapper.toPageResponse(page, contractMapper::toContractResponse);
+
     return APIResponse.success(response);
   }
 
