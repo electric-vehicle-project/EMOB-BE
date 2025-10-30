@@ -249,11 +249,13 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfDealer(
-      List<OrderStatus> statuses, Pageable pageable) {
-    Page<SaleOrder> page = saleOrderRepository.findAllWithVehicleRequest(statuses, pageable);
-    PageResponse<SaleOrderResponse> response =
-        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
-    return APIResponse.success(response);
+          List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
+      Page<SaleOrder> page = saleOrderRepository.searchAndFilter(statuses, keyword, pageable);
+      PageResponse<SaleOrderResponse> response =
+              pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
+      return APIResponse.success(response);
   }
 
   // ============================================================
@@ -262,14 +264,18 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentDealer(
-      List<OrderStatus> statuses, Pageable pageable) {
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    Page<SaleOrder> page =
-        saleOrderRepository.findAllWithVehicleRequestByDealerAndStatuses(
-            dealer, statuses, pageable);
-    PageResponse<SaleOrderResponse> response =
-        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
-    return APIResponse.success(response);
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable) {
+
+      Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
+      Page<SaleOrder> page = saleOrderRepository.searchAndFilterByDealer(dealer, statuses, keyword, pageable);
+
+      PageResponse<SaleOrderResponse> response =
+              pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
+      return APIResponse.success(response);
   }
 
   // ============================================================
@@ -278,20 +284,24 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentCustomer(
-      UUID customerId, List<OrderStatus> statuses, Pageable pageable) {
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    Customer customer =
-        customerRepository
-            .findById(customerId)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
+          UUID customerId,
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable) {
 
-    Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByDealerAndCustomerAndStatuses(
-            dealer, customer, statuses, pageable);
+      Dealer dealer = AccountUtil.getCurrentUser().getDealer();
 
-    PageResponse<SaleOrderResponse> response =
-        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
-    return APIResponse.success(response);
+      Customer customer = customerRepository
+              .findById(customerId)
+              .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
+
+      Page<SaleOrder> page = saleOrderRepository.searchAndFilterByDealerAndCustomer(
+              dealer, customer, statuses, keyword, pageable);
+
+      PageResponse<SaleOrderResponse> response =
+              pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
+      return APIResponse.success(response);
   }
 
   // ============================================================
@@ -299,25 +309,37 @@ public class SaleOrderService implements ISaleOrder {
   // ============================================================
 
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
-  public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersByCustomer(
-      List<OrderStatus> statuses, Pageable pageable) {
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByDealerAndStatuses(dealer, statuses, pageable);
-    PageResponse<SaleOrderResponse> response =
-        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
-    return APIResponse.success(response);
+  public APIResponse<PageResponse<SaleOrderResponse>> getAllQuotedSaleOrdersOfCurrentDealer(
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable) {
+
+      Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
+      Page<SaleOrder> page = saleOrderRepository.searchAndFilterQuotedOrdersByDealer(
+              dealer, statuses, keyword, pageable);
+
+      PageResponse<SaleOrderResponse> response =
+              pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
+      return APIResponse.success(response);
   }
 
   @PreAuthorize("hasRole('DEALER_STAFF')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfStaff(
-      List<OrderStatus> statuses, Pageable pageable) {
-    Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByAccountAndStatuses(
-            AccountUtil.getCurrentUser(), statuses, pageable);
-    PageResponse<SaleOrderResponse> response =
-        pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
-    return APIResponse.success(response);
+          List<OrderStatus> statuses,
+          String keyword,
+          Pageable pageable) {
+
+      Account currentStaff = AccountUtil.getCurrentUser();
+
+      Page<SaleOrder> page = saleOrderRepository.searchAndFilterByAccount(
+              currentStaff, statuses, keyword, pageable);
+
+      PageResponse<SaleOrderResponse> response =
+              pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
+      return APIResponse.success(response);
   }
 
   @PreAuthorize("hasRole('MANAGER')")

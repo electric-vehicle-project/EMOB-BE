@@ -225,10 +225,10 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfDealers(
-      List<InstallmentStatus> statuses, Pageable pageable) {
+      List<InstallmentStatus> statuses, Pageable pageable, String keyword) {
 
     Page<InstallmentPlan> page =
-        installmentPlanRepository.findAllWithVehicleRequest(statuses, pageable);
+        installmentPlanRepository.searchAndFilterWithVehicleRequest(statuses, keyword, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);
@@ -240,12 +240,12 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentDealer(
-      List<InstallmentStatus> statuses, Pageable pageable) {
+      List<InstallmentStatus> statuses, Pageable pageable, String keyword) {
 
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     Page<InstallmentPlan> page =
         installmentPlanRepository.findAllWithVehicleRequestByDealerAndStatuses(
-            dealer, statuses, pageable);
+            keyword, dealer, statuses, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);
@@ -257,7 +257,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentCustomer(
-      UUID customerId, List<InstallmentStatus> statuses, Pageable pageable) {
+      UUID customerId, List<InstallmentStatus> statuses, Pageable pageable, String keyword) {
 
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     Customer customer =
@@ -267,7 +267,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
 
     Page<InstallmentPlan> page =
         installmentPlanRepository.findAllWithQuotationByDealerAndCustomer(
-            dealer, customer, statuses, pageable);
+           keyword ,dealer, customer, statuses, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);
@@ -279,12 +279,12 @@ public class InstallmentPlanService implements IInstallmentPlan {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansByCustomer(
-      List<InstallmentStatus> statuses, Pageable pageable) {
+      List<InstallmentStatus> statuses, Pageable pageable, String keyword) {
 
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     Page<InstallmentPlan> page =
         installmentPlanRepository.findAllWithQuotationByDealerAndStatuses(
-            dealer, statuses, pageable);
+                keyword, dealer, statuses, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);

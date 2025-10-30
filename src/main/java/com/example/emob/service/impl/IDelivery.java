@@ -21,7 +21,9 @@ public interface IDelivery {
   APIResponse<Void> deleteDelivery(UUID id);
 
   APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
-      List<DeliveryStatus> statuses, Pageable pageable);
+          String keyword,
+          List<DeliveryStatus> statuses,
+          Pageable pageable);
 
   APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfCurrentCustomer(
       UUID customerId, List<DeliveryStatus> statuses, Pageable pageable);

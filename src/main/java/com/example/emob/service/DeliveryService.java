@@ -221,11 +221,14 @@ public class DeliveryService implements IDelivery {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
-      List<DeliveryStatus> statuses, Pageable pageable) {
-    Page<Delivery> page = deliveryRepository.findAllWithVehicleRequest(statuses, pageable);
+          String keyword,
+          List<DeliveryStatus> statuses,
+          Pageable pageable) {
+
+    Page<Delivery> page = deliveryRepository.searchAndFilterDeliveries(statuses, keyword, pageable);
 
     PageResponse<DeliveryResponse> response =
-        pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
+            pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
 
     return APIResponse.success(response);
   }
