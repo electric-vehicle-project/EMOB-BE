@@ -19,7 +19,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InstallmentPlan {
   @Id @GeneratedValue UUID id;
-  LocalDateTime downDate; // ngày đặt cọc
+  LocalDate downDate; // ngày đặt cọc
   BigDecimal deposit; // tiền đặt cọc
   BigDecimal totalAmount; // tổng tiền cần trả góp
   BigDecimal monthlyAmount; // số tiền phải trả mỗi tháng

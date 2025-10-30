@@ -17,7 +17,8 @@ public interface DeliveryRepository extends JpaRepository<Delivery, UUID> {
   // ============================================================
   // 🔹 1. Hãng xe (EVM_STAFF, ADMIN) xem tất cả delivery của đại lý
   // ============================================================
-  @Query("""
+  @Query(
+      """
     SELECT d
     FROM Delivery d
     JOIN FETCH d.saleContract c
@@ -30,9 +31,9 @@ public interface DeliveryRepository extends JpaRepository<Delivery, UUID> {
       AND d.isDeleted = false
 """)
   Page<Delivery> searchAndFilterDeliveries(
-          @Param("statuses") List<DeliveryStatus> statuses,
-          @Param("keyword") String keyword,
-          Pageable pageable);
+      @Param("statuses") List<DeliveryStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
 
   // ============================================================
   // 🔹 2. Đại lý xem delivery của chính đại lý mình (qua VehicleRequest)

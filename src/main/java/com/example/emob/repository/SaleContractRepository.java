@@ -18,7 +18,7 @@ public interface SaleContractRepository extends JpaRepository<SaleContract, UUID
   // 🔹 1. Hãng xe (EVM_STAFF, ADMIN) xem tất cả contract
   // ============================================================
   @Query(
-          """
+      """
       SELECT c
       FROM SaleContract c
       JOIN FETCH c.saleOrder so
@@ -27,9 +27,9 @@ public interface SaleContractRepository extends JpaRepository<SaleContract, UUID
         AND (:keyword IS NULL OR LOWER(c.contractNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))
     """)
   Page<SaleContract> findAllWithVehicleRequest(
-          @Param("statuses") List<ContractStatus> statuses,
-          @Param("keyword") String keyword,
-          Pageable pageable);
+      @Param("statuses") List<ContractStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
 
   // ============================================================
   // 🔹 2. Đại lý xem contract của chính đại lý mình (qua VehicleRequest)

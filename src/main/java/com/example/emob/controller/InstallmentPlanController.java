@@ -56,31 +56,31 @@ public class InstallmentPlanController {
 
   @GetMapping("/dealers")
   public ResponseEntity<APIResponse<PageResponse<InstallmentResponse>>> getAllPlansOfDealers(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<InstallmentStatus> statuses,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<InstallmentResponse>> response =
-            installmentPlanService.getAllPlansOfDealers(statuses, pageable, keyword);
+        installmentPlanService.getAllPlansOfDealers(statuses, pageable, keyword);
 
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/current-dealer")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansOfCurrentDealer(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<InstallmentStatus> statuses,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
@@ -102,17 +102,18 @@ public class InstallmentPlanController {
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    return installmentPlanService.getAllPlansOfCurrentCustomer(customerId, statuses, pageable, keyword);
+    return installmentPlanService.getAllPlansOfCurrentCustomer(
+        customerId, statuses, pageable, keyword);
   }
 
   @GetMapping("/by-customer")
   public APIResponse<PageResponse<InstallmentResponse>> getAllPlansByCustomer(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<InstallmentStatus> statuses,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<InstallmentStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();

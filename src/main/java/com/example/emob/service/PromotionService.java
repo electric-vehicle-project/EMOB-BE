@@ -127,22 +127,7 @@ public class PromotionService implements IPromotion {
         }
       } else if (staff.getRole().equals(Role.DEALER_STAFF)) {
         promotion.setScope(PromotionScope.LOCAL);
-        Set<UUID> dealerIds = request.getDealerId();
-        // phải có duy nhất 1 dealerId trong Set
-        if (dealerIds == null || dealerIds.isEmpty()) {
-          throw new GlobalException(ErrorCode.DATA_INVALID);
-        }
-        // Phải có duy nhất 1 dealerId
-        if (dealerIds.size() != 1) {
-          throw new GlobalException(ErrorCode.DATA_INVALID);
-        }
-        // Lấy ID duy nhất
-        UUID dealerId = dealerIds.iterator().next();
-        // Truy vấn dealer
-        Dealer dealer =
-            dealerRepository
-                .findById(dealerId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+        Dealer dealer = AccountUtil.getCurrentUser().getDealer();
         // Tạo Set chứa đúng 1 dealer
         Set<Dealer> dealerSet = Set.of(dealer);
         promotion.setDealers(dealerSet);

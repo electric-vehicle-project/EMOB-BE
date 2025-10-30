@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +28,7 @@ public class VehicleUnit {
   String vinNumber;
 
   BigDecimal price;
-  LocalDateTime purchaseDate;
+  LocalDate purchaseDate;
   LocalDate warrantyStart;
   LocalDate warrantyEnd;
   LocalDate productionYear;
@@ -54,8 +53,8 @@ public class VehicleUnit {
   @ManyToMany(mappedBy = "vehicleUnits")
   Set<Delivery> deliveries = new HashSet<>();
 
-  @ManyToOne
-  @JoinColumn(name = "saleOrderItem_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "sale_order_item_id")
   @JsonIgnore
   SaleOrderItem saleOrderItem;
 

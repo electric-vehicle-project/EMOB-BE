@@ -1,13 +1,10 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
+import com.example.emob.constant.ContractStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.InstallmentStatus;
-import com.example.emob.constant.PaymentStatus;
-import com.example.emob.entity.Customer;
-import com.example.emob.entity.Dealer;
-import com.example.emob.entity.InstallmentPlan;
-import com.example.emob.entity.SaleOrder;
+import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.InstallmentPlanMapper;
 import com.example.emob.mapper.PageMapper;
@@ -17,6 +14,7 @@ import com.example.emob.model.response.InstallmentResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.InstallmentPlanRepository;
+import com.example.emob.repository.SaleContractRepository;
 import com.example.emob.repository.SaleOrderRepository;
 import com.example.emob.service.impl.IInstallmentPlan;
 import com.example.emob.util.AccountUtil;
@@ -51,6 +49,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
 
   @Autowired EmailService sendEmail;
   @Autowired CustomerRepository customerRepository;
+  @Autowired SaleContractRepository contractRepository;
 
   //    @Scheduled(cron = "0 0 8 * * *") // mỗi ngày 8h sẽ chạy tự dộng
   @Scheduled(cron = "0 0 0 * * *")
@@ -154,11 +153,12 @@ public class InstallmentPlanService implements IInstallmentPlan {
     if (request.getTermMonths() <= 0) {
       throw new GlobalException(ErrorCode.INVALID_TERM);
     }
-    SaleOrder order =
-        saleOrderRepository
-            .findById(request.getOrderId())
-            .filter((item) -> PaymentStatus.INSTALLMENT.equals(item.getPaymentStatus()))
+    SaleContract contract =
+        contractRepository
+            .findById(request.getContractId())
+            .filter((item) -> item.getStatus().equals(ContractStatus.SIGNED))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    SaleOrder order = contract.getSaleOrder();
     BigDecimal monthlyAmount =
         calculateMonthlyAmount(
             request.getDeposit(),
@@ -168,7 +168,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
     try {
       InstallmentPlan installmentPlan = installmentPlanMapper.toInstallmentPlan(request);
       installmentPlan.setMonthlyAmount(monthlyAmount);
-      installmentPlan.setDownDate(LocalDateTime.now());
+      installmentPlan.setDownDate(LocalDate.now());
       installmentPlan.setNextDueDate(LocalDate.now().plusMonths(1)); // sau 1 tháng
       installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
       installmentPlan.setSaleOrder(order);
@@ -267,7 +267,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
 
     Page<InstallmentPlan> page =
         installmentPlanRepository.findAllWithQuotationByDealerAndCustomer(
-           keyword ,dealer, customer, statuses, pageable);
+            keyword, dealer, customer, statuses, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);
@@ -284,7 +284,7 @@ public class InstallmentPlanService implements IInstallmentPlan {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     Page<InstallmentPlan> page =
         installmentPlanRepository.findAllWithQuotationByDealerAndStatuses(
-                keyword, dealer, statuses, pageable);
+            keyword, dealer, statuses, pageable);
     PageResponse<InstallmentResponse> response =
         pageMapper.toPageResponse(page, installmentPlanMapper::toInstallmentResponse);
     return APIResponse.success(response);

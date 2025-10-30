@@ -52,10 +52,13 @@ public class ElectricVehicleService implements IVehicle {
       ElectricVehicle vehicle = vehicleMapper.toVehicle(request);
       vehicle.setCreatedAt(LocalDate.now());
       vehicle.setBrand(request.getBrand());
-      vehicleRepository.save(vehicle);
+      vehicle.setModel(request.getModel());
+      ElectricVehicle saved = vehicleRepository.save(vehicle);
 
-      return APIResponse.success(
-          vehicleMapper.toVehicleResponse(vehicle), "Vehicle created successfully");
+      ElectricVehicleResponse response = vehicleMapper.toVehicleResponse(vehicle);
+      response.setBrand(saved.getBrand());
+      response.setModel(saved.getModel());
+      return APIResponse.success(response, "Vehicle created successfully");
 
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.INVALID_CODE);
@@ -162,6 +165,7 @@ public class ElectricVehicleService implements IVehicle {
                   VehicleUnit unit = vehicleMapper.toVehicleUnit(request, vehicle);
                   unit.setInventory(inventory);
                   unit.setColor(request.getColor());
+                  unit.setVinNumber(generateVin(vehicle.getModel()));
                   unit.setStatus(request.getStatus());
                   unit.setPrice(vehicle.getRetailPrice().multiply(BigDecimal.valueOf(multiplier)));
                   return unit;
@@ -420,5 +424,12 @@ public class ElectricVehicleService implements IVehicle {
 
   private static Double toDouble(Number n) {
     return (n == null) ? null : n.doubleValue();
+  }
+
+  private String generateVin(String model) {
+    String prefix = model.substring(0, Math.min(model.length(), 3)).toUpperCase();
+    String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+
+    return prefix + "-" + randomPart;
   }
 }

@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.constant.PaymentStatus;
 import com.example.emob.constant.QuotationStatus;
 import com.example.emob.model.request.SaleOrderItemRequest;
 import com.example.emob.model.request.quotation.QuotationItemRequest;
@@ -45,10 +44,8 @@ public class QuotationController {
 
   @PutMapping("{id}/approved")
   public ResponseEntity<APIResponse<QuotationResponse>> approved(
-      @PathVariable UUID id,
-      @RequestBody List<SaleOrderItemRequest> itemRequests,
-      PaymentStatus paymentStatus) {
-    return ResponseEntity.ok(quotationService.approveQuotation(id, itemRequests, paymentStatus));
+      @PathVariable UUID id, @RequestBody List<SaleOrderItemRequest> itemRequests) {
+    return ResponseEntity.ok(quotationService.approveQuotation(id, itemRequests));
   }
 
   @GetMapping("{id}")

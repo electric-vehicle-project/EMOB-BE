@@ -2,7 +2,6 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.PaymentStatus;
 import com.example.emob.constant.QuotationStatus;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
@@ -130,9 +129,13 @@ public class QuotationService implements IQuotation {
         totalPrice = totalPrice.add(item.getTotalPrice());
         totalQuantity += item.getQuantity();
       }
+      BigDecimal vatRate = new BigDecimal("0.1"); // 10%
+      BigDecimal vatAmount = totalPrice.multiply(vatRate);
+      BigDecimal totalWithVat = totalPrice.add(vatAmount);
 
       quotation.setQuotationItems(quotationItems);
-      quotation.setTotalPrice(totalPrice);
+      quotation.setVatAmount(vatAmount);
+      quotation.setTotalPrice(totalWithVat);
       quotation.setTotalQuantity(totalQuantity);
 
       Quotation savedQuotation = quotationRepository.save(quotation);
@@ -390,7 +393,7 @@ public class QuotationService implements IQuotation {
 
   @Transactional
   public APIResponse<QuotationResponse> approveQuotation(
-      UUID id, List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
+      UUID id, List<SaleOrderItemRequest> itemRequests) {
     Quotation quotation =
         quotationRepository
             .findById(id)
@@ -401,7 +404,7 @@ public class QuotationService implements IQuotation {
     }
     quotation.setStatus(QuotationStatus.APPROVED);
     Quotation savedQuotation = quotationRepository.save(quotation);
-    saleOrderService.createSaleOrderFromQuotation(quotation, itemRequests, paymentStatus);
+    saleOrderService.createSaleOrderFromQuotation(quotation, itemRequests);
     return APIResponse.success(
         quotationMapper.toQuotationResponse(savedQuotation), "Approve quotation successfully");
   }
