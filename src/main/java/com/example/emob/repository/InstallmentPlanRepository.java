@@ -27,7 +27,8 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
   // ============================================================
   // 🔹 1. Hãng xe (EVM_STAFF, ADMIN) xem tất cả InstallmentPlan của đại lý
   // ============================================================
-  @Query("""
+  @Query(
+      """
   SELECT ip
   FROM InstallmentPlan ip
   JOIN FETCH ip.saleOrder so
@@ -41,9 +42,9 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
     )
 """)
   Page<InstallmentPlan> searchAndFilterWithVehicleRequest(
-          @Param("statuses") List<InstallmentStatus> statuses,
-          @Param("keyword") String keyword,
-          Pageable pageable);
+      @Param("statuses") List<InstallmentStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
 
   // ============================================================
   // 🔹 2. Đại lý xem InstallmentPlan của chính đại lý mình (qua VehicleRequest)
@@ -64,7 +65,7 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
          )
     """)
   Page<InstallmentPlan> findAllWithVehicleRequestByDealerAndStatuses(
-       @Param("keyword") String keyword,
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("statuses") List<InstallmentStatus> statuses,
       Pageable pageable);
@@ -89,7 +90,7 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
          )
     """)
   Page<InstallmentPlan> findAllWithQuotationByDealerAndCustomer(
-          @Param("keyword") String keyword,
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("customer") Customer customer,
       @Param("statuses") List<InstallmentStatus> statuses,
@@ -114,7 +115,7 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
          )
     """)
   Page<InstallmentPlan> findAllWithQuotationByDealerAndStatuses(
-          @Param("keyword") String keyword,
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("statuses") List<InstallmentStatus> statuses,
       Pageable pageable);

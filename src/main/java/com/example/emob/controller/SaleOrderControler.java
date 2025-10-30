@@ -2,7 +2,6 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.OrderStatus;
-import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
@@ -45,7 +44,8 @@ public class SaleOrderControler {
   }
 
   @GetMapping("/current-dealer")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfCurrentDealer(
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
+      getAllSaleOrdersOfCurrentDealer(
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
@@ -58,13 +58,14 @@ public class SaleOrderControler {
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<SaleOrderResponse>> response =
-            saleOrderService.getAllSaleOrdersOfCurrentDealer(statuses, keyword, pageable);
+        saleOrderService.getAllSaleOrdersOfCurrentDealer(statuses, keyword, pageable);
 
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/dealer/customers")
-  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllQuotedSaleOrdersOfCurrentDealer(
+  public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>>
+      getAllQuotedSaleOrdersOfCurrentDealer(
           @RequestParam(defaultValue = "0") int page,
           @RequestParam(defaultValue = "10") int size,
           @RequestParam(required = false) String keyword,
@@ -77,7 +78,7 @@ public class SaleOrderControler {
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<SaleOrderResponse>> response =
-            saleOrderService.getAllQuotedSaleOrdersOfCurrentDealer(statuses, keyword, pageable);
+        saleOrderService.getAllQuotedSaleOrdersOfCurrentDealer(statuses, keyword, pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -85,19 +86,19 @@ public class SaleOrderControler {
   @GetMapping("/staff/current")
   @Operation(summary = "Xem tất cả đơn hàng của nhân viên hiện tại")
   public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrdersOfStaff(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<OrderStatus> statuses,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<OrderStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<SaleOrderResponse>> response =
-            saleOrderService.getAllSaleOrdersOfStaff(statuses, keyword, pageable);
+        saleOrderService.getAllSaleOrdersOfStaff(statuses, keyword, pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -113,12 +114,12 @@ public class SaleOrderControler {
 
   @GetMapping("/dealers")
   public ResponseEntity<APIResponse<PageResponse<SaleOrderResponse>>> getAllSaleOrders(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(required = false) List<OrderStatus> statuses,
-          @RequestParam(defaultValue = "createdAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<OrderStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
@@ -126,7 +127,7 @@ public class SaleOrderControler {
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<SaleOrderResponse>> response =
-            saleOrderService.getAllSaleOrdersOfDealer(statuses, keyword, pageable);
+        saleOrderService.getAllSaleOrdersOfDealer(statuses, keyword, pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -147,7 +148,7 @@ public class SaleOrderControler {
     Pageable pageable = PageRequest.of(page, size, sort);
 
     APIResponse<PageResponse<SaleOrderResponse>> response =
-            saleOrderService.getAllSaleOrdersOfCurrentCustomer(customerId, statuses, keyword, pageable);
+        saleOrderService.getAllSaleOrdersOfCurrentCustomer(customerId, statuses, keyword, pageable);
 
     return ResponseEntity.ok(response);
   }
@@ -166,9 +167,9 @@ public class SaleOrderControler {
     return ResponseEntity.ok(saleOrderService.deleteSaleOrderById(saleOrderId));
   }
 
-  @PostMapping("/completed")
+  @PostMapping("{id}/completed")
   public ResponseEntity<APIResponse<SaleOrderResponse>> completeSaleOrderById(
-      @RequestBody InstallmentRequest request) {
-    return ResponseEntity.ok(saleOrderService.completeSaleOrderById(request));
+      @PathVariable("id") UUID id) {
+    return ResponseEntity.ok(saleOrderService.completeSaleOrderById(id));
   }
 }

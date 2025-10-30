@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
-import com.example.emob.constant.PaymentStatus;
 import com.example.emob.constant.VehicleRequestStatus;
 import com.example.emob.model.request.vehicleRequest.VehicleRequestItemRequest;
 import com.example.emob.model.request.vehicleRequest.VehicleRequestItemUpdateRequest;
@@ -44,9 +43,8 @@ public class VehicleRequestController {
   }
 
   @PutMapping("{id}/approved")
-  public ResponseEntity<APIResponse<VehicleRequestResponse>> approved(
-      @PathVariable UUID id, @RequestBody PaymentStatus paymentStatus) {
-    return ResponseEntity.ok(vehiclerequestService.approveVehicleRequest(id, paymentStatus));
+  public ResponseEntity<APIResponse<VehicleRequestResponse>> approved(@PathVariable UUID id) {
+    return ResponseEntity.ok(vehiclerequestService.approveVehicleRequest(id));
   }
 
   // 🔹 Delete Vehicle Request (soft delete)

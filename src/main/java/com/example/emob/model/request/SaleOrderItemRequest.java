@@ -13,4 +13,5 @@ import lombok.experimental.FieldDefaults;
 public class SaleOrderItemRequest {
   UUID itemsId;
   UUID promotionId;
+  int quantity;
 }

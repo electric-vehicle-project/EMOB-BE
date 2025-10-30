@@ -21,7 +21,13 @@ public class Dealer {
   @Id @UuidGenerator UUID id;
 
   String name;
-  String contactInfo;
+
+  @Column(unique = true)
+  String emailContact;
+
+  @Column(unique = true)
+  String phoneContact;
+
   String country;
   String address;
   LocalDateTime createdAt;
