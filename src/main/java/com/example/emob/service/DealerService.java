@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.service;
 
+import com.example.emob.constant.ContractStatus;
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Inventory;
@@ -8,16 +9,19 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.DealerRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerResponse;
-import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.repository.DealerRepository;
+import com.example.emob.repository.SaleContractRepository;
 import com.example.emob.service.impl.IDealer;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,6 +32,9 @@ public class DealerService implements IDealer {
   @Autowired DealerRepository dealerRepository;
 
   @Autowired DealerMapper dealerMapper;
+
+  @Autowired
+  SaleContractRepository saleContractRepository;
 
   @Autowired PageMapper pageMapper;
 
@@ -112,4 +119,31 @@ public class DealerService implements IDealer {
       throw new GlobalException(ErrorCode.OTHER, "Unexpected error occurred");
     }
   }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  public APIResponse<DealerRevenueResponse> getDealerRevenueReport(
+          List<ContractStatus> statuses,
+          Pageable pageable) {
+
+    // Lấy toàn bộ dữ liệu
+    List<DealerRevenueItemResponse> all =
+            dealerRepository.getDealerRevenueByDateRange(statuses);
+
+    long totalDealers = all.size();
+
+    // Phân trang thủ công
+    int start = (int) pageable.getOffset();
+    int end = Math.min(start + pageable.getPageSize(), all.size());
+    List<DealerRevenueItemResponse> paged = start >= all.size() ? List.of() : all.subList(start, end);
+
+    // Tạo response wrapper
+    DealerRevenueResponse response = DealerRevenueResponse.builder()
+            .items(paged)
+            .totalDealer(totalDealers)
+            .build();
+
+    return APIResponse.success(response);
+  }
+
 }
