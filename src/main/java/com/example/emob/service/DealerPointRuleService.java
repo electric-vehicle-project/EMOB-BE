@@ -47,10 +47,13 @@ public class DealerPointRuleService implements IDealerPointRule {
   }
 
   @Override
-  public List<DealerPointRule> getRule(String dealerId) {
-    return dealerPointRepository
-        .findByDealerId(dealerId)
-        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+  public APIResponse<List<DealerPointRule>> getRule(String dealerId) {
+    List<DealerPointRule> rules = dealerPointRepository
+        .findByDealerId(dealerId);
+    if (rules.isEmpty()) {
+      throw new GlobalException(ErrorCode.NOT_FOUND);
+    }
+    return APIResponse.success(rules);
   }
 
   @Override

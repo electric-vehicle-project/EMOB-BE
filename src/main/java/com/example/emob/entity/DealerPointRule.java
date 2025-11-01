@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 @RedisHash("dealer_point") // key prefix trong Redis
 @Getter
@@ -16,6 +17,7 @@ import org.springframework.data.redis.core.RedisHash;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DealerPointRule {
   @Id String membershipLevel;
+  @Indexed
   String dealerId;
   int minPoints;
   BigDecimal price;
