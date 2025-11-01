@@ -332,8 +332,7 @@ public class VehicleRequestService implements IVehicleRequest {
 
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
-  public APIResponse<VehicleRequestResponse> approveVehicleRequest(
-      UUID id, PaymentStatus paymentStatus) {
+  public APIResponse<VehicleRequestResponse> approveVehicleRequest(UUID id) {
     VehicleRequest vehicleRequest =
         vehiclerequestRepository
             .findById(id)
@@ -341,7 +340,7 @@ public class VehicleRequestService implements IVehicleRequest {
                 () -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle Request not found"));
     vehicleRequest.setStatus(VehicleRequestStatus.APPROVED);
     VehicleRequest savedVehicleRequest = vehiclerequestRepository.save(vehicleRequest);
-    saleOrderService.createSaleOrderFromVehicleRequest(vehicleRequest, paymentStatus);
+    saleOrderService.createSaleOrderFromVehicleRequest(vehicleRequest);
     return APIResponse.success(
         vehicleRequestMapper.toVehicleRequestResponse(savedVehicleRequest),
         "Approve VehicleRequest successfully");

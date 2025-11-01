@@ -66,14 +66,22 @@ public class DeliveryController {
   }
 
   @GetMapping("/dealers")
-  public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
-      @RequestParam(required = false) List<DeliveryStatus> statuses,
+  public ResponseEntity<APIResponse<PageResponse<DeliveryResponse>>> getAllDeliveriesOfDealers(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<DeliveryStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
-    return deliveryService.getAllDeliveriesOfDealers(statuses, pageable);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    APIResponse<PageResponse<DeliveryResponse>> response =
+        deliveryService.getAllDeliveriesOfDealers(keyword, statuses, pageable);
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/dealer/current")
@@ -81,9 +89,12 @@ public class DeliveryController {
       @RequestParam(required = false) List<DeliveryStatus> statuses,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return deliveryService.getAllDeliveriesOfCurrentDealer(statuses, pageable);
   }
 
@@ -104,9 +115,12 @@ public class DeliveryController {
       @RequestParam(required = false) List<DeliveryStatus> statuses,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return deliveryService.getAllDeliveriesOfCurrentCustomer(customerId, statuses, pageable);
   }
 

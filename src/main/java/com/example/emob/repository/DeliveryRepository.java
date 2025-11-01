@@ -19,16 +19,21 @@ public interface DeliveryRepository extends JpaRepository<Delivery, UUID> {
   // ============================================================
   @Query(
       """
-  SELECT d
-  FROM Delivery d
-  JOIN FETCH d.saleContract c
-  JOIN c.saleOrder so
-  JOIN so.vehicleRequest vr
-  WHERE (:statuses IS NULL OR d.status IN :statuses)
-  AND d.isDeleted = false
+    SELECT d
+    FROM Delivery d
+    JOIN FETCH d.saleContract c
+    JOIN c.saleOrder so
+    JOIN so.vehicleRequest vr
+    WHERE (:statuses IS NULL OR d.status IN :statuses)
+      AND (:keyword IS NULL
+           OR LOWER(CAST(d.quantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(c.contractNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND d.isDeleted = false
 """)
-  Page<Delivery> findAllWithVehicleRequest(
-      @Param("statuses") List<DeliveryStatus> statuses, Pageable pageable);
+  Page<Delivery> searchAndFilterDeliveries(
+      @Param("statuses") List<DeliveryStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
 
   // ============================================================
   // 🔹 2. Đại lý xem delivery của chính đại lý mình (qua VehicleRequest)

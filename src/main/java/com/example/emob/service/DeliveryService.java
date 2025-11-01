@@ -13,7 +13,6 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.repository.*;
 import com.example.emob.service.impl.IDelivery;
 import com.example.emob.util.AccountUtil;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -120,6 +119,10 @@ public class DeliveryService implements IDelivery {
       delivery.setQuantity(vehiclesToDeliver.size());
       contract.setDelivery(delivery);
 
+      Inventory inventory = inventoryRepository.findInventoryByIsCompanyTrue();
+      inventory.setQuantity(inventory.getQuantity() - vehiclesToDeliver.size());
+      inventoryRepository.save(inventory);
+
       // 5️⃣ Lưu xuống DB
       Delivery savedDelivery = deliveryRepository.save(delivery);
 
@@ -174,7 +177,6 @@ public class DeliveryService implements IDelivery {
       }
 
       // 🔹 3.1 Gỡ inventory khỏi tất cả xe (vì giao ra khỏi đại lý cho khách)
-      vehicleUnits.forEach(vehicle -> vehicle.setInventory(null));
 
       // ===== 4️⃣ Liên kết hai chiều =====
       delivery.setVehicleUnits(vehicleUnits);
@@ -221,8 +223,9 @@ public class DeliveryService implements IDelivery {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<DeliveryResponse>> getAllDeliveriesOfDealers(
-      List<DeliveryStatus> statuses, Pageable pageable) {
-    Page<Delivery> page = deliveryRepository.findAllWithVehicleRequest(statuses, pageable);
+      String keyword, List<DeliveryStatus> statuses, Pageable pageable) {
+
+    Page<Delivery> page = deliveryRepository.searchAndFilterDeliveries(statuses, keyword, pageable);
 
     PageResponse<DeliveryResponse> response =
         pageMapper.toPageResponse(page, deliveryMapper::toDeliveryResponse);
@@ -319,18 +322,10 @@ public class DeliveryService implements IDelivery {
     if (delivery.getSaleContract().getSaleOrder().getVehicleRequest() != null) {
       Dealer dealer = delivery.getSaleContract().getSaleOrder().getVehicleRequest().getDealer();
       delivery.getVehicleUnits().forEach(vehicle -> vehicle.setInventory(dealer.getInventory()));
-    } else {
-      // nếu giao xe cho khách thì chuyển thành đã bán
-      delivery
-          .getVehicleUnits()
-          .forEach(
-              vehicle -> {
-                vehicle.setStatus(VehicleStatus.SOLD);
-                vehicle.setWarrantyStart(LocalDate.now());
-                vehicle.setWarrantyEnd(LocalDate.now().plusYears(2));
-              });
+      Inventory inventory = dealer.getInventory();
+      inventory.setQuantity(inventory.getQuantity() + delivery.getVehicleUnits().size());
+      inventoryRepository.save(inventory);
     }
-
     delivery.setCompletedAt(LocalDateTime.now());
     Delivery updatedDelivery = deliveryRepository.save(delivery);
 

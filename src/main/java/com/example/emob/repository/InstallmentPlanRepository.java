@@ -29,14 +29,22 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
   // ============================================================
   @Query(
       """
-    SELECT ip
-    FROM InstallmentPlan ip
-    JOIN FETCH ip.saleOrder so
-    JOIN FETCH so.vehicleRequest vr
-    WHERE (:statuses IS NULL OR so.status IN :statuses)
-    """)
-  Page<InstallmentPlan> findAllWithVehicleRequest(
-      @Param("statuses") List<InstallmentStatus> statuses, Pageable pageable);
+  SELECT ip
+  FROM InstallmentPlan ip
+  JOIN FETCH ip.saleOrder so
+  JOIN FETCH so.vehicleRequest vr
+  WHERE (:statuses IS NULL OR ip.status IN :statuses)
+    AND (
+         :keyword IS NULL
+         OR CAST(ip.termMonths AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.totalAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.monthlyAmount AS string) LIKE CONCAT('%', :keyword, '%')
+    )
+""")
+  Page<InstallmentPlan> searchAndFilterWithVehicleRequest(
+      @Param("statuses") List<InstallmentStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
 
   // ============================================================
   // 🔹 2. Đại lý xem InstallmentPlan của chính đại lý mình (qua VehicleRequest)
@@ -49,8 +57,15 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
     JOIN FETCH so.vehicleRequest vr
     WHERE  vr.dealer = :dealer
       AND (:statuses IS NULL OR so.status IN :statuses)
+          AND (
+         :keyword IS NULL
+         OR CAST(ip.termMonths AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.totalAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.monthlyAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         )
     """)
   Page<InstallmentPlan> findAllWithVehicleRequestByDealerAndStatuses(
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("statuses") List<InstallmentStatus> statuses,
       Pageable pageable);
@@ -67,8 +82,15 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
     WHERE  q.dealer = :dealer
       AND q.customer = :customer
       AND (:statuses IS NULL OR so.status IN :statuses)
+                AND (
+         :keyword IS NULL
+         OR CAST(ip.termMonths AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.totalAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.monthlyAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         )
     """)
   Page<InstallmentPlan> findAllWithQuotationByDealerAndCustomer(
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("customer") Customer customer,
       @Param("statuses") List<InstallmentStatus> statuses,
@@ -85,8 +107,15 @@ public interface InstallmentPlanRepository extends JpaRepository<InstallmentPlan
     JOIN FETCH so.quotation q
     WHERE q.dealer = :dealer
       AND (:statuses IS NULL OR so.status IN :statuses)
+                      AND (
+         :keyword IS NULL
+         OR CAST(ip.termMonths AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.totalAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         OR CAST(ip.monthlyAmount AS string) LIKE CONCAT('%', :keyword, '%')
+         )
     """)
   Page<InstallmentPlan> findAllWithQuotationByDealerAndStatuses(
+      @Param("keyword") String keyword,
       @Param("dealer") Dealer dealer,
       @Param("statuses") List<InstallmentStatus> statuses,
       Pageable pageable);

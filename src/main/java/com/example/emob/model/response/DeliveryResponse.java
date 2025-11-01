@@ -21,6 +21,6 @@ public class DeliveryResponse {
   LocalDateTime deliveryDate;
   int quantity;
   DeliveryStatus status;
-  LocalDateTime createdAt;
+  LocalDateTime createAt;
   LocalDateTime completedAt;
 }

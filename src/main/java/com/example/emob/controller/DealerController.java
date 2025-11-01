@@ -52,7 +52,8 @@ public class DealerController {
                                 """
                             {
                               "name": "Dealer One",
-                              "contactInfo": "dealer1@example.com",
+                              "emailContact": "dealer1@example.com",
+                              "phoneContact": "0987654321",
                                 "country": "USA",
                                 "address": "New York, NY"
                             }
@@ -63,7 +64,8 @@ public class DealerController {
                                 """
                             {
                               "name": "Dealer Two",
-                              "contactInfo": "dealer2@example.com",
+                               "emailContact": "dealer2@example.com",
+                              "phoneContact": "0987654322",
                               "country": "Canada",
                               "address": "Toronto, ON"
                             }
@@ -87,7 +89,7 @@ public class DealerController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) String country,
-      @RequestParam(defaultValue = "createAt") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);

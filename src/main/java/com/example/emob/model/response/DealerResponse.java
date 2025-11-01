@@ -14,7 +14,8 @@ import lombok.experimental.FieldDefaults;
 public class DealerResponse {
   UUID id;
   String name;
-  String contactInfo;
+  String emailContact;
+  String phoneContact;
   String country;
   String address;
   LocalDateTime createdAt;

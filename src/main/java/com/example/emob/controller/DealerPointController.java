@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class DealerPointController {
   @Autowired private DealerPointRuleService dealerPointRuleService;
 
-  @PostMapping
+  @PutMapping
   @Operation(
       summary = "Create Dealer Point Rule",
       requestBody =
@@ -46,14 +46,26 @@ public class DealerPointController {
                             {
                                 "level": "BRONZE",
                                 "dealerId": "string",
-                                "minPoints": 0,
-                                "price": 0
+                                "minPoints": 200,
+                                "price": 1000
                             },
-                            {
-                                "level": "BRONZE",
+                             {
+                                "level": "SILVER",
                                 "dealerId": "string",
-                                "minPoints": 0,
-                                "price": 0
+                                "minPoints": 500,
+                                "price": 2000
+                            },
+                             {
+                                "level": "GOLD",
+                                "dealerId": "string",
+                                "minPoints": 800,
+                                "price": 3000
+                            },
+                             {
+                                "level": "PLATINUM",
+                                "dealerId": "string",
+                                "minPoints": 900,
+                                "price": 4000
                             }
                           ]
                             """)

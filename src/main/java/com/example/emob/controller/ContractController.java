@@ -2,6 +2,8 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.ContractStatus;
+import com.example.emob.constant.PaymentStatus;
+import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.saleContract.ContractResponse;
@@ -47,43 +49,64 @@ public class ContractController {
 
   @GetMapping("/dealers")
   @Operation(summary = "Hãng xe xem tất cả hợp đồng của đại lý")
-  public APIResponse<PageResponse<ContractResponse>> getAllContractsOfDealers(
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<ContractStatus> statuses,
+  public ResponseEntity<APIResponse<PageResponse<ContractResponse>>> getAllContractsOfDealers(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
-    return contractService.getAllContractsOfDealers(keyword, statuses, pageable);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    APIResponse<PageResponse<ContractResponse>> response =
+        contractService.getAllContractsOfDealers(keyword, statuses, pageable);
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/customers/{customerId}")
   @Operation(summary = "Đại lý xem hợp đồng của khách hàng cụ thể (qua báo giá)")
-  public APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentCustomer(
-      @PathVariable UUID customerId,
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<ContractStatus> statuses,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+  public ResponseEntity<APIResponse<PageResponse<ContractResponse>>>
+      getAllContractsOfCurrentCustomer(
+          @PathVariable UUID customerId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<ContractStatus> statuses,
+          @RequestParam(defaultValue = "createdAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
-    return contractService.getAllContractsOfCurrentCustomer(
-        customerId, keyword, statuses, pageable);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    APIResponse<PageResponse<ContractResponse>> response =
+        contractService.getAllContractsOfCurrentCustomer(customerId, keyword, statuses, pageable);
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/current-dealer")
   @Operation(summary = "Đại lý xem hợp đồng của chính mình")
-  public APIResponse<PageResponse<ContractResponse>> getAllContractsOfCurrentDealer(
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<ContractStatus> statuses,
+  public ResponseEntity<APIResponse<PageResponse<ContractResponse>>> getAllContractsOfCurrentDealer(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<ContractStatus> statuses,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
-    return contractService.getAllContractsOfCurrentDealer(keyword, statuses, pageable);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    APIResponse<PageResponse<ContractResponse>> response =
+        contractService.getAllContractsOfCurrentDealer(keyword, statuses, pageable);
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/dealer/customers")
@@ -93,9 +116,12 @@ public class ContractController {
       @RequestParam(required = false) List<ContractStatus> statuses,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
 
-    Pageable pageable = buildPageable(page, size, sort);
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return contractService.getAllContractsByCustomer(keyword, statuses, pageable);
   }
 
@@ -112,10 +138,13 @@ public class ContractController {
   // ===========================================
   // 🔹 7. Ký hợp đồng
   // ===========================================
-  @PostMapping("/sign/{contractId}")
+  @PostMapping("/sign")
   public ResponseEntity<APIResponse<ContractResponse>> signContract(
-      @PathVariable UUID contractId, @RequestParam LocalDate date) {
-    APIResponse<ContractResponse> response = contractService.signContract(date, contractId);
+      @RequestBody(required = false) InstallmentRequest request,
+      @RequestParam LocalDate purchaseDate,
+      @RequestParam PaymentStatus paymentStatus) {
+    APIResponse<ContractResponse> response =
+        contractService.signContract(purchaseDate, paymentStatus, request);
     return ResponseEntity.ok(response);
   }
 

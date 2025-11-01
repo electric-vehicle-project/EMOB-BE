@@ -23,14 +23,16 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
 
   @Query(
           """
-                  SELECT d
-                  FROM Dealer d
-                  WHERE d.isDeleted = false
-                    AND (:keyword IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                         OR LOWER(d.contactInfo) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                         OR LOWER(d.address) LIKE LOWER(CONCAT('%', :keyword, '%')))
-                    AND (:country IS NULL OR LOWER(d.country) = LOWER(:country))
-                  """)
+        SELECT d
+        FROM Dealer d
+        WHERE d.isDeleted = false
+          AND (:keyword IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(d.emailContact) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(d.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
+               OR LOWER(d.phoneContact) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    
+          AND (:country IS NULL OR LOWER(d.country) = LOWER(:country))
+        """)
   Page<Dealer> searchAndFilter(
           @Param("keyword") String keyword, @Param("country") String country, Pageable pageable);
 

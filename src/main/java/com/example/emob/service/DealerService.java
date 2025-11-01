@@ -114,7 +114,7 @@ public class DealerService implements IDealer {
 
       return APIResponse.success(response, "Get all dealers successfully");
     } catch (DataAccessException ex) {
-      throw new GlobalException(ErrorCode.DB_ERROR, "Database access error");
+      throw new GlobalException(ErrorCode.DB_ERROR, ex.getMessage());
     } catch (Exception ex) {
       throw new GlobalException(ErrorCode.OTHER, "Unexpected error occurred");
     }

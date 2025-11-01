@@ -74,18 +74,14 @@ public class TokenService {
 
   // verify_token
   public Account verifyToken(String token) {
-    try {
-      Claims claims =
-          Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
 
-      UUID accountId = UUID.fromString(claims.getSubject());
-      return accountRepository
-          .findById(accountId)
-          .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Account not found"));
+    Claims claims =
+        Jwts.parser().verifyWith(getSignKey()).build().parseSignedClaims(token).getPayload();
 
-    } catch (JwtException e) {
-      throw new GlobalException(ErrorCode.UNAUTHORIZED, "Invalid or expired token");
-    }
+    UUID accountId = UUID.fromString(claims.getSubject());
+    return accountRepository
+        .findById(accountId)
+        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Account not found"));
   }
 
   // ===== ACCESS TOKEN =====

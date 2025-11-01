@@ -6,12 +6,11 @@ import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ContractMapper;
 import com.example.emob.mapper.PageMapper;
+import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.saleContract.ContractResponse;
-import com.example.emob.repository.CustomerRepository;
-import com.example.emob.repository.SaleContractRepository;
-import com.example.emob.repository.SaleOrderRepository;
+import com.example.emob.repository.*;
 import com.example.emob.service.impl.IContract;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
@@ -31,14 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class ContractService implements IContract {
   @Autowired private PageMapper pageMapper;
 
-  @Autowired private SaleOrderRepository saleOrderRepository;
+  @Autowired private VehicleUnitRepository vehicleUnitRepository;
 
   @Autowired private ContractMapper contractMapper;
+  @Autowired private InventoryRepository inventoryRepository;
 
   @Autowired private SaleContractRepository contractRepository;
 
   @Autowired private EmailService emailService;
   @Autowired private CustomerRepository customerRepository;
+  @Autowired private InstallmentPlanService installmentService;
 
   private String generateContractNumber(UUID orderId) {
     String prefix = "HD-" + LocalDate.now().getYear() + "-";
@@ -76,7 +77,7 @@ public class ContractService implements IContract {
     // 🔹 2. Tạo đối tượng hợp đồng
     SaleContract contract = new SaleContract();
     contract.setContractNumber(generateContractNumber(saleOrder.getId()));
-    contract.setCreateAt(LocalDateTime.now());
+    contract.setCreatedAt(LocalDateTime.now());
     contract.setStatus(ContractStatus.PENDING);
     contract.setSaleOrder(saleOrder);
     contract.setTotalPrice(saleOrder.getTotalPrice());
@@ -89,7 +90,7 @@ public class ContractService implements IContract {
     // 🔹 3. Map từ SaleOrderItem → SaleContractItem (dùng mapper)
     Set<SaleContractItem> contractItems =
         saleOrder.getSaleOrderItems().stream()
-            .filter(vri -> !vri.isDeleted()) // bỏ qua item bị xóa
+            .filter(vri -> !vri.isDeleted())
             .map(
                 vri -> {
                   SaleContractItem item = new SaleContractItem();
@@ -99,14 +100,21 @@ public class ContractService implements IContract {
                   item.setQuantity(vri.getQuantity());
                   item.setColor(vri.getColor());
                   item.setVehicleStatus(vri.getVehicleStatus());
-                  item.setVehicle(vri.getVehicle()); // đảm bảo vehicle đã managed
+                  item.setPromotion(vri.getPromotion());
+                  item.setVehicle(vri.getVehicle());
                   item.setSaleContract(contract);
-                  // Tạo vehicleUnits riêng cho item, không share với item khác
-                  item.getVehicleUnits()
-                      .forEach(
-                          (unit) -> {
-                            unit.setSaleContractItem(item);
-                          });
+
+                  // 🔥 Tạo Set mới thay vì dùng reference cũ
+                  Set<VehicleUnit> clonedUnits =
+                      vri.getVehicleUnits().stream()
+                          .map(
+                              unit -> {
+                                unit.setSaleContractItem(item);
+                                return unit;
+                              })
+                          .collect(Collectors.toSet());
+
+                  item.setVehicleUnits(clonedUnits);
                   return item;
                 })
             .collect(Collectors.toSet());
@@ -138,28 +146,42 @@ public class ContractService implements IContract {
 
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
-  public APIResponse<ContractResponse> signContract(LocalDate date, UUID contractId) {
+  public APIResponse<ContractResponse> signContract(
+      LocalDate date, PaymentStatus status, InstallmentRequest request) {
     // sign contract chưa check role
     SaleContract contract =
         contractRepository
-            .findById(contractId)
+            .findById(request.getContractId())
             .filter((item) -> item.getStatus().equals(ContractStatus.PENDING))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     contract.setStatus(ContractStatus.SIGNED);
 
     if (contract.getSaleOrder().getQuotation() != null) {
+      Dealer dealer = contract.getSaleOrder().getQuotation().getDealer();
+      Inventory inventory = dealer.getInventory();
       String email = contract.getSaleOrder().getQuotation().getCustomer().getEmail();
       String cusName = contract.getSaleOrder().getQuotation().getCustomer().getFullName();
-      contract
-          .getSaleContractItems()
-          .forEach(
-              item ->
-                  item.getVehicleUnits()
-                      .forEach(unit -> unit.setPurchaseDate(LocalDateTime.now())));
+      for (SaleContractItem item : contract.getSaleContractItems()) {
+        for (VehicleUnit unit : item.getVehicleUnits()) {
+          unit.setPurchaseDate(date);
+          unit.setStatus(VehicleStatus.SOLD);
+          unit.setWarrantyStart(LocalDate.now());
+          unit.setWarrantyEnd(LocalDate.now().plusYears(2));
+          unit.setInventory(null);
+          vehicleUnitRepository.save(unit);
+          inventory.setQuantity(inventory.getQuantity() - 1);
+        }
+      }
+      inventoryRepository.save(inventory);
       signContract(email, cusName);
     }
+
+    contract.getSaleOrder().setPaymentStatus(status);
     contract.setSignDate(date);
     contractRepository.save(contract);
+    if (status.equals(PaymentStatus.INSTALLMENT)) {
+      installmentService.createInstallment(request);
+    }
     ContractResponse contractResponse = contractMapper.toContractResponse(contract);
     return APIResponse.success(contractResponse, "Signed contract successfully");
   }
@@ -171,10 +193,13 @@ public class ContractService implements IContract {
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<ContractResponse>> getAllContractsOfDealers(
       String keyword, List<ContractStatus> statuses, Pageable pageable) {
+
     Page<SaleContract> page =
         contractRepository.findAllWithVehicleRequest(statuses, keyword, pageable);
+
     PageResponse<ContractResponse> response =
         pageMapper.toPageResponse(page, contractMapper::toContractResponse);
+
     return APIResponse.success(response);
   }
 

@@ -17,51 +17,70 @@ import org.springframework.data.repository.query.Param;
 public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
   @Query(
       """
-  SELECT s
-  FROM SaleOrder s
-  JOIN FETCH s.vehicleRequest vr
-  WHERE (:statuses IS NULL OR s.status IN :statuses)
-""")
-  Page<SaleOrder> findAllWithVehicleRequest(
-      @Param("statuses") List<OrderStatus> statuses, Pageable pageable);
-
-  @Query(
-      """
-  SELECT s
-  FROM SaleOrder s
-  JOIN FETCH s.vehicleRequest vr
-  WHERE vr.dealer = :dealer
-    AND (:statuses IS NULL OR s.status IN :statuses)
-""")
-  Page<SaleOrder> findAllWithVehicleRequestByDealerAndStatuses(
-      @Param("dealer") Dealer dealer,
-      @Param("statuses") List<OrderStatus> statuses,
-      Pageable pageable);
-
-  @Query(
-      """
-  SELECT s
-  FROM SaleOrder s
-  JOIN FETCH s.quotation q
-  WHERE q.dealer = :dealer
-    AND (:statuses IS NULL OR s.status IN :statuses)
-""")
-  Page<SaleOrder> findAllWithQuotationByDealerAndStatuses(
-      @Param("dealer") Dealer dealer,
-      @Param("statuses") List<OrderStatus> statuses,
-      Pageable pageable);
-
-  @Query(
-      """
       SELECT s
       FROM SaleOrder s
-      JOIN FETCH s.quotation q
-      WHERE q.account = :account
-        AND (:statuses IS NULL OR s.status IN :statuses)
-    """)
-  Page<SaleOrder> findAllWithQuotationByAccountAndStatuses(
+      WHERE (:statuses IS NULL OR s.status IN :statuses)
+        AND (:keyword IS NULL
+             OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(s.paymentStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))
+  """)
+  Page<SaleOrder> searchAndFilter(
+      @Param("statuses") List<OrderStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
+
+  // filter status, search of order and vehicle request
+  @Query(
+      """
+    SELECT s
+    FROM SaleOrder s
+    JOIN FETCH s.vehicleRequest v
+    WHERE v.dealer = :dealer
+      AND (:statuses IS NULL OR s.status IN :statuses)
+      AND (:keyword IS NULL
+           OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(s.paymentStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""")
+  Page<SaleOrder> searchAndFilterByDealer(
+      @Param("dealer") Dealer dealer,
+      @Param("statuses") List<OrderStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
+
+  // filter status, search of order and quotation
+  @Query(
+      """
+    SELECT s
+    FROM SaleOrder s
+    JOIN FETCH s.quotation q
+    WHERE q.dealer = :dealer
+      AND (:statuses IS NULL OR s.status IN :statuses)
+      AND (:keyword IS NULL
+           OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(s.paymentStatus) LIKE LOWER(CONCAT('%', :keyword, '%'))
+           OR LOWER(CAST(q.validUntil AS string)) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""")
+  Page<SaleOrder> searchAndFilterQuotedOrdersByDealer(
+      @Param("dealer") Dealer dealer,
+      @Param("statuses") List<OrderStatus> statuses,
+      @Param("keyword") String keyword,
+      Pageable pageable);
+
+  @Query(
+      """
+    SELECT s
+    FROM SaleOrder s
+    JOIN FETCH s.quotation q
+    WHERE s.account = :account
+      AND (:statuses IS NULL OR s.status IN :statuses)
+      AND (:keyword IS NULL
+           OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(s.paymentStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))
+""")
+  Page<SaleOrder> searchAndFilterByAccount(
       @Param("account") Account account,
       @Param("statuses") List<OrderStatus> statuses,
+      @Param("keyword") String keyword,
       Pageable pageable);
 
   @Query(
@@ -76,16 +95,20 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
 
   @Query(
       """
-  SELECT s
-  FROM SaleOrder s
-  JOIN FETCH s.quotation q
-  WHERE q.dealer = :dealer
-    AND q.customer = :customer
-    AND (:statuses IS NULL OR s.status IN :statuses)
+    SELECT s
+    FROM SaleOrder s
+    JOIN FETCH s.quotation q
+    WHERE q.dealer = :dealer
+      AND q.customer = :customer
+      AND (:statuses IS NULL OR s.status IN :statuses)
+      AND (:keyword IS NULL
+           OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+             OR LOWER(s.paymentStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))
 """)
-  Page<SaleOrder> findAllWithQuotationByDealerAndCustomerAndStatuses(
+  Page<SaleOrder> searchAndFilterByDealerAndCustomer(
       @Param("dealer") Dealer dealer,
       @Param("customer") Customer customer,
       @Param("statuses") List<OrderStatus> statuses,
+      @Param("keyword") String keyword,
       Pageable pageable);
 }

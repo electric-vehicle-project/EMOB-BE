@@ -7,7 +7,6 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.mapper.SaleOrderMapper;
 import com.example.emob.model.request.SaleOrderItemRequest;
-import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.SaleOrder.SaleOrderResponse;
@@ -45,19 +44,17 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @Transactional
   public APIResponse<SaleOrderResponse> createSaleOrderFromQuotation(
-      Quotation quotation, List<SaleOrderItemRequest> itemRequests, PaymentStatus paymentStatus) {
+      Quotation quotation, List<SaleOrderItemRequest> itemRequests) {
 
-    // ✅ Lấy danh sách ID item từ request
     Set<UUID> quotationItemIds =
         itemRequests.stream().map(SaleOrderItemRequest::getItemsId).collect(Collectors.toSet());
 
-    // ✅ Tạo danh sách SaleOrderItem từ QuotationItem
+    // === 1. Duyệt các QuotationItem được chọn ===
     Set<SaleOrderItem> saleOrderItems =
         quotation.getQuotationItems().stream()
             .filter(item -> quotationItemIds.contains(item.getId()))
             .map(
                 item -> {
-                  // Tìm request tương quotationItemIds
                   SaleOrderItemRequest req =
                       itemRequests.stream()
                           .filter(r -> r.getItemsId().equals(item.getId()))
@@ -67,7 +64,6 @@ public class SaleOrderService implements ISaleOrder {
                                   new GlobalException(
                                       ErrorCode.INVALID_CODE, "Invalid item request"));
 
-                  // Tính giá sau giảm
                   Promotion promotion = null;
                   if (req.getPromotionId() != null) {
                     promotion =
@@ -80,18 +76,21 @@ public class SaleOrderService implements ISaleOrder {
                     PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
                     PromotionHelper.checkPromotionValid(promotion);
                   }
-                  // === Tìm xe cụ thể trong kho ===
-                  Set<VehicleUnit> vehicleUnits = new HashSet<>();
 
-                  List<VehicleUnit> availableUnits =
+                  // === 2. Tạo SaleOrderItem ===
+                  SaleOrderItem saleItem = new SaleOrderItem();
+
+                  // === 3. Gán các xe khả dụng ===
+                  List<VehicleUnit> units =
                       vehicleUnitRepository
                           .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
                               AccountUtil.getCurrentUser().getDealer().getInventory(),
                               item.getVehicle(),
                               item.getColor(),
                               item.getVehicleStatus(),
-                              PageRequest.of(0, item.getQuantity()) // limit = requiredQty
-                              );
+                              PageRequest.of(0, req.getQuantity()));
+
+                  saleItem.setVehicleUnits(new HashSet<>(units));
 
                   BigDecimal unitPrice =
                       Objects.requireNonNullElse(item.getUnitPrice(), BigDecimal.ZERO);
@@ -100,16 +99,10 @@ public class SaleOrderService implements ISaleOrder {
                           unitPrice, promotion, quotation.getCustomer());
                   BigDecimal totalPrice =
                       discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
-                  // Cập nhật cho QuotationItem
-                  item.setPromotion(promotion);
-                  item.setDiscountPrice(discountedPrice);
-                  item.setTotalPrice(totalPrice);
 
-                  // ✅ Tạo SaleOrderItem
-                  SaleOrderItem saleItem = new SaleOrderItem();
-                  saleItem.setVehicleUnits(vehicleUnits);
                   saleItem.setQuantity(item.getQuantity());
                   saleItem.setVehicleStatus(item.getVehicleStatus());
+                  saleItem.setPromotion(promotion);
                   saleItem.setColor(item.getColor());
                   saleItem.setUnitPrice(unitPrice);
                   saleItem.setDiscountPrice(discountedPrice);
@@ -119,30 +112,40 @@ public class SaleOrderService implements ISaleOrder {
                 })
             .collect(Collectors.toSet());
 
-    // ✅ Tạo SaleOrder
+    // === 4. Tạo SaleOrder ===
     SaleOrder saleOrder = new SaleOrder();
     saleOrder.setAccount(AccountUtil.getCurrentUser());
     saleOrder.setStatus(OrderStatus.CREATED);
-    saleOrder.setPaymentStatus(paymentStatus);
     saleOrder.setCreatedAt(LocalDateTime.now());
-    saleOrder.setSaleOrderItems(saleOrderItems);
     saleOrder.setQuotation(quotation);
     quotation.setSaleOrder(saleOrder);
-    // Gán quan hệ ngược cho JPA
-    saleOrderItems.forEach(item -> item.setSaleOrder(saleOrder));
 
-    // ✅ Tính tổng tiền an toàn
+    saleOrder.setSaleOrderItems(saleOrderItems);
+    // === 5. Tính tổng tiền + VAT ===
     BigDecimal totalAmount =
         saleOrderItems.stream()
             .map(SaleOrderItem::getTotalPrice)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-    saleOrder.setVatAmount(totalAmount);
-    saleOrder.setTotalPrice(totalAmount.multiply(BigDecimal.valueOf(1.1))); // VAT 10%
-    // ✅ Lưu vào DB
+
+    int totalQuantity =
+        saleOrderItems.stream().mapToInt(SaleOrderItem::getQuantity).reduce(0, Integer::sum);
+
+    BigDecimal vatRate = new BigDecimal("0.1");
+    BigDecimal vatAmount = totalAmount.multiply(vatRate);
+    BigDecimal totalWithVat = totalAmount.add(vatAmount);
+
+    saleOrder.setVatAmount(vatAmount);
+    saleOrder.setTotalPrice(totalWithVat);
+    saleOrder.setTotalQuantity(totalQuantity);
+    saleOrderItems.stream()
+        .flatMap(item -> item.getVehicleUnits().stream().peek(unit -> unit.setSaleOrderItem(item)))
+        .forEach(vehicleUnitRepository::save);
+
+    // === 6. Persist toàn bộ theo cascade ===
+    saleOrderItems.forEach(item -> item.setSaleOrder(saleOrder));
     SaleOrder savedSaleOrder = saleOrderRepository.save(saleOrder);
 
-    // ✅ Tạo response
     SaleOrderResponse response = saleOrderMapper.toSaleOrderResponse(savedSaleOrder);
     return APIResponse.success(response, "Sale order created successfully");
   }
@@ -150,7 +153,7 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @Transactional
   public APIResponse<SaleOrderResponse> createSaleOrderFromVehicleRequest(
-      VehicleRequest vehicleRequest, PaymentStatus paymentStatus) {
+      VehicleRequest vehicleRequest) {
     SaleOrder saleOrder = saleOrderMapper.toSaleOrderFromVehicleRequest(vehicleRequest);
     Set<SaleOrderItem> saleOrderItems =
         vehicleRequest.getVehicleRequestItems().stream()
@@ -171,7 +174,6 @@ public class SaleOrderService implements ISaleOrder {
             .collect(Collectors.toSet());
 
     saleOrder.setSaleOrderItems(saleOrderItems);
-    saleOrder.setPaymentStatus(paymentStatus);
     saleOrder.setVehicleRequest(vehicleRequest);
     saleOrder.setCreatedAt(LocalDateTime.now());
     saleOrder.setAccount(AccountUtil.getCurrentUser());
@@ -209,10 +211,10 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'EVM_STAFF')")
   @Transactional
-  public APIResponse<SaleOrderResponse> completeSaleOrderById(InstallmentRequest request) {
+  public APIResponse<SaleOrderResponse> completeSaleOrderById(UUID id) {
     SaleOrder saleOrder =
         saleOrderRepository
-            .findById(request.getOrderId())
+            .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Sale order not found"));
     if (saleOrder.getAccount().getRole().equals(Role.DEALER_STAFF)) {
       if (AccountUtil.getCurrentUser() != saleOrder.getAccount()) {
@@ -222,9 +224,6 @@ public class SaleOrderService implements ISaleOrder {
     }
 
     saleOrder.setStatus(OrderStatus.COMPLETED);
-    if (saleOrder.getPaymentStatus().equals(PaymentStatus.INSTALLMENT)) {
-      installmentPlanService.createInstallment(request);
-    }
     // tạo hợp đồng bán hàng ở đây
     contractService.createContract(saleOrder);
     saleOrderRepository.save(saleOrder);
@@ -249,10 +248,12 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'ADMIN')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfDealer(
-      List<OrderStatus> statuses, Pageable pageable) {
-    Page<SaleOrder> page = saleOrderRepository.findAllWithVehicleRequest(statuses, pageable);
+      List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
+    Page<SaleOrder> page = saleOrderRepository.searchAndFilter(statuses, keyword, pageable);
     PageResponse<SaleOrderResponse> response =
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
     return APIResponse.success(response);
   }
 
@@ -262,13 +263,16 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentDealer(
-      List<OrderStatus> statuses, Pageable pageable) {
+      List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
     Page<SaleOrder> page =
-        saleOrderRepository.findAllWithVehicleRequestByDealerAndStatuses(
-            dealer, statuses, pageable);
+        saleOrderRepository.searchAndFilterByDealer(dealer, statuses, keyword, pageable);
+
     PageResponse<SaleOrderResponse> response =
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
     return APIResponse.success(response);
   }
 
@@ -278,19 +282,22 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfCurrentCustomer(
-      UUID customerId, List<OrderStatus> statuses, Pageable pageable) {
+      UUID customerId, List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
     Customer customer =
         customerRepository
             .findById(customerId)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Customer not found"));
 
     Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByDealerAndCustomerAndStatuses(
-            dealer, customer, statuses, pageable);
+        saleOrderRepository.searchAndFilterByDealerAndCustomer(
+            dealer, customer, statuses, keyword, pageable);
 
     PageResponse<SaleOrderResponse> response =
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
     return APIResponse.success(response);
   }
 
@@ -299,24 +306,33 @@ public class SaleOrderService implements ISaleOrder {
   // ============================================================
 
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
-  public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersByCustomer(
-      List<OrderStatus> statuses, Pageable pageable) {
+  public APIResponse<PageResponse<SaleOrderResponse>> getAllQuotedSaleOrdersOfCurrentDealer(
+      List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+
     Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByDealerAndStatuses(dealer, statuses, pageable);
+        saleOrderRepository.searchAndFilterQuotedOrdersByDealer(
+            dealer, statuses, keyword, pageable);
+
     PageResponse<SaleOrderResponse> response =
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
     return APIResponse.success(response);
   }
 
   @PreAuthorize("hasRole('DEALER_STAFF')")
   public APIResponse<PageResponse<SaleOrderResponse>> getAllSaleOrdersOfStaff(
-      List<OrderStatus> statuses, Pageable pageable) {
+      List<OrderStatus> statuses, String keyword, Pageable pageable) {
+
+    Account currentStaff = AccountUtil.getCurrentUser();
+
     Page<SaleOrder> page =
-        saleOrderRepository.findAllWithQuotationByAccountAndStatuses(
-            AccountUtil.getCurrentUser(), statuses, pageable);
+        saleOrderRepository.searchAndFilterByAccount(currentStaff, statuses, keyword, pageable);
+
     PageResponse<SaleOrderResponse> response =
         pageMapper.toPageResponse(page, saleOrderMapper::toSaleOrderResponse);
+
     return APIResponse.success(response);
   }
 

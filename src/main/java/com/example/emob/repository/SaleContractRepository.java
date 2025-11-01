@@ -23,13 +23,13 @@ public interface SaleContractRepository extends JpaRepository<SaleContract, UUID
   // ============================================================
   @Query(
       """
-  SELECT c
-  FROM SaleContract c
-  JOIN FETCH c.saleOrder so
-  JOIN so.vehicleRequest vr
-  WHERE (:statuses IS NULL OR c.status IN :statuses)
-    AND (:keyword IS NULL OR LOWER(c.contractNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))
-""")
+      SELECT c
+      FROM SaleContract c
+      JOIN FETCH c.saleOrder so
+      JOIN so.vehicleRequest vr
+      WHERE (:statuses IS NULL OR c.status IN :statuses)
+        AND (:keyword IS NULL OR LOWER(c.contractNumber) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """)
   Page<SaleContract> findAllWithVehicleRequest(
       @Param("statuses") List<ContractStatus> statuses,
       @Param("keyword") String keyword,

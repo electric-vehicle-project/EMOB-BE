@@ -7,13 +7,14 @@ import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
 import com.example.emob.model.response.ElectricVehicleResponse;
 import com.example.emob.model.response.VehicleUnitResponse;
-import java.util.UUID;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ElectricVehicleMapper {
   ElectricVehicle toVehicle(ElectricVehicleRequest request);
 
+  @Mapping(target = "brand", source = "brand")
+  @Mapping(target = "model", source = "model")
   ElectricVehicleResponse toVehicleResponse(ElectricVehicle vehicle);
 
   @Mapping(target = "vehicleUnitId", source = "id")
@@ -22,14 +23,6 @@ public interface ElectricVehicleMapper {
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void updateVehicle(ElectricVehicleRequest request, @MappingTarget ElectricVehicle vehicle);
 
-  @Mapping(target = "vinNumber", expression = "java(generateVin(vehicle.getModel()))")
   @Mapping(target = "vehicle", source = "vehicle")
   VehicleUnit toVehicleUnit(VehicleUnitRequest request, ElectricVehicle vehicle);
-
-  default String generateVin(String model) {
-    String prefix = model.substring(0, Math.min(model.length(), 3)).toUpperCase();
-    String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-
-    return prefix + "-" + randomPart;
-  }
 }

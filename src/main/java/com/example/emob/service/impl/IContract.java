@@ -2,7 +2,9 @@
 package com.example.emob.service.impl;
 
 import com.example.emob.constant.ContractStatus;
+import com.example.emob.constant.PaymentStatus;
 import com.example.emob.entity.SaleOrder;
+import com.example.emob.model.request.installment.InstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.saleContract.ContractResponse;
@@ -29,7 +31,8 @@ public interface IContract {
 
   APIResponse<ContractResponse> getContractById(UUID contractId);
 
-  APIResponse<ContractResponse> signContract(LocalDate date, UUID contractId);
+  public APIResponse<ContractResponse> signContract(
+      LocalDate date, PaymentStatus status, InstallmentRequest request);
 
   APIResponse<Void> cancelContract(UUID contractId);
 }
