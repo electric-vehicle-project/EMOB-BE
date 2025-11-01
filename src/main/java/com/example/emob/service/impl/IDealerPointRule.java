@@ -9,7 +9,7 @@ import java.util.List;
 public interface IDealerPointRule {
   APIResponse<String> saveRule(List<DealerPointRuleRequest> requests);
 
-  List<DealerPointRule> getRule(String dealerId);
+  APIResponse<List<DealerPointRule>> getRule(String dealerId);
 
   APIResponse<List<DealerPointRule>> getAllRules();
 

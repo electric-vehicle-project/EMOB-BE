@@ -67,7 +67,8 @@ public class DealerPointController {
   @GetMapping("/{dealerId}")
   @Operation(summary = "Get Dealer Point Rule", description = "Get Dealer Point Rule By Status")
   public ResponseEntity<APIResponse<List<DealerPointRule>>> getRule(@PathVariable String dealerId) {
-    return ResponseEntity.ok(APIResponse.success(dealerPointRuleService.getRule(dealerId)));
+    APIResponse<List<DealerPointRule>> rules = dealerPointRuleService.getRule(dealerId);
+    return ResponseEntity.ok(rules);
   }
 
   @GetMapping
