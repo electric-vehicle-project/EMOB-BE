@@ -77,7 +77,7 @@ public class ContractService implements IContract {
     // 🔹 2. Tạo đối tượng hợp đồng
     SaleContract contract = new SaleContract();
     contract.setContractNumber(generateContractNumber(saleOrder.getId()));
-    contract.setCreateAt(LocalDateTime.now());
+    contract.setCreatedAt(LocalDateTime.now());
     contract.setStatus(ContractStatus.PENDING);
     contract.setSaleOrder(saleOrder);
     contract.setTotalPrice(saleOrder.getTotalPrice());

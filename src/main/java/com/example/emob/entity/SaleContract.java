@@ -37,7 +37,7 @@ public class SaleContract {
   @Enumerated(EnumType.STRING)
   ContractStatus status;
 
-  LocalDateTime createAt;
+  LocalDateTime createdAt;
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @JoinColumn(name = "sale_order")

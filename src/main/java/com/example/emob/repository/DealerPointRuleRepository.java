@@ -13,7 +13,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DealerPointRuleRepository extends CrudRepository<DealerPointRule, String> {
+
   List<DealerPointRule> findByDealerId(String dealerId);
+
 
   Optional<DealerPointRule> findDealerPointRulesByDealerIdAndMembershipLevel(
       String dealerId, String membershipLevel);

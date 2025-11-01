@@ -25,7 +25,7 @@ public class ContractResponse {
   BigDecimal totalPrice;
   BigDecimal vatAmount;
   int totalQuantity;
-  LocalDateTime createAt;
+  LocalDateTime createdAt;
   ContractStatus status;
   LocalDateTime signDate;
 }
