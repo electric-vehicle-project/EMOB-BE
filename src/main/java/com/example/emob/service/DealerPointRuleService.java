@@ -23,7 +23,7 @@ public class DealerPointRuleService implements IDealerPointRule {
 
   @Autowired DealerPointRuleMapper dealerPointRuleMapper;
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('MANAGER')")
   @Override
   public APIResponse<String> saveRule(List<DealerPointRuleRequest> requests) {
     // Sử dụng Builder để tạo đối tượng một cách rõ ràng
@@ -31,15 +31,17 @@ public class DealerPointRuleService implements IDealerPointRule {
       for (DealerPointRuleRequest req : requests) {
         String memberShipLevel = req.getLevel().toString();
         DealerPointRule rule =
-            DealerPointRule.builder()
-                .membershipLevel(memberShipLevel)
-                .dealerId(req.getDealerId())
-                .minPoints(req.getMinPoints())
-                .price(req.getPrice())
-                .build();
+                DealerPointRule.builder()
+                        .membershipLevel(memberShipLevel)
+                        .dealerId(req.getDealerId())
+                        .minPoints(req.getMinPoints())
+                        .price(req.getPrice())
+                        .build();
         // Lưu đối tượng vào cơ sở dữ liệu
         dealerPointRepository.save(rule);
       }
+    } catch (GlobalException ex) {
+      System.out.println("Exception: " + ex.getMessage());
     } catch (Exception ex) {
       System.out.println("Exception: " + ex.getMessage());
     }
@@ -47,6 +49,7 @@ public class DealerPointRuleService implements IDealerPointRule {
   }
 
   @Override
+
   public APIResponse<List<DealerPointRule>> getRule(String dealerId) {
     List<DealerPointRule> rules = dealerPointRepository
         .findByDealerId(dealerId);
@@ -54,6 +57,7 @@ public class DealerPointRuleService implements IDealerPointRule {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
     return APIResponse.success(rules);
+
   }
 
   @Override

@@ -54,7 +54,6 @@ public class SecurityConfig {
     "/api/auth/by-admin",
     "/api/dealer-discount-policy/**",
     "/api/vehicle-price-rules/**",
-    "/api/dealer-point-rules/**",
     "/api/vehicle-request/{id}/approved"
   };
 
@@ -71,7 +70,7 @@ public class SecurityConfig {
     "/api/report/process-report/**",
     "api/auth/by-manager",
     "/api/auth/register-by-manager",
-    "/api/vehicle-request/**",
+    "/api/vehicle-request/**", "/api/dealer-point-rules/**",
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
