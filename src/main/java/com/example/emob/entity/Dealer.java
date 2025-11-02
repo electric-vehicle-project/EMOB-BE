@@ -39,6 +39,9 @@ public class Dealer {
   @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
   Set<Report> reports = new HashSet<>();
 
+  @OneToMany(mappedBy = "dealer", cascade = CascadeType.ALL, orphanRemoval = true)
+  Set<TestDrive> testDrives = new HashSet<>();
+
   @ManyToMany(mappedBy = "dealers", cascade = CascadeType.ALL)
   Set<Promotion> promotions = new HashSet<>();
 

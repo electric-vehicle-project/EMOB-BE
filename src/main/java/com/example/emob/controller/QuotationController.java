@@ -54,8 +54,13 @@ public class QuotationController {
   }
 
   @DeleteMapping("{id}")
-  public ResponseEntity<APIResponse<QuotationResponse>> delete(@RequestParam UUID id) {
+  public ResponseEntity<APIResponse<QuotationResponse>> delete(@PathVariable UUID id) {
     return ResponseEntity.ok(quotationService.delete(id));
+  }
+
+  @PutMapping("{id}/reject")
+  public ResponseEntity<APIResponse<QuotationResponse>> reject(@PathVariable UUID id) {
+    return ResponseEntity.ok(quotationService.reject(id));
   }
 
   @GetMapping
