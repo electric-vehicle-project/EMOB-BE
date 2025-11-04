@@ -80,7 +80,7 @@ public class TestDriveService implements ITestDrive {
       testDrive.setCustomer(customer);
       testDrive.setSalesperson(salePerson);
       testDrive.setStatus(TestStatus.PENDING);
-      testDrive.setCreateAt(LocalDateTime.now());
+      testDrive.setCreatedAt(LocalDateTime.now());
       testDriveRepository.save(testDrive);
 
       emailService.sendEmail(

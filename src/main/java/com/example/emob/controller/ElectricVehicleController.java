@@ -248,22 +248,22 @@ public class ElectricVehicleController {
     return ResponseEntity.ok(vehicleService.getVehicleUnit(id));
   }
 
-  @GetMapping("/unit/view-all")
-  @Operation(summary = "Get all vehicles unit")
-  public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<VehicleStatus> status,
-      @RequestParam(defaultValue = "color") String sortField,
-      @RequestParam(defaultValue = "desc") String sortDir) {
-
-    Sort sort = Sort.by(sortField);
-    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
-    Pageable pageable = PageRequest.of(page, size, sort);
-
-    return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable, keyword, status));
-  }
+//  @GetMapping("/unit/view-all")
+//  @Operation(summary = "Get all vehicles unit")
+//  public ResponseEntity<APIResponse<PageResponse<VehicleUnitResponse>>> getAllVehicleUnits(
+//      @RequestParam(defaultValue = "0") int page,
+//      @RequestParam(defaultValue = "10") int size,
+//      @RequestParam(required = false) String keyword,
+//      @RequestParam(required = false) List<VehicleStatus> status,
+//      @RequestParam(defaultValue = "color") String sortField,
+//      @RequestParam(defaultValue = "desc") String sortDir) {
+//
+//    Sort sort = Sort.by(sortField);
+//    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+//    Pageable pageable = PageRequest.of(page, size, sort);
+//
+//    return ResponseEntity.ok(vehicleService.getAllVehicleUnits(pageable, keyword, status));
+//  }
 
   @GetMapping("/unit/view-all-by-model/{modelId}")
   @Operation(summary = "Get all vehicles unit")

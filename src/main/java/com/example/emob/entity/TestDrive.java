@@ -32,6 +32,10 @@ public class TestDrive {
   Account salesperson;
 
   @ManyToOne
+  @JoinColumn(name = "dealer_id", referencedColumnName = "id")
+  Dealer dealer;
+
+  @ManyToOne
   @JoinColumn(name = "customer", referencedColumnName = "id")
   Customer customer;
 
@@ -39,7 +43,7 @@ public class TestDrive {
 
   LocalDateTime scheduledAt;
 
-  LocalDateTime createAt;
+  LocalDateTime createdAt;
   LocalDateTime updateAt;
 
   @ManyToOne
