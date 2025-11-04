@@ -43,7 +43,7 @@ public class VehicleUnit {
 
   @OneToMany(mappedBy = "vehicleUnit", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnore
-  Set<TestDrive> testDrive;
+  Set<TestDrive> testDrives;
 
   @ManyToOne
   @JoinColumn(name = "inventory_id")

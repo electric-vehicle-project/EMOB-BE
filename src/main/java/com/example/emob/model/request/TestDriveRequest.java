@@ -1,5 +1,5 @@
 /* EMOB-2025 */
-package com.example.emob.model.request.schedule;
+package com.example.emob.model.request;
 
 import com.example.emob.constant.TestStatus;
 import java.time.LocalDateTime;
@@ -14,9 +14,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TestDriveRequest {
   UUID customerId;
-  UUID accountId;
+  UUID testDriveVehicleId;
   String location;
-  TestStatus status;
   int duration;
   LocalDateTime scheduledAt;
 }
