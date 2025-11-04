@@ -5,6 +5,8 @@ import com.example.emob.constant.VehicleStatus;
 import com.example.emob.entity.ElectricVehicle;
 import com.example.emob.entity.Inventory;
 import com.example.emob.entity.VehicleUnit;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -66,4 +68,39 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
       @Param("color") String color,
       @Param("status") VehicleStatus status,
       Pageable pageable);
+
+
+
+
+
+  /**
+   * Lấy danh sách xe TEST_DRIVE của model chỉ định, chưa bị trùng lịch trong khoảng thời gian.
+   * - Kiểm tra overlap: (scheduled_at < endAt) AND (scheduled_at + duration > startAt)
+   * - Sử dụng DATE_ADD để cộng phút trong MySQL
+   */
+  @Query(
+          value = """
+        SELECT v.*
+        FROM vehicle_unit v
+        JOIN electric_vehicle ev ON v.vehicle_id = ev.id
+        WHERE v.status = 'TEST_DRIVE'
+          AND ev.model = :model
+          AND v.id NOT IN (
+              SELECT t.vehicle_unit
+              FROM test_drive t
+              WHERE t.status <> 'CANCELLED'
+                AND (
+                    t.scheduled_at < :endAt
+                    AND DATE_ADD(t.scheduled_at, INTERVAL t.duration MINUTE) > :startAt
+                )
+          )
+    """,
+          nativeQuery = true
+  )
+  List<VehicleUnit> findAvailableVehiclesByTimeRangeAndModel(
+          @Param("startAt") LocalDateTime startAt,
+          @Param("endAt") LocalDateTime endAt,
+          @Param("model") String model
+  );
+
 }

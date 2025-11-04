@@ -30,11 +30,11 @@ public class QuotationItem {
   int quantity;
   String color;
 
-  @OneToOne
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "promotion_id")
   Promotion promotion;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "quotation_id")
   @JsonIgnore
   Quotation quotation;

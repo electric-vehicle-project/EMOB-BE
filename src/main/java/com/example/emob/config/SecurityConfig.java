@@ -58,7 +58,7 @@ public class SecurityConfig {
   };
 
   public static final String[] DEALER_STAFF = {
-    "/api/report/**", "/api/test-drive/**", "/api/customers/**", "/api/quotation/**",
+    "/api/report/**", "/api/customers/**", "/api/quotation/**",
   };
 
   public static final String[] EVM_STAFF = {
@@ -66,7 +66,6 @@ public class SecurityConfig {
   };
 
   public static final String[] MANAGER = {
-    "/api/test-drive/schedules/**",
     "/api/report/process-report/**",
     "api/auth/by-manager",
     "/api/auth/register-by-manager",
@@ -81,7 +80,7 @@ public class SecurityConfig {
     "/api/delivery/**",
     "/api/contract/**",
     "/api/auth/{id}",
-    "/api/auth/change-status/{id}",
+    "/api/auth/change-status/{id}", "/api/test-drives/**",
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

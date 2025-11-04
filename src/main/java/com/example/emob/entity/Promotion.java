@@ -65,9 +65,9 @@ public class Promotion {
       inverseJoinColumns = @JoinColumn(name = "vehicle_id"))
   Set<ElectricVehicle> vehicles = new HashSet<>();
 
-  @OneToOne(mappedBy = "promotion")
-  QuotationItem quotationItem;
+  @OneToMany(mappedBy = "promotion")
+  Set<QuotationItem> quotationItems = new HashSet<>();
 
-  @OneToOne(mappedBy = "promotion")
-  SaleOrderItem saleOrderItem;
+  @OneToMany(mappedBy = "promotion")
+  Set<SaleOrderItem> saleOrderItems = new HashSet<>();
 }
