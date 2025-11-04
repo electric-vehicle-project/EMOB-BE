@@ -5,8 +5,12 @@ import com.example.emob.constant.ContractStatus;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.SaleContract;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import com.example.emob.model.response.DealerRevenueResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -89,4 +93,5 @@ public interface SaleContractRepository extends JpaRepository<SaleContract, UUID
       @Param("statuses") List<ContractStatus> statuses,
       @Param("keyword") String keyword,
       Pageable pageable);
+
 }

@@ -2,9 +2,9 @@
 package com.example.emob.service.impl;
 
 import com.example.emob.model.request.DealerRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerResponse;
-import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.*;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -19,4 +19,12 @@ public interface IDealer {
 
   APIResponse<PageResponse<DealerResponse>> getAll(
       Pageable pageable, String keyword, String country);
+
+  PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month, Pageable pageable);
+
+  DealerRevenueItemResponse getDealerRevenueById(UUID dealerId);
+
+  PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(Integer month, Pageable pageable);
+
+  CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId);
 }

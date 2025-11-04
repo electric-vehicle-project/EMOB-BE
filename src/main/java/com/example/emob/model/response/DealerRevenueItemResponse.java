@@ -1,0 +1,16 @@
+package com.example.emob.model.response;
+
+
+import java.math.BigDecimal;
+
+// dùng Spring Data Projection
+// map tự động
+public interface DealerRevenueItemResponse {
+    String getDealerId();
+    BigDecimal getTotalRevenue();
+    Long getTotalContracts();
+    Long getTotalVehiclesSold();
+    Integer getMonth();
+    Integer getYear();
+}
+

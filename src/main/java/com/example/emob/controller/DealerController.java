@@ -1,10 +1,9 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.ContractStatus;
 import com.example.emob.model.request.DealerRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerResponse;
-import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.service.DealerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,12 +12,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -116,5 +120,44 @@ public class DealerController {
   public ResponseEntity<APIResponse<DealerResponse>> deleteDealer(@PathVariable UUID id) {
     dealerService.delete(id);
     return ResponseEntity.ok(dealerService.delete(id));
+  }
+
+  @GetMapping("/dealer-revenue")
+  @Operation(summary = "Get dealer revenue report")
+  public ResponseEntity<PageResponse<DealerRevenueItemResponse>> getDealerRevenueReport(
+          @RequestParam(required = false) Integer month,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    Pageable pageable = PageRequest.of(page, size);
+    return ResponseEntity.ok(dealerService.getDealerRevenueReport(month, pageable));
+  }
+
+  @GetMapping("/{id}/dealer-revenue")
+  @Operation(summary = "Get dealer revenue report by id")
+  public ResponseEntity<APIResponse<DealerRevenueItemResponse>> getDealerRevenueById(
+          @PathVariable UUID id
+  ) {
+    DealerRevenueItemResponse revenue = dealerService.getDealerRevenueById(id);
+    return ResponseEntity.ok(APIResponse.success(revenue));
+  }
+
+    @GetMapping("/customer-revenue")
+    @Operation(summary = "Get customers revenue report by dealer")
+    public ResponseEntity<PageResponse<CustomerRevenueItemResponse>> getCustomerRevenueByDealerId(
+            @RequestParam(required = false) Integer month,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+      Pageable pageable = PageRequest.of(page, size);
+      return ResponseEntity.ok(dealerService.getCustomerRevenueByDealerId(month, pageable));
+    }
+
+  @GetMapping("/{id}/customer-revenue")
+  @Operation(summary = "Get customer revenue report by customer id")
+  public ResponseEntity<APIResponse<CustomerRevenueItemResponse>> getCustomerRevenueByCustomerId(
+          @PathVariable UUID id
+  ) {
+    return ResponseEntity.ok(APIResponse.success(dealerService.getCustomerRevenueByCustomerId(id)));
   }
 }

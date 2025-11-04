@@ -25,6 +25,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -131,9 +132,12 @@ public class TestDriveController {
           @Parameter(description = "Page index (default 0)") @RequestParam(defaultValue = "0") int page,
           @Parameter(description = "Page size (default 10)") @RequestParam(defaultValue = "10") int size,
           @Parameter(description = "Keyword search by customer name or location") @RequestParam(required = false) String keyword,
-          @Parameter(description = "Filter by test drive status") @RequestParam(required = false) List<TestStatus> status
-  ) {
-    Pageable pageable = PageRequest.of(page, size);
+          @Parameter(description = "Filter by test drive status") @RequestParam(required = false) List<TestStatus> status,
+          @RequestParam(defaultValue = "createdAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return ResponseEntity.ok(testDriveService.viewAllSchedules(pageable, keyword, status));
   }
 
@@ -147,12 +151,16 @@ public class TestDriveController {
           @Parameter(description = "Page index (default 0)") @RequestParam(defaultValue = "0") int page,
           @Parameter(description = "Page size (default 10)") @RequestParam(defaultValue = "10") int size,
           @Parameter(description = "Keyword search by customer name or location") @RequestParam(required = false) String keyword,
-          @Parameter(description = "Filter by test drive status") @RequestParam(required = false) List<TestStatus> status
-  ) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(testDriveService.viewAllSchedulesByStaff(pageable, keyword, status));
+          @Parameter(description = "Filter by test drive status") @RequestParam(required = false) List<TestStatus> status,
+          @RequestParam(defaultValue = "createdAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+    {
+      Sort sort = Sort.by(sortField);
+      sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+      Pageable pageable = PageRequest.of(page, size, sort);
+      return ResponseEntity.ok(testDriveService.viewAllSchedulesByStaff(pageable, keyword, status));
+    }
   }
-
   // 🔹 FREE VEHICLES
   @Operation(
           summary = "Get available vehicles within a specific time range",

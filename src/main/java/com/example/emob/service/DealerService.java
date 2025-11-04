@@ -8,17 +8,21 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.DealerRequest;
-import com.example.emob.model.response.APIResponse;
-import com.example.emob.model.response.DealerResponse;
-import com.example.emob.model.response.PageResponse;
+import com.example.emob.model.response.*;
 import com.example.emob.repository.DealerRepository;
+import com.example.emob.repository.SaleContractRepository;
 import com.example.emob.service.impl.IDealer;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+
+import com.example.emob.util.AccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +32,9 @@ public class DealerService implements IDealer {
   @Autowired DealerRepository dealerRepository;
 
   @Autowired DealerMapper dealerMapper;
+
+  @Autowired
+  SaleContractRepository saleContractRepository;
 
   @Autowired PageMapper pageMapper;
 
@@ -111,5 +118,39 @@ public class DealerService implements IDealer {
     } catch (Exception ex) {
       throw new GlobalException(ErrorCode.OTHER, "Unexpected error occurred");
     }
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  public PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month,
+          Pageable pageable) {
+
+    Page<DealerRevenueItemResponse> page =
+            dealerRepository.getDealerRevenueReportByMonth(month, pageable);
+
+    return pageMapper.toPageResponse(page, item -> item);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('ADMIN')")
+  public DealerRevenueItemResponse getDealerRevenueById(UUID dealerId) {
+    return dealerRepository.getDealerRevenueById(dealerId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+  }
+
+  @Override
+  @PreAuthorize("hasRole('MANAGER')")
+  public PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(@Param("month") Integer month,
+                                                                                Pageable pageable) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+      Page<CustomerRevenueItemResponse> page =  dealerRepository.getCustomerRevenueReport(dealer.getId().toString(), month, pageable);
+      return pageMapper.toPageResponse(page, item -> item);
+  }
+
+  @Override
+  @PreAuthorize("hasRole('MANAGER')")
+  public CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId) {
+    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
+    return dealerRepository.getCustomerRevenueByCustomer(dealer.getId().toString(), customerId.toString());
   }
 }
