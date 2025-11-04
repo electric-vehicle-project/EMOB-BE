@@ -93,4 +93,5 @@ public interface SaleContractRepository extends JpaRepository<SaleContract, UUID
       @Param("statuses") List<ContractStatus> statuses,
       @Param("keyword") String keyword,
       Pageable pageable);
+
 }
