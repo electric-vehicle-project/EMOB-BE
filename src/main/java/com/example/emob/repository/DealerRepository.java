@@ -78,49 +78,49 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
 
 //  // Lấy danh sách khách hàng của dealer
 @Query(value = """
-        SELECT
-              BIN_TO_UUID(cus.id) AS customerId, 
-              SUM(c.total_price) AS totalRevenue,
-              COUNT(c.id) AS totalContracts,
-              SUM(so.total_quantity) AS totalVehiclesPurchased,
-              MONTH(c.sign_date) AS month,
-              YEAR(c.sign_date) AS year
-            FROM sale_contract c
-            JOIN sale_order so ON c.sale_order = so.id
-            JOIN quotation q ON q.sale_order_id = so.id
-            JOIN customer cus ON q.customer_id = cus.id
-            JOIN dealer d ON cus.dealer_id = d.id
-            WHERE c.status = 'SIGNED'
-              AND d.id = BIN_TO_UUID(:dealerId)             
-              AND (:month IS NULL OR MONTH(c.sign_date) = :month) 
-            GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
-            ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
+    SELECT
+        BIN_TO_UUID(cus.id) AS customerId,
+        SUM(c.total_price) AS totalRevenue,
+        COUNT(c.id) AS totalContracts,
+        SUM(so.total_quantity) AS totalVehiclesPurchased,
+        MONTH(c.sign_date) AS month,
+        YEAR(c.sign_date) AS year
+    FROM sale_contract c
+    JOIN sale_order so ON c.sale_order = so.id
+    JOIN quotation q ON q.sale_order_id = so.id
+    JOIN customer cus ON q.customer_id = cus.id
+    JOIN dealer d ON cus.dealer_id = d.id
+    WHERE c.status = 'SIGNED'
+      AND d.id = UUID_TO_BIN(:dealerId)
+      AND (:month IS NULL OR MONTH(c.sign_date) = :month)
+    GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
+    ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
     """, nativeQuery = true)
 Page<CustomerRevenueItemResponse> getCustomerRevenueReport(
-        @Param("dealerId") UUID dealerId, // THÊM THAM SỐ LỌC THEO DEALER
+        @Param("dealerId") String dealerId, // THÊM THAM SỐ LỌC THEO DEALER
         @Param("month") Integer month,
         Pageable pageable);
 
   @Query(value = """
-        SELECT
-              BIN_TO_UUID(cus.id) AS customerId, 
-              SUM(c.total_price) AS totalRevenue,
-              COUNT(c.id) AS totalContracts,
-              SUM(so.total_quantity) AS totalVehiclesPurchased,
-              NULL AS month,
-              NULL AS year
-            FROM sale_contract c
-            JOIN sale_order so ON c.sale_order = so.id
-            JOIN quotation q ON q.sale_order_id = so.id
-            JOIN customer cus ON q.customer_id = cus.id
-            JOIN dealer d ON cus.dealer_id = d.id
-            WHERE c.status = 'SIGNED'
-              AND d.id = BIN_TO_UUID(:dealerId)             
-              AND cus.id = BIN_TO_UUID(:customerId)   
-            GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
-            ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
-    """, nativeQuery = true)
-  CustomerRevenueItemResponse getCustomerRevenueReportById(
-          @Param("customerId") UUID customerId,
-          @Param("dealerId") UUID dealerId);
+SELECT
+    BIN_TO_UUID(cus.id) AS customerId,
+    SUM(c.total_price) AS totalRevenue,
+    COUNT(c.id) AS totalContracts,
+    SUM(so.total_quantity) AS totalVehiclesPurchased,
+    NULL AS month,
+    NULL AS year
+FROM sale_contract c
+JOIN sale_order so ON c.sale_order = so.id
+JOIN quotation q ON q.sale_order_id = so.id
+JOIN customer cus ON q.customer_id = cus.id
+JOIN dealer d ON cus.dealer_id = d.id
+WHERE c.status = 'SIGNED'
+  AND d.id = UUID_TO_BIN(:dealerId)
+  AND cus.id = UUID_TO_BIN(:customerId)
+GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
+ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
+""", nativeQuery = true)
+  CustomerRevenueItemResponse getCustomerRevenueByCustomer(
+          @Param("dealerId") String dealerId,
+          @Param("customerId") String customerId);
 }

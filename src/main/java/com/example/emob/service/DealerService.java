@@ -143,7 +143,7 @@ public class DealerService implements IDealer {
   public PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(@Param("month") Integer month,
                                                                                 Pageable pageable) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-      Page<CustomerRevenueItemResponse> page =  dealerRepository.getCustomerRevenueReport(dealer.getId(), month, pageable);
+      Page<CustomerRevenueItemResponse> page =  dealerRepository.getCustomerRevenueReport(dealer.getId().toString(), month, pageable);
       return pageMapper.toPageResponse(page, item -> item);
   }
 
@@ -151,6 +151,6 @@ public class DealerService implements IDealer {
   @PreAuthorize("hasRole('MANAGER')")
   public CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    return dealerRepository.getCustomerRevenueReportById(customerId, dealer.getId());
+    return dealerRepository.getCustomerRevenueByCustomer(dealer.getId().toString(), customerId.toString());
   }
 }

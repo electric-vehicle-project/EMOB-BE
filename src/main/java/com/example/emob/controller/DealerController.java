@@ -155,12 +155,9 @@ public class DealerController {
 
   @GetMapping("/{id}/customer-revenue")
   @Operation(summary = "Get customer revenue report by customer id")
-  public ResponseEntity<CustomerRevenueItemResponse> getCustomerRevenueByCustomerId(
-          @PathVariable UUID id,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size
+  public ResponseEntity<APIResponse<CustomerRevenueItemResponse>> getCustomerRevenueByCustomerId(
+          @PathVariable UUID id
   ) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(dealerService.getCustomerRevenueByCustomerId(id));
+    return ResponseEntity.ok(APIResponse.success(dealerService.getCustomerRevenueByCustomerId(id)));
   }
 }
