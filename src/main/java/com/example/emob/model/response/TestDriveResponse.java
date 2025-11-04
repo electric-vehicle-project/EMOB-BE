@@ -18,11 +18,12 @@ import lombok.experimental.FieldDefaults;
 public class TestDriveResponse {
   UUID testDriveId;
   UUID salePersonId;
+  UUID customerId;
+  UUID testDriveVehicleUnitId;
   LocalDateTime scheduledAt;
   int duration;
   String location;
   TestStatus status;
-  Customer customer;
   LocalDateTime createAt;
   LocalDateTime updateAt;
 }

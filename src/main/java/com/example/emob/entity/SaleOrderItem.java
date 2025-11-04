@@ -32,8 +32,9 @@ public class SaleOrderItem {
   int quantity;
   String color;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "promotion_id")
+  @JsonIgnore
   Promotion promotion;
 
   @OneToMany(mappedBy = "saleOrderItem", cascade = CascadeType.ALL, orphanRemoval = true)
