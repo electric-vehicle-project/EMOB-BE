@@ -49,6 +49,7 @@ public class DealerController {
                               "emailContact": "dealer1@example.com",
                               "phoneContact": "0987654321",
                                 "country": "USA",
+                                "region": "NORTH",
                                 "address": "New York, NY"
                             }
                             """),
@@ -61,6 +62,7 @@ public class DealerController {
                                "emailContact": "dealer2@example.com",
                               "phoneContact": "0987654322",
                               "country": "Canada",
+                              "region": "NORTH",
                               "address": "Toronto, ON"
                             }
                             """)

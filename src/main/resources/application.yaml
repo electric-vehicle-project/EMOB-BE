@@ -64,7 +64,7 @@ spring:
     duration: 30
   ai:
     openai:
-      api-key: 
+      api-key:
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
