@@ -4,6 +4,7 @@ package com.example.emob.repository;
 import com.example.emob.constant.VehicleRequestStatus;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.VehicleRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -38,4 +39,21 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
       @Param("keyword") String keyword,
       @Param("statuses") List<VehicleRequestStatus> statuses,
       Pageable pageable);
+
+  @Query(
+      """
+    SELECT d.country, d.region, ev.model, vri.color, SUM(vri.quantity)
+    FROM Dealer d
+    JOIN d.vehicleRequests vr
+    JOIN vr.vehicleRequestItems vri
+    JOIN vri.vehicle ev
+    JOIN vr.saleOrder so
+    JOIN so.contract c
+    WHERE c.status = 'SIGNED'
+      AND vri.vehicleStatus = 'NORMAL'
+      AND vr.createdAt >= :threeMonthsAgo
+    GROUP BY d.country, d.region, ev.model, vri.color
+    ORDER BY d.country, d.region, ev.model
+""")
+  List<Object[]> findSignedRequestsRaw(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo);
 }

@@ -2,27 +2,31 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.Region;
 import com.example.emob.constant.VehicleStatus;
 import com.example.emob.constant.VehicleType;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ElectricVehicleMapper;
 import com.example.emob.mapper.PageMapper;
+import com.example.emob.model.request.AIRequest.AIVehicleRequest;
+import com.example.emob.model.request.AIRequest.DemandForecastRequest;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
 import com.example.emob.model.response.*;
 import com.example.emob.repository.ElectricVehicleRepository;
 import com.example.emob.repository.InventoryRepository;
+import com.example.emob.repository.VehicleRequestRepository;
 import com.example.emob.repository.VehicleUnitRepository;
 import com.example.emob.service.impl.IVehicle;
 import com.example.emob.util.AccountUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -45,6 +49,9 @@ public class ElectricVehicleService implements IVehicle {
   @Autowired VehicleUnitRepository vehicleUnitRepository;
   @Autowired VehiclePriceRuleService vehiclePriceRuleService;
   @Autowired private ElectricVehicleRepository electricVehicleRepository;
+  @Autowired private VehicleRequestRepository vehicleRequestRepository;
+  @Autowired private AIService aiService;
+  @Autowired private ObjectMapper objectMapper;
 
   @Override
   public APIResponse<ElectricVehicleResponse> create(ElectricVehicleRequest request) {
@@ -431,5 +438,80 @@ public class ElectricVehicleService implements IVehicle {
     String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
     return prefix + "-" + randomPart;
+  }
+
+  public List<DemandForecastRequest> createDemandForecasts() {
+    LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+    List<Object[]> rows = vehicleRequestRepository.findSignedRequestsRaw(threeMonthsAgo);
+
+    // ✅ Nhóm theo country + region
+    Map<String, List<Object[]>> groupedByRegion =
+        rows.stream().collect(Collectors.groupingBy(r -> r[0] + "|" + r[1]));
+
+    return groupedByRegion.entrySet().stream()
+        .map(
+            entry -> {
+              String[] key = entry.getKey().split("\\|");
+              String country = key[0];
+              Region region = Region.valueOf(key[1]);
+
+              // ✅ Nhóm tiếp theo model
+              Map<String, List<Object[]>> groupedByModel =
+                  entry.getValue().stream().collect(Collectors.groupingBy(r -> (String) r[2]));
+
+              Set<AIVehicleRequest> vehicles =
+                  groupedByModel.entrySet().stream()
+                      .map(
+                          modelEntry -> {
+                            String modelName = modelEntry.getKey();
+
+                            // ✅ Map ra list color + quantity
+                            List<Map<String, Object>> dataList =
+                                modelEntry.getValue().stream()
+                                    .map(
+                                        r ->
+                                            Map.of(
+                                                "color",
+                                                r[3],
+                                                "totalRequests",
+                                                ((Number) r[4]).longValue()))
+                                    .toList();
+
+                            // ✅ Tạo đối tượng vehicle
+                            AIVehicleRequest ai = new AIVehicleRequest();
+                            ai.setModelName(modelName);
+                            ai.setData(dataList);
+                            return ai;
+                          })
+                      .collect(Collectors.toSet());
+
+              // ✅ Build DemandForecastRequest
+              DemandForecastRequest forecast = new DemandForecastRequest();
+              forecast.setCountry(country);
+              forecast.setRegion(region);
+              forecast.setVehicles(vehicles);
+              forecast.setTimeRange("last_3_months");
+              return forecast;
+            })
+        .toList();
+  }
+
+  public APIResponse<?> getDemandForecastFromAI() {
+    try {
+      // B1: Lấy dữ liệu 3 tháng gần nhất
+      List<DemandForecastRequest> requests = createDemandForecasts();
+
+      // B2: Gọi AI để dự báo nhu cầu
+      String aiResponse = aiService.getAIResponse(requests);
+
+      // B3: Parse JSON string -> Object (tránh bị trả về dạng String)
+      Object jsonObject = objectMapper.readValue(aiResponse, Object.class);
+
+      // B4: Trả về response chuẩn
+      return APIResponse.success(jsonObject, "AI demand forecast retrieved successfully");
+
+    } catch (Exception e) { // ✅ bắt được tất cả checked + runtime exceptions
+      return APIResponse.error(400, "Failed to get AI demand forecast: " + e.getMessage());
+    }
   }
 }

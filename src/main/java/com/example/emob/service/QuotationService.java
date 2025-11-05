@@ -318,16 +318,15 @@ public class QuotationService implements IQuotation {
         quotationMapper.toQuotationResponse(quotation), "Delete quotation successfully");
   }
 
-
-  public APIResponse<QuotationResponse> reject(UUID id){
+  public APIResponse<QuotationResponse> reject(UUID id) {
     Quotation quotation =
-            quotationRepository
-                    .findById(id)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
+        quotationRepository
+            .findById(id)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Quotation not found"));
     quotation.setStatus(QuotationStatus.REJECTED);
     Quotation savedQuotation = quotationRepository.save(quotation);
     return APIResponse.success(
-            quotationMapper.toQuotationResponse(savedQuotation), "Reject quotation successfully");
+        quotationMapper.toQuotationResponse(savedQuotation), "Reject quotation successfully");
   }
 
   @Override

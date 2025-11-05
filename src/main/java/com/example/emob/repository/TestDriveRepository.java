@@ -5,11 +5,8 @@ import com.example.emob.constant.TestStatus;
 import com.example.emob.entity.Account;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.TestDrive;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import com.example.emob.entity.VehicleUnit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,13 +15,12 @@ import org.springframework.data.repository.query.Param;
 
 public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
 
-
-
-  @Query("""
+  @Query(
+      """
     SELECT t
     FROM TestDrive t
     JOIN t.customer c
-    WHERE 
+    WHERE
         (t.dealer = :dealer)
         AND (
             :keyword IS NULL
@@ -36,17 +32,17 @@ public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
         )
 """)
   Page<TestDrive> searchAndFilter(
-          @Param("dealer") Dealer dealer,
-          @Param("keyword") String keyword,
-          @Param("statuses") List<TestStatus> statuses,
-          Pageable pageable
-  );
+      @Param("dealer") Dealer dealer,
+      @Param("keyword") String keyword,
+      @Param("statuses") List<TestStatus> statuses,
+      Pageable pageable);
 
-  @Query("""
+  @Query(
+      """
     SELECT t
     FROM TestDrive t
     JOIN t.customer c
-    WHERE 
+    WHERE
         (t.dealer = :dealer)
         AND (t.salesperson = :salePerson)
         AND (
@@ -59,12 +55,9 @@ public interface TestDriveRepository extends JpaRepository<TestDrive, UUID> {
         )
 """)
   Page<TestDrive> searchAndFilterByStaff(
-          @Param("dealer") Dealer dealer,
-          @Param("salePerson") Account account,
-          @Param("keyword") String keyword,
-          @Param("statuses") List<TestStatus> statuses,
-          Pageable pageable
-  );
-
-
+      @Param("dealer") Dealer dealer,
+      @Param("salePerson") Account account,
+      @Param("keyword") String keyword,
+      @Param("statuses") List<TestStatus> statuses,
+      Pageable pageable);
 }

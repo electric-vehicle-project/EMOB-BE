@@ -31,12 +31,12 @@ public class DealerPointRuleService implements IDealerPointRule {
       for (DealerPointRuleRequest req : requests) {
         String memberShipLevel = req.getLevel().toString();
         DealerPointRule rule =
-                DealerPointRule.builder()
-                        .membershipLevel(memberShipLevel)
-                        .dealerId(req.getDealerId())
-                        .minPoints(req.getMinPoints())
-                        .price(req.getPrice())
-                        .build();
+            DealerPointRule.builder()
+                .membershipLevel(memberShipLevel)
+                .dealerId(req.getDealerId())
+                .minPoints(req.getMinPoints())
+                .price(req.getPrice())
+                .build();
         // Lưu đối tượng vào cơ sở dữ liệu
         dealerPointRepository.save(rule);
       }
@@ -49,15 +49,12 @@ public class DealerPointRuleService implements IDealerPointRule {
   }
 
   @Override
-
   public APIResponse<List<DealerPointRule>> getRule(String dealerId) {
-    List<DealerPointRule> rules = dealerPointRepository
-        .findByDealerId(dealerId);
+    List<DealerPointRule> rules = dealerPointRepository.findByDealerId(dealerId);
     if (rules.isEmpty()) {
       throw new GlobalException(ErrorCode.NOT_FOUND);
     }
     return APIResponse.success(rules);
-
   }
 
   @Override
