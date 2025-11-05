@@ -69,7 +69,8 @@ public class SecurityConfig {
     "/api/report/process-report/**",
     "api/auth/by-manager",
     "/api/auth/register-by-manager",
-    "/api/vehicle-request/**", "/api/dealer-point-rules/**",
+    "/api/vehicle-request/**",
+    "/api/dealer-point-rules/**",
   };
   // Authenticated chung
   public static final String[] AUTHENTICATED = {
@@ -80,7 +81,8 @@ public class SecurityConfig {
     "/api/delivery/**",
     "/api/contract/**",
     "/api/auth/{id}",
-    "/api/auth/change-status/{id}", "/api/test-drives/**",
+    "/api/auth/change-status/{id}",
+    "/api/test-drives/**",
   };
   public static final String[] SWAGGER = {
     "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/v3/api-docs.yaml"

@@ -3,8 +3,6 @@ package com.example.emob.service.impl;
 
 import com.example.emob.model.request.DealerRequest;
 import com.example.emob.model.response.*;
-
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -24,7 +22,8 @@ public interface IDealer {
 
   DealerRevenueItemResponse getDealerRevenueById(UUID dealerId);
 
-  PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(Integer month, Pageable pageable);
+  PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(
+      Integer month, Pageable pageable);
 
   CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId);
 }

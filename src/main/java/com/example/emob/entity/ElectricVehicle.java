@@ -23,8 +23,10 @@ public class ElectricVehicle {
   @Id @GeneratedValue UUID id;
 
   String brand;
+
   @Column(unique = true)
   String model;
+
   BigDecimal importPrice;
   BigDecimal retailPrice;
   Float batteryKwh;

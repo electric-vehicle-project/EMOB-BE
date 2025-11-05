@@ -1,7 +1,6 @@
 /* EMOB-2025 */
 package com.example.emob.model.request;
 
-import com.example.emob.constant.TestStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;

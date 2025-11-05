@@ -48,12 +48,13 @@ public class SaleOrderService implements ISaleOrder {
 
     Set<UUID> quotationItemIds =
         itemRequests.stream().map(SaleOrderItemRequest::getItemsId).collect(Collectors.toSet());
-    for(UUID itemId : quotationItemIds) {
-      boolean exists = quotation.getQuotationItems().stream()
-              .anyMatch(item -> item.getId().equals(itemId));
+    for (UUID itemId : quotationItemIds) {
+      boolean exists =
+          quotation.getQuotationItems().stream().anyMatch(item -> item.getId().equals(itemId));
       if (!exists) {
-        throw new GlobalException(ErrorCode.INVALID_CODE,
-                "Quotation item with ID " + itemId + " does not belong to the quotation");
+        throw new GlobalException(
+            ErrorCode.INVALID_CODE,
+            "Quotation item with ID " + itemId + " does not belong to the quotation");
       }
     }
     // === 1. Duyệt các QuotationItem được chọn ===
@@ -96,12 +97,15 @@ public class SaleOrderService implements ISaleOrder {
                               item.getColor(),
                               item.getVehicleStatus(),
                               PageRequest.of(0, req.getQuantity()));
-                  if(units.size() < req.getQuantity()) {
-                    throw new GlobalException(ErrorCode.INVALID_CODE,
-                        "Insufficient vehicle units for vehicle: " + item.getVehicle().getModel()
-                            + ", color: " + item.getColor()
-                            + ", status: " + item.getVehicleStatus());
-
+                  if (units.size() < req.getQuantity()) {
+                    throw new GlobalException(
+                        ErrorCode.INVALID_CODE,
+                        "Insufficient vehicle units for vehicle: "
+                            + item.getVehicle().getModel()
+                            + ", color: "
+                            + item.getColor()
+                            + ", status: "
+                            + item.getVehicleStatus());
                   }
                   saleItem.setVehicleUnits(new HashSet<>(units));
 

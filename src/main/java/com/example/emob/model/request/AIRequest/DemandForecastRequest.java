@@ -1,9 +1,8 @@
 /* EMOB-2025 */
-package com.example.emob.model.response;
+package com.example.emob.model.request.AIRequest;
 
 import com.example.emob.constant.Region;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Set;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,13 +11,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DealerResponse {
-  UUID id;
-  String name;
-  String emailContact;
-  String phoneContact;
+public class DemandForecastRequest {
   String country;
-  String address;
-  LocalDateTime createdAt;
   Region region;
+  Set<AIVehicleRequest> vehicles;
+  String timeRange;
 }

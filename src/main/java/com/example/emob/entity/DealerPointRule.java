@@ -17,8 +17,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DealerPointRule {
   @Id String membershipLevel;
-  @Indexed
-  String dealerId;
+  @Indexed String dealerId;
   int minPoints;
   BigDecimal price;
 }

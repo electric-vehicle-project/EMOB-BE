@@ -1,7 +1,8 @@
 /* EMOB-2025 */
-package com.example.emob.model.response;
+package com.example.emob.model.request.AIRequest;
 
 import java.util.List;
+import java.util.Map;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DealerRevenueResponse {
-  List<DealerRevenueItemResponse> items;
-  Long totalDealer;
+public class AIVehicleRequest {
+  String modelName;
+  List<Map<String, Object>> data;
 }

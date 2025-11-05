@@ -43,8 +43,7 @@ public class DeliveryController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete Deliver")
-  public ResponseEntity<APIResponse<Void>> deleteDelivery(
-       @PathVariable("id") UUID id) {
+  public ResponseEntity<APIResponse<Void>> deleteDelivery(@PathVariable("id") UUID id) {
     return ResponseEntity.ok(deliveryService.deleteDelivery(id));
   }
 

@@ -2,7 +2,6 @@
 package com.example.emob.model.response;
 
 import com.example.emob.constant.TestStatus;
-import com.example.emob.entity.Customer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.UUID;

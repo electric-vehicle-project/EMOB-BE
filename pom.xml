@@ -24,6 +24,7 @@
 		<mapstruct.version>1.6.2</mapstruct.version>
 		<lombok.version>1.18.38</lombok.version>
 		<jakarta.mail.version>2.0.3</jakarta.mail.version>
+		<spring-ai.version>1.0.3</spring-ai.version>
 	</properties>
 
 	<dependencies>
@@ -149,8 +150,23 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.17.2</version>
 		</dependency>
+<!--		AI     -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-openai</artifactId>
+		</dependency>
 	</dependencies>
-
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<build>
 		<finalName>be</finalName>
 		<plugins>

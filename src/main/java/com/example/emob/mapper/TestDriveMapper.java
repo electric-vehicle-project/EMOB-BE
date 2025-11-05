@@ -16,6 +16,4 @@ public interface TestDriveMapper {
 
   @Mapping(target = "id", ignore = true)
   TestDrive toTestDrive(TestDriveRequest request);
-
-
 }

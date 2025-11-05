@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.entity;
 
+import com.example.emob.constant.Region;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -29,6 +30,10 @@ public class Dealer {
   String phoneContact;
 
   String country;
+
+  @Enumerated(EnumType.STRING)
+  Region region;
+
   String address;
   LocalDateTime createdAt;
   boolean isDeleted;

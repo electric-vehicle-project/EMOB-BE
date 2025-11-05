@@ -16,7 +16,6 @@ public interface DealerPointRuleRepository extends CrudRepository<DealerPointRul
 
   List<DealerPointRule> findByDealerId(String dealerId);
 
-
   Optional<DealerPointRule> findDealerPointRulesByDealerIdAndMembershipLevel(
       String dealerId, String membershipLevel);
 
