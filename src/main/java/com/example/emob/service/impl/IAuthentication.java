@@ -34,4 +34,6 @@ public interface IAuthentication {
   APIResponse<Void> deleteAccount(UUID id);
 
   APIResponse<Void> changeStatus(UUID id);
+  APIResponse<AccountResponse> loginByGoogle(TokenRequest tokenRequest);
+  APIResponse<AccountResponse> updateProfile(UpdateProfileRequest request);
 }
