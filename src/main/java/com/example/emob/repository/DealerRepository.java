@@ -1,9 +1,12 @@
 /* EMOB-2025 */
 package com.example.emob.repository;
 
+import com.example.emob.constant.Region;
 import com.example.emob.entity.Dealer;
 import com.example.emob.model.response.CustomerRevenueItemResponse;
 import com.example.emob.model.response.DealerRevenueItemResponse;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -33,45 +36,54 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
       @Param("keyword") String keyword, @Param("country") String country, Pageable pageable);
 
   @Query(
-      value =
-          """
-    SELECT
-      BIN_TO_UUID(vr.dealer_id) AS dealerId,
-      SUM(c.total_price) AS totalRevenue,
-      COUNT(c.id) AS totalContracts,
-      SUM(so.total_quantity) AS totalVehiclesSold,
-      MONTH(c.sign_date) AS month,
-      YEAR(c.sign_date) AS year
-    FROM sale_contract c
-    JOIN sale_order so ON c.sale_order = so.id
-    JOIN vehicle_request vr ON so.id = vr.sale_order_id
-    WHERE c.status = 'SIGNED'
-      AND (:month IS NULL OR MONTH(c.sign_date) = :month)
-    GROUP BY vr.dealer_id, YEAR(c.sign_date), MONTH(c.sign_date)
-    ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
-""",
-      nativeQuery = true)
+          value =
+                  """
+            SELECT
+              BIN_TO_UUID(vr.dealer_id) AS dealerId,
+              d.region AS region,
+              d.country AS country,
+              SUM(c.total_price) AS totalRevenue,
+              COUNT(c.id) AS totalContracts,
+              SUM(so.total_quantity) AS totalVehiclesSold,
+              MONTH(c.sign_date) AS month,
+              YEAR(c.sign_date) AS year
+            FROM sale_contract c
+            JOIN sale_order so ON c.sale_order = so.id
+            JOIN vehicle_request vr ON so.id = vr.sale_order_id
+            JOIN dealer d ON vr.dealer_id = d.id
+            WHERE c.status = 'SIGNED'
+              AND (:month IS NULL OR MONTH(c.sign_date) = :month)
+              AND (:#{#regions == null || #regions.isEmpty()} = true OR d.region IN (:regions))
+            GROUP BY vr.dealer_id, d.region, YEAR(c.sign_date), MONTH(c.sign_date)
+            ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
+          """,
+          nativeQuery = true)
   Page<DealerRevenueItemResponse> getDealerRevenueReportByMonth(
-      @Param("month") Integer month, Pageable pageable);
+          @Param("month") Integer month,
+          @Param("regions") List<String> regions,
+          Pageable pageable);
 
   @Query(
-      value =
-          """
-  SELECT
-      BIN_TO_UUID(vr.dealer_id) AS dealerId,
-      SUM(c.total_price) as totalRevenue,
-      COUNT(c.id) as totalContracts,
-      SUM(so.total_quantity) as totalVehiclesSold,
-      NULL AS month,
-      NULL AS year
-  FROM sale_contract c
-  JOIN sale_order so ON c.sale_order = so.id
-  JOIN vehicle_request vr ON so.id = vr.sale_order_id
-  WHERE c.status = 'SIGNED'
-    AND vr.dealer_id = :dealerId
-  GROUP BY vr.dealer_id
-  """,
-      nativeQuery = true)
+          value =
+                  """
+          SELECT
+              BIN_TO_UUID(vr.dealer_id) AS dealerId,
+              d.region AS region,
+              d.country AS country,
+              SUM(c.total_price) AS totalRevenue,
+              COUNT(c.id) AS totalContracts,
+              SUM(so.total_quantity) AS totalVehiclesSold,
+              NULL AS month,
+              NULL AS year
+          FROM sale_contract c
+          JOIN sale_order so ON c.sale_order = so.id
+          JOIN vehicle_request vr ON so.id = vr.sale_order_id
+          JOIN dealer d ON vr.dealer_id = d.id
+          WHERE c.status = 'SIGNED'
+            AND vr.dealer_id = :dealerId
+          GROUP BY vr.dealer_id, d.region, d.country
+          """,
+          nativeQuery = true)
   Optional<DealerRevenueItemResponse> getDealerRevenueById(@Param("dealerId") UUID dealerId);
 
   //  // Lấy danh sách khách hàng của dealer
