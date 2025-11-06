@@ -535,15 +535,12 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     return APIResponse.success(response, "Profile updated successfully");
   }
 
-
-
-
-
-
-
-
-
-
+  @Override
+  public APIResponse<AccountResponse> getCurrentAccount() {
+    Account account = AccountUtil.getCurrentUser();
+    AccountResponse response = accountMapper.toAccountResponse(account);
+    return APIResponse.success(response);
+  }
 
 
   @Override
