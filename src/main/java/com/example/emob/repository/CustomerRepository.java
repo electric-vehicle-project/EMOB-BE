@@ -22,12 +22,14 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     SELECT c
     FROM Customer c
     WHERE (:keyword IS NULL OR LOWER(c.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (c.dealer = :dealer)
       AND (
         :statuses IS NULL
         OR c.status IN :statuses
       )
 """)
   Page<Customer> searchAndFilter(
+      @Param("dealer") Dealer dealer,
       @Param("keyword") String keyword,
       @Param("statuses") List<CustomerStatus> statuses,
       Pageable pageable);

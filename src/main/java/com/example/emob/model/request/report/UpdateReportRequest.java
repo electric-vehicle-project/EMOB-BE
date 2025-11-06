@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 public class UpdateReportRequest {
   String title;
   String description;
+  String vinNumber;
   ReportStatus status;
   ReportType type;
 }

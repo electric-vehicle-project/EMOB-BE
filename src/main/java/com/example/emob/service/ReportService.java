@@ -6,6 +6,7 @@ import com.example.emob.constant.ReportStatus;
 import com.example.emob.entity.Customer;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Report;
+import com.example.emob.entity.VehicleUnit;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.CustomerMapper;
 import com.example.emob.mapper.PageMapper;
@@ -18,6 +19,7 @@ import com.example.emob.model.response.PageResponse;
 import com.example.emob.model.response.ReportResponse;
 import com.example.emob.repository.CustomerRepository;
 import com.example.emob.repository.ReportRepository;
+import com.example.emob.repository.VehicleUnitRepository;
 import com.example.emob.service.impl.IReport;
 import com.example.emob.util.AccountUtil;
 import java.time.LocalDateTime;
@@ -42,6 +44,8 @@ public class ReportService implements IReport {
 
   @Autowired private PageMapper pageMapper;
 
+  @Autowired private VehicleUnitRepository vehicleUnitRepository;
+
   @Override
   public APIResponse<ReportResponse> createReport(CreateReportRequest request) {
     // khách hàng
@@ -57,6 +61,13 @@ public class ReportService implements IReport {
       report.setDealer(AccountUtil.getCurrentUser().getDealer());
       report.setCreateBy(AccountUtil.getCurrentUser());
       report.setReportBy(customer);
+
+      VehicleUnit vehicleUnit =
+          vehicleUnitRepository
+              .findByVinNumber(request.getVinNumber())
+              .orElseThrow(
+                  () -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found"));
+      report.setVehicleUnit(vehicleUnit);
       reportRepository.save(report);
       // create new report
       ReportResponse reportResponse = reportMapper.toReportResponse(report);
@@ -80,6 +91,14 @@ public class ReportService implements IReport {
     try {
       // Map request -> entity
       reportMapper.updateReportFromRequest(request, report);
+      if (request.getVinNumber() != null) {
+        VehicleUnit vehicleUnit =
+            vehicleUnitRepository
+                .findByVinNumber(request.getVinNumber())
+                .orElseThrow(
+                    () -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found"));
+        report.setVehicleUnit(vehicleUnit);
+      }
       report.setUpdatedAt(LocalDateTime.now());
       reportRepository.save(report);
       ReportResponse reportResponse = reportMapper.toReportResponse(report);

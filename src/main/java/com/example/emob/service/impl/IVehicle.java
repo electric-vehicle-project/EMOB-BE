@@ -3,6 +3,7 @@ package com.example.emob.service.impl;
 
 import com.example.emob.constant.VehicleStatus;
 import com.example.emob.constant.VehicleType;
+import com.example.emob.model.request.vehicle.DeleteVehicleUnitRequest;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -39,4 +40,6 @@ public interface IVehicle {
 
   APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
       UUID modelId, Pageable pageable);
+
+  APIResponse<VehicleUnitResponse> deleteVehicleUnit(DeleteVehicleUnitRequest request);
 }

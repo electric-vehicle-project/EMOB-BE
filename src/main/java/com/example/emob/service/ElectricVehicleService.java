@@ -2,15 +2,13 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
-import com.example.emob.constant.Region;
 import com.example.emob.constant.VehicleStatus;
 import com.example.emob.constant.VehicleType;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.ElectricVehicleMapper;
 import com.example.emob.mapper.PageMapper;
-import com.example.emob.model.request.AIRequest.AIVehicleRequest;
-import com.example.emob.model.request.AIRequest.DemandForecastRequest;
+import com.example.emob.model.request.vehicle.DeleteVehicleUnitRequest;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -25,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -440,11 +439,18 @@ public class ElectricVehicleService implements IVehicle {
     return prefix + "-" + randomPart;
   }
 
-  public List<DemandForecastRequest> createDemandForecasts() {
-    LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+  public List<Map<String, Object>> createDemandForecasts() {
+    // 🧭 Tính mốc thời gian: đầu tháng của 3 tháng trước
+    LocalDateTime threeMonthsAgo = LocalDate.now().minusMonths(3).withDayOfMonth(1).atStartOfDay();
+
+    // 🧮 Lấy dữ liệu từ DB
     List<Object[]> rows = vehicleRequestRepository.findSignedRequestsRaw(threeMonthsAgo);
 
-    // ✅ Nhóm theo country + region
+    // 🧾 Debug: xem log để kiểm tra khoảng thời gian và số bản ghi
+    System.out.println("📅 threeMonthsAgo = " + threeMonthsAgo);
+    System.out.println("📊 Total rows fetched = " + rows.size());
+
+    // [0] country, [1] region, [2] model, [3] color, [4] year, [5] month, [6] sum(quantity)
     Map<String, List<Object[]>> groupedByRegion =
         rows.stream().collect(Collectors.groupingBy(r -> r[0] + "|" + r[1]));
 
@@ -453,45 +459,103 @@ public class ElectricVehicleService implements IVehicle {
             entry -> {
               String[] key = entry.getKey().split("\\|");
               String country = key[0];
-              Region region = Region.valueOf(key[1]);
+              String region = key[1];
 
-              // ✅ Nhóm tiếp theo model
+              // ✅ Nhóm theo model
               Map<String, List<Object[]>> groupedByModel =
                   entry.getValue().stream().collect(Collectors.groupingBy(r -> (String) r[2]));
 
-              Set<AIVehicleRequest> vehicles =
+              List<Map<String, Object>> vehicles =
                   groupedByModel.entrySet().stream()
                       .map(
                           modelEntry -> {
                             String modelName = modelEntry.getKey();
 
-                            // ✅ Map ra list color + quantity
-                            List<Map<String, Object>> dataList =
+                            // ✅ Nhóm theo color
+                            Map<String, List<Object[]>> groupedByColor =
                                 modelEntry.getValue().stream()
+                                    .collect(Collectors.groupingBy(r -> (String) r[3]));
+
+                            List<Map<String, Object>> colorData =
+                                groupedByColor.entrySet().stream()
                                     .map(
-                                        r ->
-                                            Map.of(
-                                                "color",
-                                                r[3],
-                                                "totalRequests",
-                                                ((Number) r[4]).longValue()))
+                                        colorEntry -> {
+                                          String color = colorEntry.getKey();
+
+                                          // 🧮 Tổng quantity theo "year-month"
+                                          Map<String, Long> monthTotals =
+                                              colorEntry.getValue().stream()
+                                                  .collect(
+                                                      Collectors.toMap(
+                                                          r ->
+                                                              r[4]
+                                                                  + "-"
+                                                                  + String.format(
+                                                                      "%02d",
+                                                                      ((Number) r[5]).intValue()),
+                                                          r -> ((Number) r[6]).longValue(),
+                                                          Long::sum));
+
+                                          // 🧭 Xác định các mốc tháng cần so sánh
+                                          YearMonth current =
+                                              YearMonth.now(); // Tháng hiện tại (VD: 2025-11)
+                                          YearMonth lastMonth = current.minusMonths(1); // Tháng 10
+                                          YearMonth twoMonthsAgo =
+                                              current.minusMonths(2); // Tháng 9
+                                          YearMonth threeMonthsAgoYM =
+                                              current.minusMonths(3); // Tháng 8
+
+                                          // 🧮 Lấy quantity theo đúng mốc (không tính tháng hiện
+                                          // tại)
+                                          Long qtyThreeAgo =
+                                              monthTotals.getOrDefault(
+                                                  threeMonthsAgoYM.toString(), 0L);
+                                          Long qtyTwoAgo =
+                                              monthTotals.getOrDefault(twoMonthsAgo.toString(), 0L);
+                                          Long qtyLast =
+                                              monthTotals.getOrDefault(lastMonth.toString(), 0L);
+
+                                          // 🧾 Dựng demandHistory (theo 3 tháng trước hiện tại)
+                                          Map<String, Object> demandHistory = new LinkedHashMap<>();
+                                          demandHistory.put(
+                                              "three_months_ago",
+                                              qtyThreeAgo == 0 ? "N/A" : qtyThreeAgo);
+                                          demandHistory.put(
+                                              "two_months_ago", qtyTwoAgo == 0 ? "N/A" : qtyTwoAgo);
+                                          demandHistory.put(
+                                              "last_month", qtyLast == 0 ? "N/A" : qtyLast);
+
+                                          // 🧩 (Tùy chọn) Thêm tháng hiện tại nếu bạn muốn hiển thị
+                                          // luôn
+                                          // Long qtyCurrent =
+                                          // monthTotals.getOrDefault(current.toString(), 0L);
+                                          // demandHistory.put("current_month", qtyCurrent == 0 ?
+                                          // "N/A" : qtyCurrent);
+
+                                          // 🏭 Lấy tồn kho (tạm random demo, có thể thay bằng JOIN
+                                          // từ bảng Inventory)
+                                          List<VehicleUnit> vehicleUnitList =
+                                              vehicleUnitRepository
+                                                  .findVehicleUnitInDealerInventory(
+                                                      color, modelName);
+
+                                          return Map.of(
+                                              "color", color,
+                                              "inventoryRemaining", vehicleUnitList.size(),
+                                              "demandHistory", demandHistory);
+                                        })
                                     .toList();
 
-                            // ✅ Tạo đối tượng vehicle
-                            AIVehicleRequest ai = new AIVehicleRequest();
-                            ai.setModelName(modelName);
-                            ai.setData(dataList);
-                            return ai;
+                            return Map.of(
+                                "modelName", modelName,
+                                "data", colorData);
                           })
-                      .collect(Collectors.toSet());
+                      .toList();
 
-              // ✅ Build DemandForecastRequest
-              DemandForecastRequest forecast = new DemandForecastRequest();
-              forecast.setCountry(country);
-              forecast.setRegion(region);
-              forecast.setVehicles(vehicles);
-              forecast.setTimeRange("last_3_months");
-              return forecast;
+              return Map.of(
+                  "country", country,
+                  "region", region,
+                  "vehicles", vehicles);
             })
         .toList();
   }
@@ -499,7 +563,7 @@ public class ElectricVehicleService implements IVehicle {
   public APIResponse<?> getDemandForecastFromAI() {
     try {
       // B1: Lấy dữ liệu 3 tháng gần nhất
-      List<DemandForecastRequest> requests = createDemandForecasts();
+      List<Map<String, Object>> requests = createDemandForecasts();
 
       // B2: Gọi AI để dự báo nhu cầu
       String aiResponse = aiService.getAIResponse(requests);
@@ -512,6 +576,27 @@ public class ElectricVehicleService implements IVehicle {
 
     } catch (Exception e) { // ✅ bắt được tất cả checked + runtime exceptions
       return APIResponse.error(400, "Failed to get AI demand forecast: " + e.getMessage());
+    }
+  }
+
+  @Override
+  @Transactional
+  public APIResponse<VehicleUnitResponse> deleteVehicleUnit(DeleteVehicleUnitRequest request) {
+    try {
+      for (UUID vehicleUnitId : request.getVehicleUnitIds()) {
+        VehicleUnit vehicleUnit =
+            vehicleUnitRepository
+                .findById(vehicleUnitId)
+                .orElseThrow(
+                    () -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found."));
+
+        vehicleUnitRepository.delete(vehicleUnit);
+      }
+
+      return APIResponse.success(null, "Vehicle units deleted successfully");
+
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
 }

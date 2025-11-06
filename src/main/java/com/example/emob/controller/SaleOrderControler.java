@@ -108,7 +108,7 @@ public class SaleOrderControler {
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
     APIResponse<PageResponse<SalesByStaffResponse>> response =
-        saleOrderService.getAllSaleOrdersByemployee(pageable);
+        saleOrderService.getAllSaleOrdersByEmployee(pageable);
     return ResponseEntity.ok(response);
   }
 

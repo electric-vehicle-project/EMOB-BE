@@ -19,6 +19,7 @@ public interface SaleOrderRepository extends JpaRepository<SaleOrder, UUID> {
       """
       SELECT s
       FROM SaleOrder s
+      JOIN FETCH s.vehicleRequest v
       WHERE (:statuses IS NULL OR s.status IN :statuses)
         AND (:keyword IS NULL
              OR LOWER(CAST(s.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))

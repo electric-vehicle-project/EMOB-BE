@@ -96,4 +96,23 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
       @Param("startAt") LocalDateTime startAt,
       @Param("endAt") LocalDateTime endAt,
       @Param("model") String model);
+
+  @Query("""
+    SELECT v
+    FROM VehicleUnit v
+    WHERE LOWER(v.vinNumber) = LOWER(:vin)
+""")
+  Optional<VehicleUnit> findByVinNumber(@Param("vin") String vin);
+
+  @Query(
+      """
+    SELECT vu
+    FROM VehicleUnit vu
+    JOIN vu.inventory inv
+    WHERE vu.color = :color
+      AND vu.vehicle.model = :model
+      AND inv.isCompany = true
+""")
+  List<VehicleUnit> findVehicleUnitInDealerInventory(
+      @Param("color") String color, @Param("model") String model);
 }
