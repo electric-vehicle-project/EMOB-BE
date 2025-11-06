@@ -7,6 +7,7 @@ import com.example.emob.constant.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -48,6 +49,8 @@ public class Account implements UserDetails {
   String email;
 
   String password;
+
+  LocalDateTime createdAt;
 
   @ManyToOne
   @JoinColumn(name = "dealer_id")
