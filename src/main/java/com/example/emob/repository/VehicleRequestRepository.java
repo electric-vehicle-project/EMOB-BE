@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, UUID> {
-  Page<VehicleRequest> findAllByIsDeletedFalseAndDealer(Dealer dealer, Pageable pageable);
 
   @Query(
       """
@@ -42,7 +41,10 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
 
   @Query(
       """
-    SELECT d.country, d.region, ev.model, vri.color, SUM(vri.quantity)
+    SELECT d.country, d.region, ev.model, vri.color,
+           FUNCTION('YEAR', vr.createdAt) AS year,
+           FUNCTION('MONTH', vr.createdAt) AS month,
+           SUM(vri.quantity)
     FROM Dealer d
     JOIN d.vehicleRequests vr
     JOIN vr.vehicleRequestItems vri
@@ -52,8 +54,8 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
     WHERE c.status = 'SIGNED'
       AND vri.vehicleStatus = 'NORMAL'
       AND vr.createdAt >= :threeMonthsAgo
-    GROUP BY d.country, d.region, ev.model, vri.color
-    ORDER BY d.country, d.region, ev.model
+    GROUP BY d.country, d.region, ev.model, vri.color, FUNCTION('YEAR', vr.createdAt), FUNCTION('MONTH', vr.createdAt)
+    ORDER BY d.country, d.region, ev.model, FUNCTION('YEAR', vr.createdAt), FUNCTION('MONTH', vr.createdAt)
 """)
   List<Object[]> findSignedRequestsRaw(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo);
 }

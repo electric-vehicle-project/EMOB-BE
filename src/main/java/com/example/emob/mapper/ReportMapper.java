@@ -14,6 +14,7 @@ public interface ReportMapper {
   @Mapping(target = "reportId", source = "id")
   @Mapping(target = "fullName", source = "createBy.fullName")
   @Mapping(target = "customerId", source = "reportBy.id")
+  @Mapping(target = "vehicleUnitId", source = "vehicleUnit.id")
   ReportResponse toReportResponse(Report request);
 
   Report toReport(CreateReportRequest request);

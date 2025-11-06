@@ -376,11 +376,16 @@ public class QuotationService implements IQuotation {
   }
 
   @PreAuthorize("hasRole('DEALER_STAFF')")
-  public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(Pageable pageable) {
+  public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(
+      Pageable pageable, String keyword, List<QuotationStatus> status) {
 
     Page<Quotation> page =
-        quotationRepository.findAllByIsDeletedFalseAndDealerAndAccount(
-            AccountUtil.getCurrentUser().getDealer(), AccountUtil.getCurrentUser(), pageable);
+        quotationRepository.findAllByAccount(
+            AccountUtil.getCurrentUser().getDealer(),
+            AccountUtil.getCurrentUser(),
+            keyword,
+            status,
+            pageable);
     // Gói kết quả vào PageResponse
     PageResponse<QuotationResponse> pageResponse =
         pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);

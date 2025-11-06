@@ -354,7 +354,7 @@ public class SaleOrderService implements ISaleOrder {
   }
 
   @PreAuthorize("hasRole('MANAGER')")
-  public APIResponse<PageResponse<SalesByStaffResponse>> getAllSaleOrdersByemployee(
+  public APIResponse<PageResponse<SalesByStaffResponse>> getAllSaleOrdersByEmployee(
       Pageable pageable) {
     List<SalesByStaffResponse> salesByStaffResponses = new ArrayList<>();
     for (Account staff :

@@ -28,5 +28,8 @@ public class CreateReportRequest {
   String title;
 
   ReportStatus status;
+
+  String vinNumber;
+
   ReportType type;
 }

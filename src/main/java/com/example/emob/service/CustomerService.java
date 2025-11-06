@@ -116,7 +116,9 @@ public class CustomerService implements ICustomer {
   @PreAuthorize("hasAnyRole('DEALER_STAFF','MANAGER')")
   public APIResponse<PageResponse<CustomerResponse>> getAll(
       Pageable pageable, String keyword, List<CustomerStatus> status) {
-    Page<Customer> page = customerRepository.searchAndFilter(keyword, status, pageable);
+    Page<Customer> page =
+        customerRepository.searchAndFilter(
+            AccountUtil.getCurrentUser().getDealer(), keyword, status, pageable);
     PageResponse<CustomerResponse> response =
         pageMapper.toPageResponse(page, customerMapper::toCustomerResponse);
     return APIResponse.success(response, "Get all customers successfully");

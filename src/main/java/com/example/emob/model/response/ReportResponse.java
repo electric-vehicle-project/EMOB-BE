@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportResponse {
   UUID reportId;
+  UUID vehicleUnitId;
   String title;
   String description;
   ReportType type;

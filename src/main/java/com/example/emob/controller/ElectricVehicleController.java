@@ -2,6 +2,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.VehicleType;
+import com.example.emob.model.request.vehicle.DeleteVehicleUnitRequest;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
 import com.example.emob.model.request.vehicle.ElectricVehicleRequest;
 import com.example.emob.model.request.vehicle.VehicleUnitRequest;
@@ -278,6 +279,16 @@ public class ElectricVehicleController {
   public APIResponse<List<VehicleCompareResponse>> compareByPath(
       @PathVariable UUID leftId, @PathVariable UUID rightId) {
     return APIResponse.success(vehicleService.compare(leftId, rightId));
+  }
+
+  @Operation(
+      summary = "Xoá nhiều VehicleUnit",
+      description = "Xoá các VehicleUnit theo danh sách ID")
+  @DeleteMapping("/vehicle-units")
+  public ResponseEntity<APIResponse<VehicleUnitResponse>> deleteVehicleUnits(
+      @Valid @RequestBody DeleteVehicleUnitRequest request) {
+    APIResponse<VehicleUnitResponse> response = vehicleService.deleteVehicleUnit(request);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/demandForecastFromAI")

@@ -312,7 +312,7 @@ public class DeliveryService implements IDelivery {
             .findById(deliveryId)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Delivery not found"));
 
-    if (delivery.getStatus() != DeliveryStatus.IN_PROGRESS) {
+    if (!delivery.getStatus().equals(DeliveryStatus.IN_PROGRESS)) {
       throw new GlobalException(
           ErrorCode.DATA_INVALID, "Only deliveries in progress can be completed");
     }

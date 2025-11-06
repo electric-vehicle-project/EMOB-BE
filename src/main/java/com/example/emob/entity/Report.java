@@ -3,6 +3,7 @@ package com.example.emob.entity;
 
 import com.example.emob.constant.ReportStatus;
 import com.example.emob.constant.ReportType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,4 +46,9 @@ public class Report {
   @ManyToOne
   @JoinColumn(name = "dealer_id", referencedColumnName = "id")
   Dealer dealer;
+
+  @ManyToOne
+  @JoinColumn(name = "vehicleUnit_id")
+  @JsonIgnore
+  VehicleUnit vehicleUnit;
 }
