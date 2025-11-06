@@ -255,4 +255,16 @@ public class AuthenticationController {
   public ResponseEntity<APIResponse<Void>> changeStatus(@PathVariable UUID id) {
     return ResponseEntity.ok(authenticationService.changeStatus(id));
   }
+
+  @PostMapping("/google")
+  public ResponseEntity<APIResponse<AccountResponse>> loginByGoogle(@RequestBody TokenRequest tokenRequest) {
+    return ResponseEntity.ok(authenticationService.loginByGoogle(tokenRequest));
+  }
+
+  @PutMapping("/profile")
+  public ResponseEntity<APIResponse<AccountResponse>> updateProfile(
+          @RequestBody UpdateProfileRequest request) {
+      return ResponseEntity.ok(authenticationService.updateProfile(request));
+
+  }
 }

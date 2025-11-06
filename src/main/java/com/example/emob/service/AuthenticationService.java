@@ -19,7 +19,18 @@ import com.example.emob.repository.OtpRepository;
 import com.example.emob.service.impl.IAuthentication;
 import com.example.emob.util.AccountUtil;
 import com.example.emob.util.NotificationHelper;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.swagger.v3.oas.annotations.Operation;
+
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +75,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Autowired RedisTemplate<String, Object> redisTemplate;
 
   private final SecureRandom secureRandom = new SecureRandom();
+
+  @Autowired
+  private SupabaseTokenVerifier verifier;
 
   final long DURATION = 300L;
 
@@ -489,6 +503,48 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       throw new GlobalException(ErrorCode.INVALID_CODE);
     }
   }
+
+  public APIResponse<AccountResponse> loginByGoogle(TokenRequest tokenRequest) {
+    String email = verifier.getEmailFromToken(tokenRequest.getToken());
+    if (email == null) {
+      throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
+    }
+    Account account = accountRepository.findAccountByEmail(email);
+    if (account == null) {
+        throw new GlobalException(ErrorCode.NOT_FOUND, "Account not found");
+    }
+    AccountResponse accountResponse = accountMapper.toAccountResponse(account);
+    String accessToken = tokenService.generateToken(account);
+    accountResponse.setToken(accessToken);
+    String refreshToken = refreshTokenService.createRefreshToken(account).getToken();
+    accountResponse.setRefreshToken(refreshToken);
+    return APIResponse.success(accountResponse, "Login Successful");
+  }
+
+
+  public APIResponse<AccountResponse> updateProfile(UpdateProfileRequest request) {
+    Account currentUser = AccountUtil.getCurrentUser();
+    if (currentUser == null) {
+      throw new GlobalException(ErrorCode.NOT_FOUND);
+    }
+    // Cập nhật thông tin từ request
+    accountMapper.updateAccountFromRequest(request, currentUser);
+    // Lưu thay đổi vào cơ sở dữ liệu
+    Account updatedAccount = accountRepository.save(currentUser);
+    AccountResponse response = accountMapper.toAccountResponse(updatedAccount);
+    return APIResponse.success(response, "Profile updated successfully");
+  }
+
+
+
+
+
+
+
+
+
+
+
 
   @Override
   public void logout(TokenRequest refreshRequest) {
