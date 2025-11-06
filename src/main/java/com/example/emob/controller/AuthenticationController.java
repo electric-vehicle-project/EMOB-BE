@@ -17,6 +17,7 @@ import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -232,15 +233,26 @@ public class AuthenticationController {
   @GetMapping("by-manager")
   @Operation(summary = "Get all by manager")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByManager(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
     return ResponseEntity.ok(authenticationService.getAllByManager(pageable));
   }
 
   @GetMapping("by-admin")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByAdmin(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return ResponseEntity.ok(authenticationService.getAllByAdmin(pageable));
   }
 
