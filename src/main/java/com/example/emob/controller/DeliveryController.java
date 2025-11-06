@@ -102,9 +102,11 @@ public class DeliveryController {
       @RequestParam(required = false) List<DeliveryStatus> statuses,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "id,desc") String[] sort) {
-
-    Pageable pageable = buildPageable(page, size, sort);
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     return deliveryService.getAllDeliveriesByCustomer(statuses, pageable);
   }
 

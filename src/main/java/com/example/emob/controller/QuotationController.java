@@ -70,7 +70,7 @@ public class QuotationController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<QuotationStatus> status,
-      @RequestParam(defaultValue = "totalPrice") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
@@ -86,7 +86,7 @@ public class QuotationController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<QuotationStatus> status,
-      @RequestParam(defaultValue = "totalPrice") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();

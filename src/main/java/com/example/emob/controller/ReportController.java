@@ -131,7 +131,7 @@ public class ReportController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) ReportStatus status,
-      @RequestParam(defaultValue = "title") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
