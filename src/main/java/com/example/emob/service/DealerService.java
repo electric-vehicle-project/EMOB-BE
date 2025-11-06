@@ -2,6 +2,7 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.Region;
 import com.example.emob.entity.Dealer;
 import com.example.emob.entity.Inventory;
 import com.example.emob.exception.GlobalException;
@@ -14,6 +15,7 @@ import com.example.emob.repository.SaleContractRepository;
 import com.example.emob.service.impl.IDealer;
 import com.example.emob.util.AccountUtil;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -118,12 +120,18 @@ public class DealerService implements IDealer {
 
   @Override
   @PreAuthorize("hasRole('ADMIN')")
-  public PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(
-      Integer month, Pageable pageable) {
+  public PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month,
+                                                                        Pageable pageable,
+                                                                        List<Region> region) {
+    // Convert List<Region> to List<String>
+    List<String> regionNames = (region == null || region.isEmpty())
+            ? null
+            : region.stream()
+            .map(Region::name)
+            .toList();
 
     Page<DealerRevenueItemResponse> page =
-        dealerRepository.getDealerRevenueReportByMonth(month, pageable);
-
+            dealerRepository.getDealerRevenueReportByMonth(month, regionNames, pageable);
     return pageMapper.toPageResponse(page, item -> item);
   }
 

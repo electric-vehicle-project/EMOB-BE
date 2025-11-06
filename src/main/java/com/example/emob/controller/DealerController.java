@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.Region;
 import com.example.emob.model.request.DealerRequest;
 import com.example.emob.model.response.*;
 import com.example.emob.service.DealerService;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -121,11 +124,12 @@ public class DealerController {
   @GetMapping("/dealer-revenue")
   @Operation(summary = "Get dealer revenue report")
   public ResponseEntity<PageResponse<DealerRevenueItemResponse>> getDealerRevenueReport(
+      @RequestParam(required = false) List<Region> region,
       @RequestParam(required = false) Integer month,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
     Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(dealerService.getDealerRevenueReport(month, pageable));
+    return ResponseEntity.ok(dealerService.getDealerRevenueReport(month, pageable, region));
   }
 
   @GetMapping("/{id}/dealer-revenue")

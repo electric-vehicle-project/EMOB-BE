@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 // map tự động
 public interface DealerRevenueItemResponse {
   String getDealerId();
+  String getRegion();
+  String getCountry();
 
   BigDecimal getTotalRevenue();
 
