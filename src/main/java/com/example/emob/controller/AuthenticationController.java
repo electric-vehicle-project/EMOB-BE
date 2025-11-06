@@ -279,4 +279,9 @@ public class AuthenticationController {
       return ResponseEntity.ok(authenticationService.updateProfile(request));
 
   }
+
+  @GetMapping("/current-user")
+  public ResponseEntity<APIResponse<AccountResponse>> getCurrentUser() {
+    return ResponseEntity.ok(authenticationService.getCurrentAccount());
+  }
 }
