@@ -105,8 +105,14 @@ public class SaleOrderControler {
 
   @GetMapping("/sale-of-staff")
   public ResponseEntity<APIResponse<PageResponse<SalesByStaffResponse>>> getAllSaleOrdersByEmployee(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir
+  ) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
     APIResponse<PageResponse<SalesByStaffResponse>> response =
         saleOrderService.getAllSaleOrdersByEmployee(pageable);
     return ResponseEntity.ok(response);
