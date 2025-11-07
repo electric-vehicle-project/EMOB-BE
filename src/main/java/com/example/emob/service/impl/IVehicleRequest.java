@@ -25,4 +25,7 @@ public interface IVehicleRequest {
 
   APIResponse<PageResponse<VehicleRequestResponse>> getAll(
       Pageable pageable, String keyword, List<VehicleRequestStatus> status);
+
+  APIResponse<PageResponse<VehicleRequestResponse>> getAllVehicleRequestsByAdmin(Pageable pageable, String keyword, List<VehicleRequestStatus> status);
+
 }

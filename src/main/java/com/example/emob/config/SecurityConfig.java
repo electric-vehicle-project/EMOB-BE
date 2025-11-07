@@ -54,7 +54,7 @@ public class SecurityConfig {
     "/api/auth/by-admin",
     "/api/dealer-discount-policy/**",
     "/api/vehicle-price-rules/**",
-    "/api/vehicle-request/{id}/approved"
+    "/api/vehicle-request/{id}/approved",
   };
 
   public static final String[] DEALER_STAFF = {

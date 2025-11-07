@@ -316,6 +316,17 @@ public class VehicleRequestService implements IVehicleRequest {
     return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
   }
 
+  @Override
+  public APIResponse<PageResponse<VehicleRequestResponse>> getAllVehicleRequestsByAdmin(Pageable pageable, String keyword, List<VehicleRequestStatus> status) {
+    Page<VehicleRequest> page =
+            vehiclerequestRepository.searchAndFilterByAdmin(keyword, status, pageable);
+
+    PageResponse<VehicleRequestResponse> pageResponse =
+            pageMapper.toPageResponse(page, vehicleRequestMapper::toVehicleRequestResponse);
+
+    return APIResponse.success(pageResponse, "Get all vehicle requests successfully");
+  }
+
   private VehicleRequestItem createVehicleRequestItem(VehicleRequestItemRequest request) {
     ElectricVehicle vehicle =
         electricVehicleRepository
