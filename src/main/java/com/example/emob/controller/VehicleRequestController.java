@@ -77,4 +77,20 @@ public class VehicleRequestController {
     Pageable pageable = PageRequest.of(page, size, sort);
     return ResponseEntity.ok(vehiclerequestService.getAll(pageable, keyword, status));
   }
+
+  @Operation(summary = "Get all vehicle requests")
+  @GetMapping("/for-admin")
+  public ResponseEntity<APIResponse<PageResponse<VehicleRequestResponse>>> getAllByAdmin(
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(required = false) List<VehicleRequestStatus> status,
+          @RequestParam(defaultValue = "createdAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir) {
+
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+    return ResponseEntity.ok(vehiclerequestService.getAllVehicleRequestsByAdmin(pageable, keyword, status));
+  }
 }

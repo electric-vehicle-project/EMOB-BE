@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, UUID> {
-
   @Query(
       """
     SELECT vr
@@ -58,4 +57,24 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
     ORDER BY d.country, d.region, ev.model, FUNCTION('YEAR', vr.createdAt), FUNCTION('MONTH', vr.createdAt)
 """)
   List<Object[]> findSignedRequestsRaw(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo);
+
+  @Query("""
+    SELECT vr
+    FROM VehicleRequest vr
+    JOIN vr.dealer d
+    WHERE vr.isDeleted = false
+      AND (
+        :keyword IS NULL
+        OR LOWER(CAST(vr.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+      AND (
+        :statuses IS NULL
+        OR vr.status IN :statuses
+      )
+""")
+  Page<VehicleRequest> searchAndFilterByAdmin(
+          @Param("keyword") String keyword,
+          @Param("statuses") List<VehicleRequestStatus> statuses,
+          Pageable pageable
+  );
 }
