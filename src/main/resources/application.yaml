@@ -70,11 +70,10 @@ spring:
         completions-path: /v1beta/openai/chat/completions
         options:
           model: gemini-2.0-flash
-#firebase-admin
-fcm:
-  credentials:
-    file:
-      path: ./firebase-admin.json
+#supabase
+supabase:
+  jwt:
+    secret: XQPLAeQEZkgf6SJ8+fsK4dqAGaBrBwbq8XCpQMc/dIKnLijXIsBMDsoz3bg+pUgchYyhTpv4DCAO2qJUNgc0nA==
 #logging:
 #  level:
 #    org:

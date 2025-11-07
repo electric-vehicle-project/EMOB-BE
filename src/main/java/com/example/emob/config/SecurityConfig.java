@@ -43,6 +43,7 @@ public class SecurityConfig {
     "/api/auth/resend-otp",
     "/api/public/**",
     "/api/installment/**",
+    "/api/auth/google"
   };
 
   // ADMIN

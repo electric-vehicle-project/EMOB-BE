@@ -320,7 +320,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       if (!(principal instanceof Account)) {
         throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
       }
-      Account account = (Account) principal;
+      Account princlpalAccount = (Account) principal;
+        Account account = accountRepository.findAccountById(princlpalAccount.getId());
 
       if (AccountStatus.BANNED.equals(account.getStatus())) {
         throw new GlobalException(ErrorCode.ACCOUNT_BANNED);
@@ -505,7 +506,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   public APIResponse<AccountResponse> loginByGoogle(TokenRequest tokenRequest) {
-    String email = verifier.getEmailFromToken(tokenRequest.getToken());
+    String email = verifier.verifySupabaseToken(tokenRequest.getToken());
     if (email == null) {
       throw new GlobalException(ErrorCode.INVALID_CREDENTIALS);
     }
@@ -513,12 +514,20 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     if (account == null) {
         throw new GlobalException(ErrorCode.NOT_FOUND, "Account not found");
     }
+    if (AccountStatus.BANNED.equals(account.getStatus())) {
+      throw new GlobalException(ErrorCode.ACCOUNT_BANNED);
+    }
+
+    if (AccountStatus.INACTIVE.equals(account.getStatus())) {
+      throw new GlobalException(ErrorCode.ACCOUNT_INACTIVE);
+    }
     AccountResponse accountResponse = accountMapper.toAccountResponse(account);
     String accessToken = tokenService.generateToken(account);
     accountResponse.setToken(accessToken);
     String refreshToken = refreshTokenService.createRefreshToken(account).getToken();
     accountResponse.setRefreshToken(refreshToken);
     return APIResponse.success(accountResponse, "Login Successful");
+
   }
 
 
@@ -535,12 +544,6 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
     return APIResponse.success(response, "Profile updated successfully");
   }
 
-  @Override
-  public APIResponse<AccountResponse> getCurrentAccount() {
-    Account account = AccountUtil.getCurrentUser();
-    AccountResponse response = accountMapper.toAccountResponse(account);
-    return APIResponse.success(response);
-  }
 
 
   @Override

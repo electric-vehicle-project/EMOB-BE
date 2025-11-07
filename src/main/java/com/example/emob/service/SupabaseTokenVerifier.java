@@ -1,40 +1,34 @@
 package com.example.emob.service;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.JWSKeySelector;
-import com.nimbusds.jose.proc.JWSVerificationKeySelector;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
+import com.example.emob.constant.ErrorCode;
+import com.example.emob.exception.GlobalException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.URL;
+
 @Service
 public class SupabaseTokenVerifier {
-    private static final String SUPABASE_JWKS_URL =
-            "https://gffjbqzhcrykuzfjsxim.supabase.co/auth/v1/jwks";
-
-    private ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
-    public SupabaseTokenVerifier() throws Exception {
-        JWKSource<SecurityContext> keySource =
-                new RemoteJWKSet<>(new URL(SUPABASE_JWKS_URL));
-
-        jwtProcessor = new DefaultJWTProcessor<>();
-        JWSKeySelector<SecurityContext> keySelector =
-                new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, keySource);
-        jwtProcessor.setJWSKeySelector(keySelector);
-    }
-
-    public String getEmailFromToken(String token) {
+    @Value("${supabase.jwt.secret}")
+    private String supabaseJwtSecret;
+    public String verifySupabaseToken(String token) {
         try {
-            var claims = jwtProcessor.process(SignedJWT.parse(token), null);
-            return claims.getStringClaim("email");
+
+            // Tạo thuật toán xác minh HMAC SHA256 với Supabase secret
+            Algorithm algorithm = Algorithm.HMAC256(supabaseJwtSecret);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("https://gffjbqzhcrykuzfjsxim.supabase.co/auth/v1")
+                    .build();
+
+            DecodedJWT jwt = verifier.verify(token);
+            return jwt.getClaim("email").asString();
         } catch (Exception e) {
-            System.err.println("Invalid token: " + e.getMessage());
-            return null;
+            System.out.println("❌ Token không hợp lệ: " + e.getMessage());
+            throw new GlobalException(ErrorCode.UNAUTHENTICATED, "Invalid Supabase token");
         }
     }
 }

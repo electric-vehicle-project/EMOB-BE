@@ -280,8 +280,4 @@ public class AuthenticationController {
 
   }
 
-  @GetMapping("/current-user")
-  public ResponseEntity<APIResponse<AccountResponse>> getCurrentUser() {
-    return ResponseEntity.ok(authenticationService.getCurrentAccount());
-  }
 }
