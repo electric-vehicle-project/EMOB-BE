@@ -23,15 +23,15 @@ public interface IDealer {
   APIResponse<PageResponse<DealerResponse>> getAll(
       Pageable pageable, String keyword, String country);
 
-  PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month,
-                                                                 Pageable pageable,
-                                                                 List<Region> region);
+//  PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month,
+//                                                                 Pageable pageable,
+//                                                                 List<Region> region);
 
-  DealerRevenueItemResponse getDealerRevenueById(UUID dealerId);
-
-  PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(
-      Integer month, Pageable pageable);
-
-  CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId);
+//  DealerRevenueItemResponse getDealerRevenueById(UUID dealerId);
+//
+//  PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(
+//      Integer month, Pageable pageable);
+//
+//  CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId);
 
 }

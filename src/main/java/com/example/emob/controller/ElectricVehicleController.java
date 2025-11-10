@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -299,6 +300,11 @@ public class ElectricVehicleController {
   @GetMapping("/demandForecastFromAI")
   public ResponseEntity<APIResponse<?>> getDemandForecastFromAI() {
     APIResponse<?> forecasts = vehicleService.getDemandForecastFromAI();
+    return ResponseEntity.ok(forecasts);
+  }
+  @GetMapping("/createDemandForecasts")
+  public ResponseEntity<List<Map<String, Object>>> createDemandForecasts() {
+    List<Map<String, Object>> forecasts = vehicleService.createDemandForecasts();
     return ResponseEntity.ok(forecasts);
   }
 }

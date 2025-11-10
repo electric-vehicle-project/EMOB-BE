@@ -27,8 +27,6 @@ public class CreateReportRequest {
   @NotBlank(message = "Title is required")
   String title;
 
-  ReportStatus status;
-
   String vinNumber;
 
   ReportType type;
