@@ -3,12 +3,13 @@ package com.example.emob.repository;
 
 import com.example.emob.constant.Region;
 import com.example.emob.entity.Dealer;
-import com.example.emob.model.response.CustomerRevenueItemResponse;
-import com.example.emob.model.response.DealerRevenueItemResponse;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.example.emob.model.response.MonthlyDealerRevenueResponse;
+import com.example.emob.model.response.MonthlyRevenueResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,106 +37,71 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
       @Param("keyword") String keyword, @Param("country") String country, Pageable pageable);
 
   @Query(
-          value =
-                  """
-            SELECT
-              BIN_TO_UUID(vr.dealer_id) AS dealerId,
-              d.region AS region,
-              d.country AS country,
-              SUM(c.total_price) AS totalRevenue,
-              COUNT(c.id) AS totalContracts,
-              SUM(so.total_quantity) AS totalVehiclesSold,
-              MONTH(c.sign_date) AS month,
-              YEAR(c.sign_date) AS year
-            FROM sale_contract c
-            JOIN sale_order so ON c.sale_order = so.id
-            JOIN vehicle_request vr ON so.id = vr.sale_order_id
-            JOIN dealer d ON vr.dealer_id = d.id
-            WHERE c.status = 'SIGNED'
-              AND (:month IS NULL OR MONTH(c.sign_date) = :month)
-              AND (:#{#regions == null || #regions.isEmpty()} = true OR d.region IN (:regions))
-            GROUP BY vr.dealer_id, d.region, YEAR(c.sign_date), MONTH(c.sign_date)
-            ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
-          """,
-          nativeQuery = true)
-  Page<DealerRevenueItemResponse> getDealerRevenueReportByMonth(
-          @Param("month") Integer month,
-          @Param("regions") List<String> regions,
-          Pageable pageable);
-
-  @Query(
-          value =
-                  """
-          SELECT
-              BIN_TO_UUID(vr.dealer_id) AS dealerId,
-              d.region AS region,
-              d.country AS country,
-              SUM(c.total_price) AS totalRevenue,
-              COUNT(c.id) AS totalContracts,
-              SUM(so.total_quantity) AS totalVehiclesSold,
-              NULL AS month,
-              NULL AS year
-          FROM sale_contract c
-          JOIN sale_order so ON c.sale_order = so.id
-          JOIN vehicle_request vr ON so.id = vr.sale_order_id
-          JOIN dealer d ON vr.dealer_id = d.id
-          WHERE c.status = 'SIGNED'
-            AND vr.dealer_id = :dealerId
-          GROUP BY vr.dealer_id, d.region, d.country
-          """,
-          nativeQuery = true)
-  Optional<DealerRevenueItemResponse> getDealerRevenueById(@Param("dealerId") UUID dealerId);
-
-  //  // Lấy danh sách khách hàng của dealer
-  @Query(
-      value =
-          """
+          value = """
+    WITH months AS (
+        SELECT 1 AS month UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL
+        SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL
+        SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL
+        SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+    )
     SELECT
-        BIN_TO_UUID(cus.id) AS customerId,
-        SUM(c.total_price) AS totalRevenue,
-        COUNT(c.id) AS totalContracts,
-        SUM(so.total_quantity) AS totalVehiclesPurchased,
-        MONTH(c.sign_date) AS month,
-        YEAR(c.sign_date) AS year
-    FROM sale_contract c
-    JOIN sale_order so ON c.sale_order = so.id
-    JOIN quotation q ON q.sale_order_id = so.id
-    JOIN customer cus ON q.customer_id = cus.id
-    JOIN dealer d ON cus.dealer_id = d.id
-    WHERE c.status = 'SIGNED'
-      AND d.id = UUID_TO_BIN(:dealerId)
-      AND (:month IS NULL OR MONTH(c.sign_date) = :month)
-    GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
-    ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
+        m.month,
+        COALESCE(SUM(c.total_price), 0) AS totalRevenue,
+        COALESCE(COUNT(c.id), 0) AS totalContracts,
+        COALESCE(SUM(so.total_quantity), 0) AS totalVehiclesSold
+    FROM months m
+    LEFT JOIN sale_contract c
+        ON MONTH(c.sign_date) = m.month
+        AND YEAR(c.sign_date) = :year
+        AND c.status = 'SIGNED'
+    INNER JOIN sale_order so ON c.sale_order = so.id
+    INNER JOIN vehicle_request vr ON so.id = vr.sale_order_id
+    LEFT JOIN dealer d ON vr.dealer_id = d.id
+    WHERE (:region IS NULL OR d.region = :region)
+      AND (:country IS NULL OR d.country = :country)
+    GROUP BY m.month
+    ORDER BY m.month
     """,
-      nativeQuery = true)
-  Page<CustomerRevenueItemResponse> getCustomerRevenueReport(
-      @Param("dealerId") String dealerId, // THÊM THAM SỐ LỌC THEO DEALER
-      @Param("month") Integer month,
-      Pageable pageable);
+          nativeQuery = true
+  )
+  List<MonthlyDealerRevenueResponse> getDealerRevenue12MonthsFiltered(
+          @Param("year") Integer year,
+          @Param("region") Region region,
+          @Param("country") String country
+  );
+
 
   @Query(
-      value =
-          """
-SELECT
-    BIN_TO_UUID(cus.id) AS customerId,
-    SUM(c.total_price) AS totalRevenue,
-    COUNT(c.id) AS totalContracts,
-    SUM(so.total_quantity) AS totalVehiclesPurchased,
-    NULL AS month,
-    NULL AS year
-FROM sale_contract c
-JOIN sale_order so ON c.sale_order = so.id
-JOIN quotation q ON q.sale_order_id = so.id
-JOIN customer cus ON q.customer_id = cus.id
-JOIN dealer d ON cus.dealer_id = d.id
-WHERE c.status = 'SIGNED'
-  AND d.id = UUID_TO_BIN(:dealerId)
-  AND cus.id = UUID_TO_BIN(:customerId)
-GROUP BY cus.id, YEAR(c.sign_date), MONTH(c.sign_date)
-ORDER BY YEAR(c.sign_date), MONTH(c.sign_date)
-""",
-      nativeQuery = true)
-  CustomerRevenueItemResponse getCustomerRevenueByCustomer(
-      @Param("dealerId") String dealerId, @Param("customerId") String customerId);
+          value = """
+    WITH months AS (
+        SELECT 1 AS month UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL
+        SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL
+        SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL
+        SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+    )
+    SELECT
+        m.month,
+        COALESCE(SUM(c.total_price), 0) AS totalRevenue,
+        COALESCE(COUNT(c.id), 0) AS totalContracts,
+        COALESCE(SUM(so.total_quantity), 0) AS totalVehiclesSold
+    FROM months m
+    LEFT JOIN sale_contract c
+        ON MONTH(c.sign_date) = m.month
+        AND YEAR(c.sign_date) = :year
+        AND c.status = 'SIGNED'
+    INNER JOIN sale_order so ON c.sale_order = so.id           -- chỉ lấy saleContract có SaleOrder
+    INNER JOIN quotation q ON so.id = q.sale_order_id           -- SaleOrder phải có Quotation
+    INNER JOIN dealer d ON q.dealer_id = d.id  -- Dealer trùng giữa Quotation & SaleOrder
+    WHERE d.id = :dealerId                    -- ✅ chỉ lấy dealer truyền vào
+    GROUP BY m.month
+    ORDER BY m.month
+    """,
+          nativeQuery = true
+  )
+  List<MonthlyDealerRevenueResponse> getDealerRevenue12MonthsFilteredOfDealer(
+          @Param("year") Integer year,
+          @Param("dealerId") UUID dealerId
+  );
+
+
 }

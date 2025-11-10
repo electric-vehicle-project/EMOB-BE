@@ -20,6 +20,4 @@ public class UpdateProfileRequest {
     String address;
     LocalDate dateOfBirth;
     String phone;
-    String email;
-    String password;
 }

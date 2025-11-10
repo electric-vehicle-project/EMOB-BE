@@ -42,7 +42,6 @@ public class SecurityConfig {
     "/api/auth/verify-otp",
     "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/installment/**",
     "/api/auth/google"
   };
 
@@ -82,7 +81,7 @@ public class SecurityConfig {
     "/api/delivery/**",
     "/api/contract/**",
     "/api/auth/{id}",
-    "/api/auth/change-status/{id}",
+    "/api/auth/change-status/{id}", "/api/installment/**",
     "/api/test-drives/**",
   };
   public static final String[] SWAGGER = {

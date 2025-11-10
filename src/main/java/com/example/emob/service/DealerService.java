@@ -88,7 +88,6 @@ public class DealerService implements IDealer {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<DealerResponse> get(UUID id) {
     try {
       Dealer dealer =
@@ -118,46 +117,4 @@ public class DealerService implements IDealer {
     }
   }
 
-  @Override
-  @PreAuthorize("hasRole('ADMIN')")
-  public PageResponse<DealerRevenueItemResponse> getDealerRevenueReport(Integer month,
-                                                                        Pageable pageable,
-                                                                        List<Region> region) {
-    // Convert List<Region> to List<String>
-    List<String> regionNames = (region == null || region.isEmpty())
-            ? null
-            : region.stream()
-            .map(Region::name)
-            .toList();
-
-    Page<DealerRevenueItemResponse> page =
-            dealerRepository.getDealerRevenueReportByMonth(month, regionNames, pageable);
-    return pageMapper.toPageResponse(page, item -> item);
-  }
-
-  @Override
-  @PreAuthorize("hasRole('ADMIN')")
-  public DealerRevenueItemResponse getDealerRevenueById(UUID dealerId) {
-    return dealerRepository
-        .getDealerRevenueById(dealerId)
-        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-  }
-
-  @Override
-  @PreAuthorize("hasRole('MANAGER')")
-  public PageResponse<CustomerRevenueItemResponse> getCustomerRevenueByDealerId(
-      @Param("month") Integer month, Pageable pageable) {
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    Page<CustomerRevenueItemResponse> page =
-        dealerRepository.getCustomerRevenueReport(dealer.getId().toString(), month, pageable);
-    return pageMapper.toPageResponse(page, item -> item);
-  }
-
-  @Override
-  @PreAuthorize("hasRole('MANAGER')")
-  public CustomerRevenueItemResponse getCustomerRevenueByCustomerId(UUID customerId) {
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-    return dealerRepository.getCustomerRevenueByCustomer(
-        dealer.getId().toString(), customerId.toString());
-  }
 }

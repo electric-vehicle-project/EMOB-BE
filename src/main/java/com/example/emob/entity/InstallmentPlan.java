@@ -29,7 +29,6 @@ public class InstallmentPlan {
 
   @Enumerated(EnumType.STRING)
   InstallmentStatus status;
-
   LocalDateTime updateAt;
 
   LocalDate lastReminderDate; // lần nhắc cuối cùng trong ngày
