@@ -88,7 +88,7 @@ public class DealerService implements IDealer {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
+//  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<DealerResponse> get(UUID id) {
     try {
       Dealer dealer =
