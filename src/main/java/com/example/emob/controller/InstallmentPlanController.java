@@ -60,7 +60,7 @@ public class InstallmentPlanController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<InstallmentStatus> statuses,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "downDate") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
@@ -79,7 +79,7 @@ public class InstallmentPlanController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<InstallmentStatus> statuses,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "downDate") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
@@ -95,7 +95,7 @@ public class InstallmentPlanController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<InstallmentStatus> statuses,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "downDate") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
@@ -112,7 +112,7 @@ public class InstallmentPlanController {
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) List<InstallmentStatus> statuses,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "downDate") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);

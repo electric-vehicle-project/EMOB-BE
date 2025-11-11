@@ -153,18 +153,27 @@ public class InstallmentPlanService implements IInstallmentPlan {
     if (request.getTermMonths() <= 0) {
       throw new GlobalException(ErrorCode.INVALID_TERM);
     }
+
     SaleContract contract =
         contractRepository
             .findById(request.getContractId())
             .filter((item) -> item.getStatus().equals(ContractStatus.SIGNED))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     SaleOrder order = contract.getSaleOrder();
+
+    BigDecimal minDeposit = order.getTotalPrice().multiply(BigDecimal.valueOf(0.1)); // 10%
+ //tiền đặt cọc phải hơn 10%
+    if (request.getDeposit().compareTo(minDeposit) < 0) {
+      throw new GlobalException(ErrorCode.INVALID_DEPOSIT);
+    }
     BigDecimal monthlyAmount =
         calculateMonthlyAmount(
             request.getDeposit(),
             request.getTermMonths(),
             request.getInterestRate(),
             order.getTotalPrice());
+
+
     try {
       InstallmentPlan installmentPlan = installmentPlanMapper.toInstallmentPlan(request);
       installmentPlan.setMonthlyAmount(monthlyAmount);
@@ -172,6 +181,9 @@ public class InstallmentPlanService implements IInstallmentPlan {
       installmentPlan.setNextDueDate(LocalDate.now().plusMonths(1)); // sau 1 tháng
       installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
       installmentPlan.setSaleOrder(order);
+      BigDecimal totalAmount = request.getDeposit()
+              .add(monthlyAmount.multiply(BigDecimal.valueOf(request.getTermMonths())));
+      installmentPlan.setTotalAmount(totalAmount);
       installmentPlanRepository.save(installmentPlan);
       Customer customer = null;
       if (order != null && order.getQuotation() != null) {

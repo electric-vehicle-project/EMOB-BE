@@ -121,39 +121,33 @@ public class DealerController {
     return ResponseEntity.ok(dealerService.delete(id));
   }
 
-  @GetMapping("/dealer-revenue")
-  @Operation(summary = "Get dealer revenue report")
-  public ResponseEntity<PageResponse<DealerRevenueItemResponse>> getDealerRevenueReport(
-      @RequestParam(required = false) List<Region> region,
-      @RequestParam(required = false) Integer month,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(dealerService.getDealerRevenueReport(month, pageable, region));
-  }
+  //Revenue Report Endpoints
 
-  @GetMapping("/{id}/dealer-revenue")
-  @Operation(summary = "Get dealer revenue report by id")
-  public ResponseEntity<APIResponse<DealerRevenueItemResponse>> getDealerRevenueById(
-      @PathVariable UUID id) {
-    DealerRevenueItemResponse revenue = dealerService.getDealerRevenueById(id);
-    return ResponseEntity.ok(APIResponse.success(revenue));
-  }
 
-  @GetMapping("/customer-revenue")
-  @Operation(summary = "Get customers revenue report by dealer")
-  public ResponseEntity<PageResponse<CustomerRevenueItemResponse>> getCustomerRevenueByDealerId(
-      @RequestParam(required = false) Integer month,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return ResponseEntity.ok(dealerService.getCustomerRevenueByDealerId(month, pageable));
-  }
 
-  @GetMapping("/{id}/customer-revenue")
-  @Operation(summary = "Get customer revenue report by customer id")
-  public ResponseEntity<APIResponse<CustomerRevenueItemResponse>> getCustomerRevenueByCustomerId(
-      @PathVariable UUID id) {
-    return ResponseEntity.ok(APIResponse.success(dealerService.getCustomerRevenueByCustomerId(id)));
-  }
+
+//  @GetMapping("/current-dealer-revenue")
+//  @Operation(summary = "Get dealer revenue report by id")
+//  public ResponseEntity<APIResponse<DealerRevenueItemResponse>> getDealerRevenueById(
+//      @PathVariable UUID id) {
+//    DealerRevenueItemResponse revenue = dealerService.getDealerRevenueById(id);
+//    return ResponseEntity.ok(APIResponse.success(revenue));
+//  }
+//
+//  @GetMapping("/customer-revenue")
+//  @Operation(summary = "Get customers revenue report by dealer")
+//  public ResponseEntity<PageResponse<CustomerRevenueItemResponse>> getCustomerRevenueByDealerId(
+//      @RequestParam(required = false) Integer month,
+//      @RequestParam(defaultValue = "0") int page,
+//      @RequestParam(defaultValue = "10") int size) {
+//    Pageable pageable = PageRequest.of(page, size);
+//    return ResponseEntity.ok(dealerService.getCustomerRevenueByDealerId(month, pageable));
+//  }
+//
+//  @GetMapping("/{id}/customer-revenue")
+//  @Operation(summary = "Get customer revenue report by customer id")
+//  public ResponseEntity<APIResponse<CustomerRevenueItemResponse>> getCustomerRevenueByCustomerId(
+//      @PathVariable UUID id) {
+//    return ResponseEntity.ok(APIResponse.success(dealerService.getCustomerRevenueByCustomerId(id)));
+//  }
 }

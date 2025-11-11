@@ -435,7 +435,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER', 'DEALER_STAFF', 'EVM_STAFF')")
   public APIResponse<AccountResponse> get(UUID id) {
     Account account = accountRepository.findAccountById(id);
     if (account == null) {
