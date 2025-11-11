@@ -42,7 +42,7 @@ public class SecurityConfig {
     "/api/auth/verify-otp",
     "/api/auth/resend-otp",
     "/api/public/**",
-    "/api/auth/google"
+    "/api/auth/google",
   };
 
   // ADMIN

@@ -330,7 +330,7 @@ public class QuotationService implements IQuotation {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
+//  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
   public APIResponse<QuotationResponse> get(UUID id) {
     Quotation quotation =
         quotationRepository

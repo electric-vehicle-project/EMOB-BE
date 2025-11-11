@@ -238,7 +238,7 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
   }
 
   @Override
-  @PreAuthorize("hasAnyRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
   public APIResponse<DealerDiscountPolicyResponse> get(UUID id) {
     DealerDiscountPolicy policy =
         dealerDiscountPolicyRepository

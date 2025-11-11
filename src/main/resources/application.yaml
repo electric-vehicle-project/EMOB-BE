@@ -4,10 +4,10 @@ server:
 spring:
   application: ElectricVehicleSystem
   datasource:
-    #    url: jdbc:mysql://localhost:3306/test
-    url: jdbc:mysql://103.90.226.19/emob
+    url: jdbc:mysql://localhost:3306/Test
+#    url: jdbc:mysql://103.90.226.19/emob
     username: root
-    password: 12345678
+    password: root
   jpa:
     hibernate:
       ddl-auto: update
@@ -64,7 +64,7 @@ spring:
     duration: 30
   ai:
     openai:
-      api-key:
+      api-key: AIzaSyDXJESL7VbPULTVzKXBJf0HwZ5zLoWqsSc
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
