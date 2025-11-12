@@ -146,6 +146,7 @@ public class ContractService implements IContract {
 
   @Override
   @PreAuthorize("hasAnyRole('EVM_STAFF', 'DEALER_STAFF')")
+  @Transactional
   public APIResponse<ContractResponse> signContract(
       LocalDate date, PaymentStatus status, InstallmentRequest request) {
     // sign contract chưa check role

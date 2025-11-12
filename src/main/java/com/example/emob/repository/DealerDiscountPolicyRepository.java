@@ -46,4 +46,25 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
       @Param("keyword") String keyword,
       @Param("statuses") List<DiscountPolicyStatus> statuses,
       Pageable pageable);
+
+  @Query("""
+    SELECT d
+    FROM DealerDiscountPolicy d
+    WHERE
+      d.dealer.id = :dealerId
+      AND (
+        :keyword IS NULL
+        OR CAST(d.effectiveDate AS string) LIKE CONCAT('%', :keyword, '%')
+      )
+      AND (
+        :statuses IS NULL
+        OR d.status IN :statuses
+      )
+""")
+  Page<DealerDiscountPolicy> searchAndFilterByDealer(
+          @Param("dealerId") UUID dealerId,
+          @Param("keyword") String keyword,
+          @Param("statuses") List<DiscountPolicyStatus> statuses,
+          Pageable pageable
+  );
 }

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import com.example.emob.util.AccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -260,6 +262,21 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
 
       PageResponse<DealerDiscountPolicyResponse> response =
           pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
+
+      return APIResponse.success(response, "Get all dealer discount policies successfully");
+    } catch (Exception e) {
+      throw new GlobalException(ErrorCode.OTHER, "Failed to get dealer discount policies");
+    }
+  }
+
+  public APIResponse<PageResponse<DealerDiscountPolicyResponse>> getAllByDealer(
+          Pageable pageable, String keyword, List<DiscountPolicyStatus> status) {
+    try {
+      Page<DealerDiscountPolicy> page =
+              dealerDiscountPolicyRepository.searchAndFilterByDealer(AccountUtil.getCurrentUser().getDealer().getId(), keyword, status, pageable);
+
+      PageResponse<DealerDiscountPolicyResponse> response =
+              pageMapper.toPageResponse(page, dealerDiscountPolicyMapper::toResponse);
 
       return APIResponse.success(response, "Get all dealer discount policies successfully");
     } catch (Exception e) {
