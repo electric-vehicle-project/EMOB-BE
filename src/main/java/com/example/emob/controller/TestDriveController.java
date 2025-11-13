@@ -107,12 +107,12 @@ public class TestDriveController {
     return ResponseEntity.ok(testDriveService.viewSchedule(id));
   }
 
-  // 🔹 CANCEL
+
   @Operation(summary = "Cancel a test drive schedule")
-  @DeleteMapping("/{id}")
-  public ResponseEntity<APIResponse<TestDriveResponse>> cancelSchedule(
-      @Parameter(description = "ID of the test drive schedule") @PathVariable UUID id) {
-    return ResponseEntity.ok(testDriveService.cancelSchedule(id));
+  @PutMapping("change-status/{id}")
+  public ResponseEntity<APIResponse<TestDriveResponse>> changeStatus(
+      @Parameter(description = "ID of the test drive schedule") @PathVariable UUID id, @RequestParam TestStatus status) {
+    return ResponseEntity.ok(testDriveService. changedStatus(id, status));
   }
 
   // 🔹 LIST ALL
