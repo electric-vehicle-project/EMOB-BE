@@ -80,17 +80,5 @@ public class QuotationController {
     return ResponseEntity.ok(quotationService.getAll(pageable, keyword, status));
   }
 
-  @GetMapping("/dealer-staff")
-  public ResponseEntity<APIResponse<PageResponse<QuotationResponse>>> getAllQuotationsOfStaff(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<QuotationStatus> status,
-      @RequestParam(defaultValue = "createdAt") String sortField,
-      @RequestParam(defaultValue = "desc") String sortDir) {
-    Sort sort = Sort.by(sortField);
-    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
-    Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(quotationService.getAllOfDealerStaff(pageable, keyword, status));
-  }
+
 }

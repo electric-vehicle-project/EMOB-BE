@@ -17,28 +17,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
 
-  @Query(
-      """
-      SELECT q
-      FROM Quotation q
-      WHERE q.isDeleted = false
-        AND q.dealer = :dealer
-        AND q.account  = :account
-        AND (
-          :keyword IS NULL
-          OR LOWER(CAST(q.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        )
-        AND (
-          :statuses IS NULL
-          OR q.status IN :statuses
-        )
-    """)
-  Page<Quotation> findAllByAccount(
-      @Param("dealer") Dealer dealer,
-      @Param("account") Account account,
-      @Param("keyword") String keyword,
-      @Param("statuses") List<QuotationStatus> statuses,
-      Pageable pageable);
+
 
   List<Quotation> findAllByIsDeletedFalseAndStatus(QuotationStatus status);
 

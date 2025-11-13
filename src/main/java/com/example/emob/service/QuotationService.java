@@ -383,23 +383,7 @@ public class QuotationService implements IQuotation {
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
 
-  @PreAuthorize("hasRole('DEALER_STAFF')")
-  public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(
-      Pageable pageable, String keyword, List<QuotationStatus> status) {
 
-    Page<Quotation> page =
-        quotationRepository.findAllByAccount(
-            AccountUtil.getCurrentUser().getDealer(),
-            AccountUtil.getCurrentUser(),
-            keyword,
-            status,
-            pageable);
-    // Gói kết quả vào PageResponse
-    PageResponse<QuotationResponse> pageResponse =
-        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
-
-    return APIResponse.success(pageResponse, "Get all quotations successfully");
-  }
 
   private QuotationItem createQuotationItem(QuotationItemRequest request) {
     ElectricVehicle vehicle =
