@@ -3,6 +3,7 @@ package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
 import com.example.emob.constant.QuotationStatus;
+import com.example.emob.constant.Role;
 import com.example.emob.entity.*;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.PageMapper;
@@ -360,14 +361,21 @@ public class QuotationService implements IQuotation {
   }
 
   @Override
-  //  @PreAuthorize("hasAnyRole('MANAGER','DEALER_STAFF')")
   public APIResponse<PageResponse<QuotationResponse>> getAll(
       Pageable pageable, String keyword, List<QuotationStatus> status) {
     Dealer dealer = AccountUtil.getCurrentUser().getDealer();
     if (dealer == null) {
       throw new GlobalException(ErrorCode.UNAUTHORIZED, "Only dealers can view quotations.");
     }
-    Page<Quotation> page = quotationRepository.searchAndFilter(dealer, keyword, status, pageable);
+    //dealerStaff
+    Page<Quotation> page = null;
+    if(AccountUtil.getCurrentUser().getRole().equals(Role.DEALER_STAFF)){
+      page = quotationRepository.searchAndFilterByDealerStaff(dealer,AccountUtil.getCurrentUser().getId(), keyword, status, pageable);
+    }else{
+      page  = quotationRepository.searchAndFilter(dealer, keyword, status, pageable);
+    }
+
+
 
     PageResponse<QuotationResponse> pageResponse =
         pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
@@ -375,23 +383,7 @@ public class QuotationService implements IQuotation {
     return APIResponse.success(pageResponse, "Get all quotations successfully");
   }
 
-  @PreAuthorize("hasRole('DEALER_STAFF')")
-  public APIResponse<PageResponse<QuotationResponse>> getAllOfDealerStaff(
-      Pageable pageable, String keyword, List<QuotationStatus> status) {
 
-    Page<Quotation> page =
-        quotationRepository.findAllByAccount(
-            AccountUtil.getCurrentUser().getDealer(),
-            AccountUtil.getCurrentUser(),
-            keyword,
-            status,
-            pageable);
-    // Gói kết quả vào PageResponse
-    PageResponse<QuotationResponse> pageResponse =
-        pageMapper.toPageResponse(page, quotationMapper::toQuotationResponse);
-
-    return APIResponse.success(pageResponse, "Get all quotations successfully");
-  }
 
   private QuotationItem createQuotationItem(QuotationItemRequest request) {
     ElectricVehicle vehicle =

@@ -253,7 +253,7 @@ public class ElectricVehicleService implements IVehicle {
       vehicleUnitResponse.setVehicleUnitId(vehicleUnit.getId());
       return APIResponse.success(vehicleUnitResponse, "Get vehicle unit successfully");
     } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+      throw new GlobalException(ErrorCode.INVALID_CODE,e.getMessage());
     }
   }
 
