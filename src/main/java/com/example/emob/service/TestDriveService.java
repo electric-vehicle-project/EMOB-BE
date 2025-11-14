@@ -262,10 +262,11 @@ public class TestDriveService implements ITestDrive {
   public APIResponse<List<VehicleUnitResponse>> getFreeVehiclesByDate(
       LocalDateTime scheduledAt, int duration, String model) {
     LocalDateTime startAt = scheduledAt.minusMinutes(30);
+    Inventory inventory = AccountUtil.getCurrentUser().getDealer().getInventory();
     LocalDateTime endAt = scheduledAt.plusMinutes(duration + 30);
     List<VehicleUnitResponse> responses = new ArrayList<>();
     List<VehicleUnit> vehicleUnits =
-        vehicleUnitRepository.findAvailableVehiclesByTimeRangeAndModel(startAt, endAt, model);
+        vehicleUnitRepository.findAvailableVehiclesByTimeRangeAndModel(startAt, endAt, model, inventory.getId());
     for (VehicleUnit vu : vehicleUnits) {
       responses.add(vehicleMapper.toVehicleUnitResponse(vu));
     }

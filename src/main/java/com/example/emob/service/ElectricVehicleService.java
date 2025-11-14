@@ -225,36 +225,13 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<VehicleUnitResponse> getVehicleUnit(UUID id) {
-    Account account = AccountUtil.getCurrentUser();
-    Inventory inventory;
-    if (account.getDealer() == null) { // admin || evm_staff
-      inventory = inventoryRepository.findInventoryByIsCompanyTrue();
-      if (inventory == null) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for company not found.");
-      }
-    } else { // Manager || dealer_staff
-      inventory = account.getDealer().getInventory();
-      if (inventory == null) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
-      }
-    }
     VehicleUnit vehicleUnit =
         vehicleUnitRepository
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found."));
-    try {
-      // Kiểm tra vehicleUnit có thuộc inventory này không
-      Optional<VehicleUnit> vehicleInInventory =
-          vehicleUnitRepository.findByIdAndInventory(vehicleUnit.getId(), inventory);
-      if (vehicleInInventory.isEmpty()) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found in your inventory.");
-      }
       VehicleUnitResponse vehicleUnitResponse = vehicleMapper.toVehicleUnitResponse(vehicleUnit);
       vehicleUnitResponse.setVehicleUnitId(vehicleUnit.getId());
       return APIResponse.success(vehicleUnitResponse, "Get vehicle unit successfully");
-    } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE,e.getMessage());
-    }
   }
 
   @Override
