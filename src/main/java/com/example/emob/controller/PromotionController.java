@@ -2,6 +2,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -107,16 +108,22 @@ public class PromotionController {
   @GetMapping("/view-all/{scope}")
   @Operation(summary = "View All Promotion")
   public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam @PathVariable("scope") List<PromotionScope> scope,
-      @RequestParam(defaultValue = "createAt") String sortField,
-      @RequestParam(defaultValue = "desc") String sortDir) {
-
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size,
+          @RequestParam(required = false) List<PromotionScope> scopes,
+          @RequestParam(required = false) List<PromotionStatus> statuses,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(defaultValue = "createAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir
+  ) {
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scope));
+
+    return ResponseEntity.ok(
+            promotionService.viewAllPromotions(pageable, scopes, statuses, keyword)
+    );
   }
 
   @PutMapping("/value/{id}")
@@ -127,7 +134,20 @@ public class PromotionController {
 
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")
-  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion(UUID id) {
-    return ResponseEntity.ok(promotionService.viewHistoryDealerPromotion(id));
+  public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewHistoryDealerPromotion(
+          @RequestParam(required = false) List<PromotionStatus> statuses,
+          @RequestParam(required = false) String keyword,
+          @RequestParam(defaultValue = "createAt") String sortField,
+          @RequestParam(defaultValue = "desc") String sortDir,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "10") int size
+  ) {
+    Sort sort = Sort.by(sortField);
+    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    return ResponseEntity.ok(
+            promotionService.viewHistoryDealerPromotion(statuses, keyword, pageable)
+    );
   }
 }
