@@ -20,7 +20,7 @@ public interface ITestDrive {
 
   APIResponse<TestDriveResponse> viewSchedule(UUID id);
 
-  APIResponse<TestDriveResponse> cancelSchedule(UUID id);
+  APIResponse<TestDriveResponse> changedStatus(UUID id, TestStatus status);
 
   APIResponse<PageResponse<TestDriveResponse>> viewAllSchedules(
       Pageable pageable, String keyword, List<TestStatus> status);

@@ -89,13 +89,16 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
                     t.scheduled_at < :endAt
                     AND DATE_ADD(t.scheduled_at, INTERVAL t.duration MINUTE) > :startAt
                 )
+                AND  v.inventory_id = :inventoryId
           )
     """,
       nativeQuery = true)
   List<VehicleUnit> findAvailableVehiclesByTimeRangeAndModel(
       @Param("startAt") LocalDateTime startAt,
       @Param("endAt") LocalDateTime endAt,
-      @Param("model") String model);
+      @Param("model") String model,
+      @Param("inventoryId") UUID inventoryId
+  );
 
   @Query("""
     SELECT v

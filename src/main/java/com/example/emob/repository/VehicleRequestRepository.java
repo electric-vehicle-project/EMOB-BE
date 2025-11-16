@@ -39,24 +39,34 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
       Pageable pageable);
 
   @Query(
-      """
-    SELECT d.country, d.region, ev.model, vri.color,
-           FUNCTION('YEAR', vr.createdAt) AS year,
-           FUNCTION('MONTH', vr.createdAt) AS month,
-           SUM(vri.quantity)
-    FROM Dealer d
-    JOIN d.vehicleRequests vr
-    JOIN vr.vehicleRequestItems vri
-    JOIN vri.vehicle ev
-    JOIN vr.saleOrder so
-    JOIN so.contract c
-    WHERE c.status = 'SIGNED'
-      AND vri.vehicleStatus = 'NORMAL'
-      AND vr.createdAt >= :threeMonthsAgo
-    GROUP BY d.country, d.region, ev.model, vri.color, FUNCTION('YEAR', vr.createdAt), FUNCTION('MONTH', vr.createdAt)
-    ORDER BY d.country, d.region, ev.model, FUNCTION('YEAR', vr.createdAt), FUNCTION('MONTH', vr.createdAt)
-""")
-  List<Object[]> findSignedRequestsRaw(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo);
+          """
+          SELECT ev.model,
+                 vri.color,
+                 FUNCTION('YEAR', vr.createdAt) AS year,
+                 FUNCTION('MONTH', vr.createdAt) AS month,
+                 SUM(vri.quantity)
+          FROM Dealer d
+          INNER JOIN d.vehicleRequests vr
+          INNER JOIN vr.vehicleRequestItems vri
+          INNER JOIN vri.vehicle ev
+          INNER JOIN vr.saleOrder so
+          INNER JOIN so.contract c
+          WHERE c.status = 'SIGNED'
+            AND vri.vehicleStatus = 'NORMAL'
+            AND vr.isDeleted= false
+            AND ev.isDeleted= false 
+            AND ev.model = :model
+            AND vr.createdAt >= :threeMonthsAgo
+          GROUP BY ev.model,
+                   vri.color,
+                   FUNCTION('YEAR', vr.createdAt),
+                   FUNCTION('MONTH', vr.createdAt)
+          ORDER BY ev.model,
+                   FUNCTION('YEAR', vr.createdAt),
+                   FUNCTION('MONTH', vr.createdAt)
+          """
+  )
+  List<Object[]> findSignedRequestsRaw(@Param("threeMonthsAgo") LocalDateTime threeMonthsAgo, @Param("model") String model);
 
   @Query("""
     SELECT vr

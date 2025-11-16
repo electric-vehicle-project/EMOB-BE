@@ -112,7 +112,6 @@ public class DeliveryService implements IDelivery {
       }
       System.out.println("vehiclesToDeliver size: " + vehiclesToDeliver.size());
       // 🔹 3.1 Gỡ inventory khỏi tất cả vehicle units (vì giao ra khỏi kho công ty)
-      vehiclesToDeliver.forEach(vehicle -> vehicle.setInventory(null));
 
       // 4️⃣ Liên kết hai chiều giữa contract – delivery – vehicleUnits
       delivery.setVehicleUnits(vehiclesToDeliver);

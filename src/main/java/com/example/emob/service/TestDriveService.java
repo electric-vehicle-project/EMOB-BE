@@ -182,13 +182,40 @@ public class TestDriveService implements ITestDrive {
 
   @Override
   @PreAuthorize("hasRole('DEALER_STAFF')")
-  public APIResponse<TestDriveResponse> cancelSchedule(UUID id) {
+  public APIResponse<TestDriveResponse> changedStatus(UUID id, TestStatus status) {
     TestDrive testDrive =
         testDriveRepository
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
     try {
-      testDrive.setStatus(TestStatus.CANCELLED);
+
+      switch (status){
+        case COMPLETED:
+          if (testDrive.getStatus().equals(TestStatus.CONFIRMED)) {
+             testDrive.setStatus(TestStatus.COMPLETED);
+          }else{
+            throw new GlobalException(ErrorCode.INVALID_CODE, "Only CONFIRMED test drives can be completed");
+          }
+          break;
+        case CANCELLED:
+          if (testDrive.getStatus().equals(TestStatus.CONFIRMED)) {
+            testDrive.setStatus(TestStatus.CANCELLED);
+          }else{
+            throw new GlobalException(ErrorCode.INVALID_CODE, "Only CONFIRMED test drives can be completed");
+          }
+          break;
+        case PENDING:
+            throw new GlobalException(ErrorCode.INVALID_CODE, "Cannot change status to PENDING");
+        case CONFIRMED:
+            if(testDrive.getStatus().equals(TestStatus.PENDING)){
+                testDrive.setStatus(TestStatus.CONFIRMED);
+            }else{
+                throw new GlobalException(ErrorCode.INVALID_CODE, "Only PENDING test drives can be confirmed");
+            }
+            break;
+        default:
+          break;
+      }
       testDriveRepository.save(testDrive);
       return APIResponse.success(
           testDriveMapper.toTestDriveResponse(testDrive), "Cancel schedule successfully");
@@ -235,10 +262,11 @@ public class TestDriveService implements ITestDrive {
   public APIResponse<List<VehicleUnitResponse>> getFreeVehiclesByDate(
       LocalDateTime scheduledAt, int duration, String model) {
     LocalDateTime startAt = scheduledAt.minusMinutes(30);
+    Inventory inventory = AccountUtil.getCurrentUser().getDealer().getInventory();
     LocalDateTime endAt = scheduledAt.plusMinutes(duration + 30);
     List<VehicleUnitResponse> responses = new ArrayList<>();
     List<VehicleUnit> vehicleUnits =
-        vehicleUnitRepository.findAvailableVehiclesByTimeRangeAndModel(startAt, endAt, model);
+        vehicleUnitRepository.findAvailableVehiclesByTimeRangeAndModel(startAt, endAt, model, inventory.getId());
     for (VehicleUnit vu : vehicleUnits) {
       responses.add(vehicleMapper.toVehicleUnitResponse(vu));
     }

@@ -16,86 +16,88 @@ public class AIService {
 
   public String getAIResponse(List<Map<String, Object>> requests) {
     String prompt =
-        """
-You are an AI assistant for an electric vehicle manufacturer.
-Forecast dealer import demand for the next manufacturing cycle and produce a production & regional distribution plan.
-
-INPUT FORMAT:
-[
-  {
-    "country": "string",
-    "region": "string",
-    "vehicles": [
-      {
-        "modelName": "string",
-        "data": [
+            """
+        You are an AI assistant for an electric vehicle manufacturer.
+        Forecast dealer import demand for the next manufacturing cycle and produce a production plan.
+        
+        INPUT FORMAT:
+        [
           {
-            "color": "string",
-            "inventoryRemaining": number,   // manufacturer stock (by color)
-            "demandHistory": {
-              "three_months_ago": number | "N/A",  // units sold to dealers
-              "two_months_ago":   number | "N/A",
-              "last_month":       number | "N/A"
-            }
+            "modelName": "string",
+            "data": [
+              {
+                "color": "string",
+                "inventoryRemaining": number,   // manufacturer stock (by color)
+                "demandHistory": {
+                  "three_months_ago": number | "N/A",  // units sold to dealers
+                  "two_months_ago":   number | "N/A",
+                  "last_month":       number | "N/A"
+                }
+              }
+            ]
           }
         ]
-      }
-    ]
-  }
-]
-
-NOTES:
-- demandHistory = wholesale sales to dealers; "N/A" = missing (ignore, not zero).
-- inventoryRemaining = current manufacturer stock by color (used to offset NEW production).
-
-STEPS (per {country, region, model}):
-1) Color baseline = weighted avg of last_month (0.6), two_months_ago (0.3), three_months_ago (0.1); renormalize weights over available months; 0 if all "N/A".
-2) Model baseline = sum of color baselines.
-3) Growth rate:
-   - From recent change between the last available months; clamp to [-10%%, +25%%].
-   - If only one month → pick 10–25%%; if decline → pick in [-10%%, +10%%].
-4) Predicted demand (gross):
-   - preliminary = round(modelBaseline × (1 + growthRate)).
-   - Ensure integer ≥ 0 → predictedDealerDemand = max(preliminary, 0).
-5) Manufacturer stock offset (net production):
-   - modelStock = sum(inventoryRemaining across colors).
-   - netToProduce = max(predictedDealerDemand - modelStock, 0).
-   - recommendedProduction = ceil(netToProduce × 1.1).  // 10%% buffer on NEW production only
-6) Color forecast:
-   - Use shares from the most recent month with data (prefer last_month, else two_months_ago, else three_months_ago); fallback to baseline ratios; if all zero → equal split.
-   - Allocate integers so sum(colorForecast[*].predictedColorDemand) == predictedDealerDemand.
-7) Output one record per region-country.
-
-OUTPUT RULES:
-- Valid JSON only; preserve exact "country" and "region".
-- Integers only (no decimals).
-- For each model:
-  * predictedDealerDemand ≥ 0
-  * recommendedProduction = ceil(max(predictedDealerDemand - sum(inventoryRemaining), 0) × 1.1)
-  * sum(colorForecast.predictedColorDemand) = predictedDealerDemand
-
-OUTPUT STRUCTURE:
-[
-  {
-    "country": "string",
-    "region": "string",
-    "supplyPlan": [
-      {
-        "modelName": "string",
-        "predictedDealerDemand": number,
-        "recommendedProduction": number,
-        "colorForecast": [
-          { "color": "string", "predictedColorDemand": number }
+        
+        NOTES:
+        - demandHistory = wholesale sales to dealers; "N/A" means unavailable data (ignore, not zero).
+        - inventoryRemaining = current manufacturer stock by color (used to offset NEW production).
+        
+        STEPS (per model):
+        1) Color baseline = weighted avg of months:
+             last_month (0.6), two_months_ago (0.3), three_months_ago (0.1).
+           - Renormalize weights over available months.
+           - If all values are "N/A", baseline = 0.
+        
+        2) Model baseline = sum of all color baselines.
+        
+        3) Growth rate:
+           - Estimate from recent month-to-month change.
+           - Clamp to [-10%%, +25%%].
+           - If only one historical value is available → choose conservative growth in [10%%–25%%].
+           - If downward trend → choose [-10%% to +10%%].
+        
+        4) Predicted dealer demand (gross):
+           - preliminary = round(modelBaseline × (1 + growthRate)).
+           - predictedDealerDemand = max(preliminary, 0).
+        
+        5) Net production after stock offset:
+           - modelStock = sum(inventoryRemaining across all colors).
+           - netToProduce = max(predictedDealerDemand - modelStock, 0).
+           - recommendedProduction = ceil(netToProduce × 1.1).  // 10%% safety buffer
+        
+        6) Color-level forecast:
+           - Use color shares from the **most recent non-N/A month**, in priority:
+               last_month → two_months_ago → three_months_ago.
+           - If no valid month exists, fallback to ratios of color baselines.
+           - If still no usable data, split evenly.
+           - Allocate integers such that:
+               sum(predictedColorDemand[*]) == predictedDealerDemand.
+        
+        OUTPUT RULES:
+        - Valid JSON only.
+        - No country/region fields.
+        - For each model:
+          * predictedDealerDemand ≥ 0
+          * recommendedProduction = ceil(max(predictedDealerDemand - modelStock, 0) × 1.1)
+          * Color allocations must sum exactly to predictedDealerDemand.
+        
+        OUTPUT FORMAT:
+        [
+          {
+            "modelName": "string",
+            "predictedDealerDemand": number,
+            "recommendedProduction": number,
+            "colorForecast": [
+              { "color": "string", "predictedColorDemand": number }
+            ]
+          }
         ]
-      }
-    ]
-  }
-]
+        
+        Input data:
+        %s
+        """
+                    .formatted(requests);
 
-Input data:
-%s
-"""
-            .formatted(requests);
 
     // 🚀 Gọi AI
     var response = chatClient.prompt(prompt).call().content();

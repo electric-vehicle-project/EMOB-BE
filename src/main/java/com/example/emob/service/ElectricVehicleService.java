@@ -225,36 +225,13 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<VehicleUnitResponse> getVehicleUnit(UUID id) {
-    Account account = AccountUtil.getCurrentUser();
-    Inventory inventory;
-    if (account.getDealer() == null) { // admin || evm_staff
-      inventory = inventoryRepository.findInventoryByIsCompanyTrue();
-      if (inventory == null) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for company not found.");
-      }
-    } else { // Manager || dealer_staff
-      inventory = account.getDealer().getInventory();
-      if (inventory == null) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Inventory for dealer not found.");
-      }
-    }
     VehicleUnit vehicleUnit =
         vehicleUnitRepository
             .findById(id)
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found."));
-    try {
-      // Kiểm tra vehicleUnit có thuộc inventory này không
-      Optional<VehicleUnit> vehicleInInventory =
-          vehicleUnitRepository.findByIdAndInventory(vehicleUnit.getId(), inventory);
-      if (vehicleInInventory.isEmpty()) {
-        throw new GlobalException(ErrorCode.NOT_FOUND, "Vehicle unit not found in your inventory.");
-      }
       VehicleUnitResponse vehicleUnitResponse = vehicleMapper.toVehicleUnitResponse(vehicleUnit);
       vehicleUnitResponse.setVehicleUnitId(vehicleUnit.getId());
       return APIResponse.success(vehicleUnitResponse, "Get vehicle unit successfully");
-    } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE,e.getMessage());
-    }
   }
 
   @Override
@@ -439,131 +416,91 @@ public class ElectricVehicleService implements IVehicle {
     return prefix + "-" + randomPart;
   }
 
-  public List<Map<String, Object>> createDemandForecasts() {
-    // 🧭 Tính mốc thời gian: đầu tháng của 3 tháng trước
-    LocalDateTime threeMonthsAgo = LocalDate.now().minusMonths(3).withDayOfMonth(1).atStartOfDay();
+  public List<Map<String, Object>> createDemandForecasts(String model) {
 
-    // 🧮 Lấy dữ liệu từ DB
-    List<Object[]> rows = vehicleRequestRepository.findSignedRequestsRaw(threeMonthsAgo);
+    LocalDateTime threeMonthsAgo =
+            LocalDate.now().minusMonths(3).withDayOfMonth(1).atStartOfDay();
 
-    // 🧾 Debug: xem log để kiểm tra khoảng thời gian và số bản ghi
-    System.out.println("📅 threeMonthsAgo = " + threeMonthsAgo);
-    System.out.println("📊 Total rows fetched = " + rows.size());
+    List<Object[]> rows = vehicleRequestRepository.findSignedRequestsRaw(threeMonthsAgo, model);
 
-    // [0] country, [1] region, [2] model, [3] color, [4] year, [5] month, [6] sum(quantity)
-    Map<String, List<Object[]>> groupedByRegion =
-        rows.stream().collect(Collectors.groupingBy(r -> r[0] + "|" + r[1]));
+    System.out.println("threeMonthsAgo = " + threeMonthsAgo);
+    System.out.println("Total rows fetched = " + rows.size());
 
-    return groupedByRegion.entrySet().stream()
-        .map(
-            entry -> {
-              String[] key = entry.getKey().split("\\|");
-              String country = key[0];
-              String region = key[1];
+    // Nếu không có dữ liệu -> trả về model rỗng
+    if (rows.isEmpty()) {
+      return List.of(
+              Map.of(
+                      "modelName", model,
+                      "data", List.of()
+              )
+      );
+    }
 
-              // ✅ Nhóm theo model
-              Map<String, List<Object[]>> groupedByModel =
-                  entry.getValue().stream().collect(Collectors.groupingBy(r -> (String) r[2]));
+    // Bạn đã filter theo 1 model -> tất cả rows đều là 1 model
+    String modelName = (String) rows.get(0)[0];
 
-              List<Map<String, Object>> vehicles =
-                  groupedByModel.entrySet().stream()
-                      .map(
-                          modelEntry -> {
-                            String modelName = modelEntry.getKey();
+    // Nhóm theo color
+    Map<String, List<Object[]>> groupedByColor =
+            rows.stream()
+                    .collect(Collectors.groupingBy(r -> (String) r[1])); // r[1] = color
 
-                            // ✅ Nhóm theo color
-                            Map<String, List<Object[]>> groupedByColor =
-                                modelEntry.getValue().stream()
-                                    .collect(Collectors.groupingBy(r -> (String) r[3]));
+    List<Map<String, Object>> colorData =
+            groupedByColor.entrySet().stream()
+                    .map(colorEntry -> {
 
-                            List<Map<String, Object>> colorData =
-                                groupedByColor.entrySet().stream()
-                                    .map(
-                                        colorEntry -> {
-                                          String color = colorEntry.getKey();
+                      String color = colorEntry.getKey();
 
-                                          // 🧮 Tổng quantity theo "year-month"
-                                          Map<String, Long> monthTotals =
-                                              colorEntry.getValue().stream()
-                                                  .collect(
-                                                      Collectors.toMap(
-                                                          r ->
-                                                              r[4]
-                                                                  + "-"
-                                                                  + String.format(
-                                                                      "%02d",
-                                                                      ((Number) r[5]).intValue()),
-                                                          r -> ((Number) r[6]).longValue(),
-                                                          Long::sum));
+                      // Tổng quantity theo YYYY-MM
+                      Map<String, Long> monthTotals =
+                              colorEntry.getValue().stream()
+                                      .collect(Collectors.toMap(
+                                              r -> r[2] + "-" + String.format("%02d", ((Number) r[3]).intValue()),
+                                              r -> ((Number) r[4]).longValue(),
+                                              Long::sum
+                                      ));
 
-                                          // 🧭 Xác định các mốc tháng cần so sánh
-                                          YearMonth current =
-                                              YearMonth.now(); // Tháng hiện tại (VD: 2025-11)
-                                          YearMonth lastMonth = current.minusMonths(1); // Tháng 10
-                                          YearMonth twoMonthsAgo =
-                                              current.minusMonths(2); // Tháng 9
-                                          YearMonth threeMonthsAgoYM =
-                                              current.minusMonths(3); // Tháng 8
+                      YearMonth current = YearMonth.now();
+                      YearMonth lastMonth = current.minusMonths(1);
+                      YearMonth twoMonthsAgo = current.minusMonths(2);
+                      YearMonth threeMonthsAgoYM = current.minusMonths(3);
 
-                                          // 🧮 Lấy quantity theo đúng mốc (không tính tháng hiện
-                                          // tại)
-                                          Long qtyThreeAgo =
-                                              monthTotals.getOrDefault(
-                                                  threeMonthsAgoYM.toString(), 0L);
-                                          Long qtyTwoAgo =
-                                              monthTotals.getOrDefault(twoMonthsAgo.toString(), 0L);
-                                          Long qtyLast =
-                                              monthTotals.getOrDefault(lastMonth.toString(), 0L);
+                      Long qtyThreeAgo = monthTotals.getOrDefault(threeMonthsAgoYM.toString(), 0L);
+                      Long qtyTwoAgo = monthTotals.getOrDefault(twoMonthsAgo.toString(), 0L);
+                      Long qtyLast = monthTotals.getOrDefault(lastMonth.toString(), 0L);
 
-                                          // 🧾 Dựng demandHistory (theo 3 tháng trước hiện tại)
-                                          Map<String, Object> demandHistory = new LinkedHashMap<>();
-                                          demandHistory.put(
-                                              "three_months_ago",
-                                              qtyThreeAgo == 0 ? "N/A" : qtyThreeAgo);
-                                          demandHistory.put(
-                                              "two_months_ago", qtyTwoAgo == 0 ? "N/A" : qtyTwoAgo);
-                                          demandHistory.put(
-                                              "last_month", qtyLast == 0 ? "N/A" : qtyLast);
+                      Map<String, Object> demandHistory = new LinkedHashMap<>();
+                      demandHistory.put("three_months_ago", qtyThreeAgo == 0 ? "N/A" : qtyThreeAgo);
+                      demandHistory.put("two_months_ago", qtyTwoAgo == 0 ? "N/A" : qtyTwoAgo);
+                      demandHistory.put("last_month", qtyLast == 0 ? "N/A" : qtyLast);
 
-                                          // 🧩 (Tùy chọn) Thêm tháng hiện tại nếu bạn muốn hiển thị
-                                          // luôn
-                                          // Long qtyCurrent =
-                                          // monthTotals.getOrDefault(current.toString(), 0L);
-                                          // demandHistory.put("current_month", qtyCurrent == 0 ?
-                                          // "N/A" : qtyCurrent);
+                      // Lấy tồn kho theo color + model
+                      List<VehicleUnit> vehicleUnitList =
+                              vehicleUnitRepository.findVehicleUnitInDealerInventory(color, modelName);
 
-                                          // 🏭 Lấy tồn kho (tạm random demo, có thể thay bằng JOIN
-                                          // từ bảng Inventory)
-                                          List<VehicleUnit> vehicleUnitList =
-                                              vehicleUnitRepository
-                                                  .findVehicleUnitInDealerInventory(
-                                                      color, modelName);
+                      return Map.of(
+                              "color", color,
+                              "inventoryRemaining", vehicleUnitList.size(),
+                              "demandHistory", demandHistory
+                      );
+                    })
+                    .toList();
 
-                                          return Map.of(
-                                              "color", color,
-                                              "inventoryRemaining", vehicleUnitList.size(),
-                                              "demandHistory", demandHistory);
-                                        })
-                                    .toList();
-
-                            return Map.of(
-                                "modelName", modelName,
-                                "data", colorData);
-                          })
-                      .toList();
-
-              return Map.of(
-                  "country", country,
-                  "region", region,
-                  "vehicles", vehicles);
-            })
-        .toList();
+    // Wrap vào output format
+    return List.of(
+            Map.of(
+                    "modelName", modelName,
+                    "data", colorData
+            )
+    );
   }
 
-  public APIResponse<?> getDemandForecastFromAI() {
+
+
+  public APIResponse<?> getDemandForecastFromAI(String model) {
     try {
       // B1: Lấy dữ liệu 3 tháng gần nhất
-      List<Map<String, Object>> requests = createDemandForecasts();
+      List<Map<String, Object>> requests = createDemandForecasts(model);
+
 
       // B2: Gọi AI để dự báo nhu cầu
       String aiResponse = aiService.getAIResponse(requests);
