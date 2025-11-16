@@ -2,6 +2,7 @@
 package com.example.emob.service.impl;
 
 import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -24,7 +25,12 @@ public interface IPromotion {
   APIResponse<PromotionResponse> createValuePromotion(UUID id, PromotionValueRequest request);
 
   APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-      Pageable pageable, List<PromotionScope> scope);
+          Pageable pageable,
+          List<PromotionScope> scopes,
+          List<PromotionStatus> statuses,
+          String keyword);
 
-  APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId);
+  APIResponse<PageResponse<PromotionResponse>> viewHistoryDealerPromotion(List<PromotionStatus> statuses,
+                                                                            String keyword,
+                                                                            Pageable pageable);
 }
