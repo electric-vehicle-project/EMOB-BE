@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DealerRepository extends JpaRepository<Dealer, UUID> {
   Page<Dealer> findAllByIsDeletedFalse(Pageable pageable);
+  boolean existsByPhoneContact(String phone);
 
   @Query(
       """
