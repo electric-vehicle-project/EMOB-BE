@@ -470,7 +470,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @Operation(summary = "Get all by admin")
-  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(List<Role> roles,Pageable pageable) {
+  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(List<Role> roles,List<AccountStatus> statuses,String keyword,Pageable pageable) {
     try {
 
       if (roles == null || roles.isEmpty()) {
@@ -482,7 +482,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
           }
         }
       }
-      Page<Account> page = accountRepository.findByRolesOptional(roles, pageable);
+      Page<Account> page = accountRepository.findByRolesStatusesAndKeyword(roles,statuses,keyword, pageable);
       PageResponse<AccountResponse> response =
           pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
       return APIResponse.success(response);
@@ -493,7 +493,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @PreAuthorize("hasRole('MANAGER')")
-  public APIResponse<PageResponse<AccountResponse>> getAllByManager(Pageable pageable) {
+  public APIResponse<PageResponse<AccountResponse>> getAllByManager(List<AccountStatus> statuses,String keyword, Pageable pageable) {
     try {
       Account current = AccountUtil.getCurrentUser();
       if (current == null) {
@@ -504,7 +504,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       }
 
       Page<Account> page =
-          accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(), pageable);
+          accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(),statuses,keyword,  pageable);
       PageResponse<AccountResponse> response =
           pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
 
