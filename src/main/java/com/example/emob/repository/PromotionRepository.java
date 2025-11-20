@@ -51,10 +51,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
   @Query("""
   SELECT p FROM Promotion p
   WHERE 
-    (
-      (:scopes IS NULL OR p.scope IN :scopes)
-      OR :dealer MEMBER OF p.dealers
-    )
+    (:scopes IS NULL OR p.scope IN :scopes)
+    AND (:dealer IS NULL OR :dealer MEMBER OF p.dealers)
     AND (:statuses IS NULL OR p.status IN :statuses)
     AND (
       :keyword IS NULL 
@@ -68,4 +66,5 @@ public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
           @Param("dealer") Dealer dealer,
           @Param("keyword") String keyword,
           Pageable pageable);
+
 }
