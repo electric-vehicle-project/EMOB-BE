@@ -14,8 +14,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
-  Page<Promotion> findByScope(PromotionScope scope, Pageable pageable);
-
+  @Query("""
+  SELECT p FROM Promotion p
+  WHERE p.scope = :scope
+    AND (:statuses IS NULL OR p.status IN :statuses)
+""")
+  Page<Promotion> findByScopeAndOptionalStatuses(
+          @Param("scope") PromotionScope scope,
+          @Param("statuses") List<PromotionStatus> statuses,
+          Pageable pageable
+  );
   @Query("""
     SELECT p FROM Promotion p
     JOIN p.dealers d

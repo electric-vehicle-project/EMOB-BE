@@ -302,7 +302,7 @@ public class PromotionService implements IPromotion {
 
     // ========== CASE 1: dealer == null (user không thuộc đại lý) ==========
     if (dealer == null) {
-      promotions =  promotionRepository.findByScope(PromotionScope.GLOBAL,pageable);
+      promotions =  promotionRepository.findByScopeAndOptionalStatuses(PromotionScope.GLOBAL, statuses,pageable);
       message ="View all global promotions successfully";
     }
     // ========== CASE 2: dealer != null ==========
