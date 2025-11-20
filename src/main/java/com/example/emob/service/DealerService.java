@@ -38,6 +38,9 @@ public class DealerService implements IDealer {
 
   @Override
   public APIResponse<DealerResponse> create(DealerRequest request) {
+    if (dealerRepository.existsByPhoneContact(request.getPhoneContact())) {
+      throw new GlobalException(ErrorCode.PHONE_EXISTED);
+    }
     try {
       Dealer dealer = dealerMapper.toDealer(request);
       dealer.setCreatedAt(LocalDateTime.now());
@@ -55,9 +58,7 @@ public class DealerService implements IDealer {
       //      AuthenticationController.log.info(errorMessage);
       if (errorMessage.contains("email")) {
         throw new GlobalException(ErrorCode.EMAIL_EXISTED);
-      } else if (errorMessage.contains("phone")) {
-        throw new GlobalException(ErrorCode.PHONE_EXISTED);
-      } else {
+      }  else {
         throw new GlobalException(ErrorCode.OTHER);
       }
     }
