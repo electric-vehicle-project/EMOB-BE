@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -21,5 +23,12 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
   List<Account> findByRoleAndDealer(Role role, Dealer dealer);
 
-  Page<Account> findByRoleIn(List<Role> roles, Pageable pageable);
+  @Query("""
+  SELECT a FROM Account a
+  WHERE (:roles IS NULL OR a.role IN :roles)
+""")
+  Page<Account> findByRolesOptional(
+          @Param("roles") List<Role> roles,
+          Pageable pageable
+  );
 }
