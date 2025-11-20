@@ -470,10 +470,19 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @Operation(summary = "Get all by admin")
-  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(Pageable pageable) {
+  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(List<Role> roles,Pageable pageable) {
     try {
-      List<Role> roles = List.of(Role.MANAGER, Role.EVM_STAFF);
-      Page<Account> page = accountRepository.findByRoleIn(roles, pageable);
+
+      if (roles == null || roles.isEmpty()) {
+        roles = List.of(Role.MANAGER, Role.EVM_STAFF);
+      }else {
+        for (Role role : roles) {
+          if (role != Role.MANAGER && role != Role.EVM_STAFF) {
+            throw new GlobalException(ErrorCode.INVALID_CODE, "Invalid role in roles list");
+          }
+        }
+      }
+      Page<Account> page = accountRepository.findByRolesOptional(roles, pageable);
       PageResponse<AccountResponse> response =
           pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
       return APIResponse.success(response);
