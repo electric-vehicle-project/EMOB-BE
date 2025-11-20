@@ -39,7 +39,7 @@ public interface IVehicle {
       Pageable pageable, String keyword, List<VehicleStatus> status);
 
   APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
-      UUID modelId, Pageable pageable);
+          UUID modelId, Pageable pageable,List<VehicleStatus> statuses);
 
   APIResponse<VehicleUnitResponse> deleteVehicleUnit(DeleteVehicleUnitRequest request);
 }

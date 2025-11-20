@@ -2,6 +2,7 @@
 package com.example.emob.controller;
 
 import com.example.emob.constant.PromotionScope;
+import com.example.emob.constant.PromotionStatus;
 import com.example.emob.model.request.promotion.PromotionRequest;
 import com.example.emob.model.request.promotion.PromotionValueRequest;
 import com.example.emob.model.request.promotion.UpdatePromotionRequest;
@@ -104,19 +105,20 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.deletePromotion(id));
   }
 
-  @GetMapping("/view-all/{scope}")
+  @GetMapping("/view-all")
   @Operation(summary = "View All Promotion")
   public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
-      @RequestParam @PathVariable("scope") List<PromotionScope> scope,
+      @RequestParam(required = false) List<PromotionScope> scopes,
+      @RequestParam(required = false) List<PromotionStatus> statuses,
       @RequestParam(defaultValue = "createAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scope));
+    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scopes,statuses));
   }
 
   @PutMapping("/value/{id}")

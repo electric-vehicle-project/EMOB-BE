@@ -265,7 +265,7 @@ public class ElectricVehicleService implements IVehicle {
 
   @Override
   public APIResponse<PageResponse<VehicleUnitResponse>> getAllVehicleUnitsByModelId(
-      UUID modelId, Pageable pageable) {
+      UUID modelId, Pageable pageable,List<VehicleStatus> statuses) {
     ElectricVehicle electricVehicle =
         electricVehicleRepository
             .findById(modelId)
@@ -287,7 +287,7 @@ public class ElectricVehicleService implements IVehicle {
     }
     try {
       Page<VehicleUnit> page =
-          vehicleUnitRepository.findAllByVehicleAndInventory(electricVehicle, inventory, pageable);
+          vehicleUnitRepository.findAllFiltered(electricVehicle, inventory,statuses, pageable);
       PageResponse<VehicleUnitResponse> response =
           pageMapper.toPageResponse(page, vehicleMapper::toVehicleUnitResponse);
       return APIResponse.success(response);

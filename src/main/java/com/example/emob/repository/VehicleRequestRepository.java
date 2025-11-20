@@ -25,8 +25,8 @@ public interface VehicleRequestRepository extends JpaRepository<VehicleRequest, 
       AND d = :dealer
       AND (
         :keyword IS NULL
-        OR LOWER(CAST(vr.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
-      )
+              OR LOWER(str(vr.totalQuantity)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                                       )
       AND (
         :statuses IS NULL
         OR vr.status IN :statuses

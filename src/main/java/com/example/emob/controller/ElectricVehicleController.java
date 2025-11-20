@@ -1,6 +1,7 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.VehicleStatus;
 import com.example.emob.constant.VehicleType;
 import com.example.emob.model.request.vehicle.DeleteVehicleUnitRequest;
 import com.example.emob.model.request.vehicle.ElectricVehiclePriceRequest;
@@ -257,12 +258,13 @@ public class ElectricVehicleController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(defaultValue = "purchaseDate") String sortField,
+      @RequestParam(required = false) List<VehicleStatus> statuses,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId, pageable));
+    return ResponseEntity.ok(vehicleService.getAllVehicleUnitsByModelId(modelId, pageable,statuses));
   }
 
   @GetMapping("/{leftId}/vs/{rightId}")

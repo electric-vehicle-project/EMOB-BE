@@ -2,6 +2,7 @@
 package com.example.emob.service;
 
 import com.example.emob.constant.ErrorCode;
+import com.example.emob.constant.MemberShipLevel;
 import com.example.emob.entity.DealerPointRule;
 import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.DealerPointRuleMapper;
@@ -73,5 +74,27 @@ public class DealerPointRuleService implements IDealerPointRule {
     } catch (Exception e) {
       throw new GlobalException(ErrorCode.OTHER, "Error: " + e.getMessage());
     }
+  }
+
+  public MemberShipLevel calculate(int point) {
+    List<DealerPointRule> rules = getAllRules().getResult();
+    if (rules == null || rules.isEmpty()) {
+      throw new GlobalException(ErrorCode.OTHER, "No rules found");
+    }
+    DealerPointRule best = null;
+
+    for (DealerPointRule r : rules) {
+      if (point >= r.getMinPoints()) {
+        if (best == null || r.getMinPoints() > best.getMinPoints()) {
+          best = r;
+        }
+      }
+    }
+
+    if (best == null) {
+      return MemberShipLevel.NORMAL;
+    }
+
+    return MemberShipLevel.valueOf(best.getMembershipLevel());
   }
 }

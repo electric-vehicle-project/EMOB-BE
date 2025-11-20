@@ -292,7 +292,7 @@ public class PromotionService implements IPromotion {
 
   @Override
   public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-      Pageable pageable, List<PromotionScope> scopes) {
+      Pageable pageable, List<PromotionScope> scopes,List<PromotionStatus> statuses) {
 
     var currentUser = AccountUtil.getCurrentUser();
     var dealer = currentUser.getDealer();
@@ -302,47 +302,14 @@ public class PromotionService implements IPromotion {
 
     // ========== CASE 1: dealer == null (user không thuộc đại lý) ==========
     if (dealer == null) {
-      // Nếu có filter scope thì ưu tiên
-      if (scopes != null && !scopes.isEmpty()) {
-        if (scopes.contains(PromotionScope.GLOBAL)) {
-          promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
-          message = "Xem tất cả khuyến mãi GLOBAL thành công";
-        } else {
-          promotions = Page.empty(pageable);
-          message = "Không có khuyến mãi phù hợp";
-        }
-      } else {
-        promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
-        message = "Xem tất cả khuyến mãi GLOBAL (vì không thuộc đại lý)";
-      }
+      promotions =  promotionRepository.findByScope(PromotionScope.GLOBAL,pageable);
+      message ="View all global promotions successfully";
     }
-
     // ========== CASE 2: dealer != null ==========
     else {
       // Nếu không truyền scope hoặc truyền cả hai → lấy GLOBAL + LOCAL (có liên quan)
-      if (scopes == null
-          || scopes.isEmpty()
-          || (scopes.contains(PromotionScope.GLOBAL) && scopes.contains(PromotionScope.LOCAL))) {
-
-        promotions =
-            promotionRepository.findAllByScopeOrDealersContains(
-                PromotionScope.GLOBAL, dealer, pageable);
-        message = "Xem tất cả khuyến mãi GLOBAL và LOCAL của đại lý thành công";
-      }
-
-      // Chỉ LOCAL
-      else if (scopes.contains(PromotionScope.LOCAL) && !scopes.contains(PromotionScope.GLOBAL)) {
-        promotions =
-            promotionRepository.findAllByScopeAndDealersContains(
-                PromotionScope.LOCAL, dealer, pageable);
-        message = "Xem tất cả khuyến mãi LOCAL của đại lý thành công";
-      }
-
-      // Chỉ GLOBAL
-      else {
-        promotions = promotionRepository.findByScope(PromotionScope.GLOBAL, pageable);
-        message = "Xem tất cả khuyến mãi GLOBAL thành công";
-      }
+      promotions = promotionRepository.findAllAndFilter(scopes, statuses, dealer, pageable);
+        message = "View all promotions for dealer successfully";
     }
 
     return APIResponse.success(
