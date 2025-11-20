@@ -113,12 +113,13 @@ public class PromotionController {
       @RequestParam(required = false) List<PromotionScope> scopes,
       @RequestParam(required = false) List<PromotionStatus> statuses,
       @RequestParam(defaultValue = "createAt") String sortField,
+      @RequestParam(required = false) String keyword,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scopes,statuses));
+    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scopes,statuses,keyword));
   }
 
   @PutMapping("/value/{id}")
@@ -127,9 +128,4 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.createValuePromotion(id, request));
   }
 
-  @GetMapping("/history")
-  @Operation(summary = "View History Dealer Promotion")
-  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion(UUID id) {
-    return ResponseEntity.ok(promotionService.viewHistoryDealerPromotion(id));
-  }
 }

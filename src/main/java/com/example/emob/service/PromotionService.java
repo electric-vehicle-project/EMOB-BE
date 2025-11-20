@@ -292,7 +292,7 @@ public class PromotionService implements IPromotion {
 
   @Override
   public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-      Pageable pageable, List<PromotionScope> scopes,List<PromotionStatus> statuses) {
+      Pageable pageable, List<PromotionScope> scopes,List<PromotionStatus> statuses, String keyword) {
 
     var currentUser = AccountUtil.getCurrentUser();
     var dealer = currentUser.getDealer();
@@ -308,7 +308,7 @@ public class PromotionService implements IPromotion {
     // ========== CASE 2: dealer != null ==========
     else {
       // Nếu không truyền scope hoặc truyền cả hai → lấy GLOBAL + LOCAL (có liên quan)
-      promotions = promotionRepository.findAllAndFilter(scopes, statuses, dealer, pageable);
+      promotions = promotionRepository.findAllAndFilter(scopes, statuses, dealer,keyword, pageable);
         message = "View all promotions for dealer successfully";
     }
 
@@ -316,37 +316,6 @@ public class PromotionService implements IPromotion {
         pageMapper.toPageResponse(promotions, promotionMapper::toPromotionResponse), message);
   }
 
-  @Override
-  @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
-  public APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId) {
-    Dealer dealer =
-        dealerRepository
-            .findById(dealerId)
-            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    List<Promotion> promotions =
-        promotionRepository.findAllByDealersId(dealer.getId()).stream()
-            .filter((item) -> item.getScope().equals(PromotionScope.LOCAL))
-            .toList();
-    List<PromotionResponse> responses =
-        promotions.stream()
-            .map(
-                (promotion) ->
-                    PromotionResponse.builder()
-                        .id(promotion.getId())
-                        .name(promotion.getName())
-                        .description(promotion.getDescription())
-                        .type(promotion.getType())
-                        .value(promotion.getValue())
-                        .minValue(promotion.getMinValue())
-                        .startDate(promotion.getStartDate())
-                        .endDate(promotion.getEndDate())
-                        .scope(promotion.getScope())
-                        .status(promotion.getStatus())
-                        .createAt(promotion.getCreateAt())
-                        .build())
-            .toList();
-    return APIResponse.success(responses, "View History Dealer Promotion Successfully");
-  }
 
   @Override
   public APIResponse<PromotionResponse> viewPromotion(UUID id) {
