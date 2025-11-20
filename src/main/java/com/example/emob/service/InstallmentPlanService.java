@@ -9,6 +9,7 @@ import com.example.emob.exception.GlobalException;
 import com.example.emob.mapper.InstallmentPlanMapper;
 import com.example.emob.mapper.PageMapper;
 import com.example.emob.model.request.installment.InstallmentRequest;
+import com.example.emob.model.request.installment.UpdateInstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.InstallmentResponse;
 import com.example.emob.model.response.PageResponse;
@@ -97,7 +98,8 @@ public class InstallmentPlanService implements IInstallmentPlan {
   }
 
   private String remindInstallmentOverdue(
-      String cusName, BigDecimal monthlyAmount, LocalDate nextDueDate) {
+      String cusName, BigDecimal monthlyAmount, LocalDate nextDueDate)
+  {
     return String.format(
         """
             <p style="color:#e53e3e; font-size:16px; text-align:center;">
@@ -205,15 +207,28 @@ public class InstallmentPlanService implements IInstallmentPlan {
   }
 
   @Override
+  @PreAuthorize("hasAnyRole('DEALER_STAFF','EVM_STAFF')")
   public APIResponse<InstallmentResponse> updateInstallmentByStatus(
-      UUID id, InstallmentStatus status) {
+      UUID id, UpdateInstallmentRequest request) {
     InstallmentPlan installmentPlan =
         installmentPlanRepository
             .findById(id)
             .filter((item) -> item.getStatus().equals(InstallmentStatus.NOT_PAID))
             .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
-    installmentPlan.setStatus(InstallmentStatus.PAID);
-    installmentPlan.setNextDueDate(null);
+    if (request.getAmountPaid().compareTo(installmentPlan.getMonthlyAmount()) < 0) {
+      throw new GlobalException(ErrorCode.INVALID_CODE," Amount paid is less than monthly amount");
+    }
+    // Cập nhật số tháng đã trả
+    installmentPlan.setTotalAmount(installmentPlan.getTotalAmount().subtract(request.getAmountPaid()));
+    installmentPlan.setPaidMonths(installmentPlan.getPaidMonths() + 1);
+    // Cập nhật ngày thanh toán tiếp theo
+    installmentPlan.setNextDueDate(installmentPlan.getNextDueDate().plusMonths(1));
+    // Cập nhật trạng thái nếu đã trả hết
+    if (installmentPlan.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {
+      installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
+    } else{
+        installmentPlan.setStatus(InstallmentStatus.PAID);
+    }
     installmentPlan.setUpdateAt(LocalDateTime.now());
     installmentPlanRepository.save(installmentPlan);
     InstallmentResponse installmentResponse =

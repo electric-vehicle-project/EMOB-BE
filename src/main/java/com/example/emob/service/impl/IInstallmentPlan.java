@@ -3,6 +3,7 @@ package com.example.emob.service.impl;
 
 import com.example.emob.constant.InstallmentStatus;
 import com.example.emob.model.request.installment.InstallmentRequest;
+import com.example.emob.model.request.installment.UpdateInstallmentRequest;
 import com.example.emob.model.response.APIResponse;
 import com.example.emob.model.response.InstallmentResponse;
 import com.example.emob.model.response.PageResponse;
@@ -13,7 +14,8 @@ import org.springframework.data.domain.Pageable;
 public interface IInstallmentPlan {
   APIResponse<InstallmentResponse> createInstallment(InstallmentRequest request);
 
-  APIResponse<InstallmentResponse> updateInstallmentByStatus(UUID id, InstallmentStatus status);
+  public APIResponse<InstallmentResponse> updateInstallmentByStatus(
+          UUID id, UpdateInstallmentRequest request);
 
   APIResponse<InstallmentResponse> viewInstallmentPlan(UUID id);
 

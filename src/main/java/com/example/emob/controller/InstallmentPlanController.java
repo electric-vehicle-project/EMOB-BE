@@ -44,7 +44,7 @@ public class InstallmentPlanController {
   public ResponseEntity<APIResponse<InstallmentResponse>> updateInstallment(
       @PathVariable UUID id, @RequestBody @Valid UpdateInstallmentRequest request) {
     return ResponseEntity.ok(
-        installmentPlanService.updateInstallmentByStatus(id, request.getStatus()));
+        installmentPlanService.updateInstallmentByStatus(id, request));
   }
 
   @GetMapping("/{id}")
