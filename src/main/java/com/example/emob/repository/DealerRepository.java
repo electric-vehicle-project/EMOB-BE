@@ -30,11 +30,10 @@ public interface DealerRepository extends JpaRepository<Dealer, UUID> {
                OR LOWER(d.emailContact) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(d.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(d.phoneContact) LIKE LOWER(CONCAT('%', :keyword, '%')))
-
           AND (:country IS NULL OR LOWER(d.country) = LOWER(:country))
         """)
   Page<Dealer> searchAndFilter(
-      @Param("keyword") String keyword, @Param("country") String country, Pageable pageable);
+      @Param("keyword") String keyword, @Param("country") List<String> country, Pageable pageable);
 
   @Query(
           value = """

@@ -96,8 +96,8 @@ public class NotificationService {
       helper.setText(htmlContent, true); // true = HTML
 
       // Add logo inline
-      ClassPathResource logoResource = new ClassPathResource("static/images/logo.png");
-      helper.addInline("logoImage", logoResource);
+//      ClassPathResource logoResource = new ClassPathResource("static/images/logo.png");
+//      helper.addInline("logoImage", logoResource);
 
       mailSender.send(message);
 
