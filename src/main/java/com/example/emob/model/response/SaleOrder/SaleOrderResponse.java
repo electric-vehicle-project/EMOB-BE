@@ -2,6 +2,7 @@
 package com.example.emob.model.response.SaleOrder;
 
 import com.example.emob.constant.OrderStatus;
+import com.example.emob.constant.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,4 +29,5 @@ public class SaleOrderResponse {
   int totalQuantity;
   OrderStatus status;
   LocalDateTime createdAt;
+  PaymentStatus paymentStatus;
 }
