@@ -105,25 +105,20 @@ public class PromotionController {
     return ResponseEntity.ok(promotionService.deletePromotion(id));
   }
 
-  @GetMapping("/view-all/{scope}")
+  @GetMapping("/view-all")
   @Operation(summary = "View All Promotion")
   public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewAllLocalPromotions(
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @RequestParam(required = false) List<PromotionScope> scopes,
-          @RequestParam(required = false) List<PromotionStatus> statuses,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(defaultValue = "createAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir
-  ) {
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) List<PromotionScope> scopes,
+      @RequestParam(required = false) List<PromotionStatus> statuses,
+      @RequestParam(defaultValue = "createAt") String sortField,
+      @RequestParam(defaultValue = "desc") String sortDir) {
+
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
-
     Pageable pageable = PageRequest.of(page, size, sort);
-
-    return ResponseEntity.ok(
-            promotionService.viewAllPromotions(pageable, scopes, statuses, keyword)
-    );
+    return ResponseEntity.ok(promotionService.viewAllPromotions(pageable, scopes,statuses));
   }
 
   @PutMapping("/value/{id}")
@@ -134,20 +129,7 @@ public class PromotionController {
 
   @GetMapping("/history")
   @Operation(summary = "View History Dealer Promotion")
-  public ResponseEntity<APIResponse<PageResponse<PromotionResponse>>> viewHistoryDealerPromotion(
-          @RequestParam(required = false) List<PromotionStatus> statuses,
-          @RequestParam(required = false) String keyword,
-          @RequestParam(defaultValue = "createAt") String sortField,
-          @RequestParam(defaultValue = "desc") String sortDir,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size
-  ) {
-    Sort sort = Sort.by(sortField);
-    sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
-    Pageable pageable = PageRequest.of(page, size, sort);
-
-    return ResponseEntity.ok(
-            promotionService.viewHistoryDealerPromotion(statuses, keyword, pageable)
-    );
+  public ResponseEntity<APIResponse<List<PromotionResponse>>> viewHistoryDealerPromotion(UUID id) {
+    return ResponseEntity.ok(promotionService.viewHistoryDealerPromotion(id));
   }
 }

@@ -292,10 +292,7 @@ public class PromotionService implements IPromotion {
 
   @Override
   public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-          Pageable pageable,
-          List<PromotionScope> scopes,
-          List<PromotionStatus> statuses,
-          String keyword) {
+      Pageable pageable, List<PromotionScope> scopes,List<PromotionStatus> statuses) {
 
     var currentUser = AccountUtil.getCurrentUser();
     var dealer = currentUser.getDealer();
@@ -305,53 +302,14 @@ public class PromotionService implements IPromotion {
 
     // ========== CASE 1: dealer == null (user không thuộc đại lý) ==========
     if (dealer == null) {
-      // Nếu có filter scope thì ưu tiên
-      if (scopes != null && !scopes.isEmpty()) {
-        if (scopes.contains(PromotionScope.GLOBAL)) {
-          promotions = promotionRepository.filterAndSearchByScope(
-                  PromotionScope.GLOBAL, statuses, keyword, pageable
-          );
-          message = "Xem tất cả khuyến mãi GLOBAL thành công";
-        } else {
-          promotions = Page.empty(pageable);
-          message = "Không có khuyến mãi phù hợp";
-        }
-      } else {
-        promotions = promotionRepository.filterAndSearchByScope(
-                PromotionScope.GLOBAL, statuses, keyword, pageable
-        );
-        message = "Xem tất cả khuyến mãi GLOBAL (vì không thuộc đại lý)";
-      }
+      promotions =  promotionRepository.findByScope(PromotionScope.GLOBAL,pageable);
+      message ="View all global promotions successfully";
     }
-
     // ========== CASE 2: dealer != null ==========
     else {
       // Nếu không truyền scope hoặc truyền cả hai → lấy GLOBAL + LOCAL (có liên quan)
-      if (scopes == null
-          || scopes.isEmpty()
-          || (scopes.contains(PromotionScope.GLOBAL) && scopes.contains(PromotionScope.LOCAL))) {
-
-        promotions =
-            promotionRepository.findAllByScopeOrDealersContains(
-                PromotionScope.GLOBAL, dealer, pageable);
-        message = "Xem tất cả khuyến mãi GLOBAL và LOCAL của đại lý thành công";
-      }
-
-      // Chỉ LOCAL
-      else if (scopes.contains(PromotionScope.LOCAL) && !scopes.contains(PromotionScope.GLOBAL)) {
-        promotions =
-            promotionRepository.findAllByScopeAndDealersContains(
-                PromotionScope.LOCAL, dealer, pageable);
-        message = "Xem tất cả khuyến mãi LOCAL của đại lý thành công";
-      }
-
-      // Chỉ GLOBAL
-      else {
-        promotions = promotionRepository.filterAndSearchByScope(
-                PromotionScope.GLOBAL, statuses, keyword, pageable
-        );
-        message = "Xem tất cả khuyến mãi GLOBAL thành công";
-      }
+      promotions = promotionRepository.findAllAndFilter(scopes, statuses, dealer, pageable);
+        message = "View all promotions for dealer successfully";
     }
 
     return APIResponse.success(
@@ -360,39 +318,35 @@ public class PromotionService implements IPromotion {
 
   @Override
   @PreAuthorize("hasAnyRole('DEALER_STAFF', 'MANAGER')")
-  public APIResponse<PageResponse<PromotionResponse>> viewHistoryDealerPromotion(
-          List<PromotionStatus> statuses,
-          String keyword,
-          Pageable pageable
-  ) {
-
-    Dealer dealer = AccountUtil.getCurrentUser().getDealer();
-
-    if (keyword != null && keyword.isBlank()) keyword = null;
-    if (statuses != null && statuses.isEmpty()) statuses = null;
-
-    Page<Promotion> pagePromotion =
-            promotionRepository.filterAndSearch(dealer.getId(), statuses, keyword, pageable);
-
-    PageResponse<PromotionResponse> pageResponse =
-            pageMapper.toPageResponse(pagePromotion, p ->
+  public APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId) {
+    Dealer dealer =
+        dealerRepository
+            .findById(dealerId)
+            .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND));
+    List<Promotion> promotions =
+        promotionRepository.findAllByDealersId(dealer.getId()).stream()
+            .filter((item) -> item.getScope().equals(PromotionScope.LOCAL))
+            .toList();
+    List<PromotionResponse> responses =
+        promotions.stream()
+            .map(
+                (promotion) ->
                     PromotionResponse.builder()
-                            .id(p.getId())
-                            .name(p.getName())
-                            .description(p.getDescription())
-                            .type(p.getType())
-                            .value(p.getValue())
-                            .minValue(p.getMinValue())
-                            .startDate(p.getStartDate())
-                            .endDate(p.getEndDate())
-                            .scope(p.getScope())
-                            .status(p.getStatus())
-                            .createAt(p.getCreateAt())
-                            .build()
-            );
-    return APIResponse.success(pageResponse, "View History Dealer Promotion Successfully");
+                        .id(promotion.getId())
+                        .name(promotion.getName())
+                        .description(promotion.getDescription())
+                        .type(promotion.getType())
+                        .value(promotion.getValue())
+                        .minValue(promotion.getMinValue())
+                        .startDate(promotion.getStartDate())
+                        .endDate(promotion.getEndDate())
+                        .scope(promotion.getScope())
+                        .status(promotion.getStatus())
+                        .createAt(promotion.getCreateAt())
+                        .build())
+            .toList();
+    return APIResponse.success(responses, "View History Dealer Promotion Successfully");
   }
-
 
   @Override
   public APIResponse<PromotionResponse> viewPromotion(UUID id) {

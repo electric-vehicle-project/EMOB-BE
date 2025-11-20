@@ -54,6 +54,19 @@ public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
   Page<Promotion> findAllByScopeAndDealersContains(
       PromotionScope scope, Dealer dealer, Pageable pageable);
 
-  Page<Promotion> findAllByScopeOrDealersContains(
-      PromotionScope scope, Dealer dealer, Pageable pageable);
+
+  @Query("""
+  SELECT p FROM Promotion p
+  WHERE 
+    (
+      (:scopes IS NULL OR p.scope IN :scopes) 
+      OR :dealer MEMBER OF p.dealers
+    )
+    AND (:statuses IS NULL OR p.status IN :statuses)
+""")
+  Page<Promotion> findAllAndFilter(
+          @Param("scopes") List<PromotionScope> scopes,
+          @Param("statuses") List<PromotionStatus> statuses,
+          @Param("dealer") Dealer dealer,
+          Pageable pageable);
 }

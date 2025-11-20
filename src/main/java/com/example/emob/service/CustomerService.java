@@ -40,6 +40,10 @@ public class CustomerService implements ICustomer {
       Customer customer = customerMapper.toCustomer(request);
       customer.setStatus(CustomerStatus.ACTIVE);
       customer.setDealer(AccountUtil.getCurrentUser().getDealer());
+
+      //tính điểm
+
+        dealerPointRuleService.calculate(request.getLoyaltyPoints());
       customer.setMemberShipLevel(MemberShipLevel.NORMAL);
       customerRepository.save(customer);
       CustomerResponse response = customerMapper.toCustomerResponse(customer);
@@ -51,7 +55,7 @@ public class CustomerService implements ICustomer {
       } else if (errorMessage.contains("phone")) {
         throw new GlobalException(ErrorCode.PHONE_EXISTED);
       } else {
-        throw new GlobalException(ErrorCode.OTHER);
+        throw new GlobalException(ErrorCode.OTHER,e.getMessage());
       }
     }
   }

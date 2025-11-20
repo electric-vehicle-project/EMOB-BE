@@ -24,13 +24,8 @@ public interface IPromotion {
 
   APIResponse<PromotionResponse> createValuePromotion(UUID id, PromotionValueRequest request);
 
-  APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
-          Pageable pageable,
-          List<PromotionScope> scopes,
-          List<PromotionStatus> statuses,
-          String keyword);
+  public APIResponse<PageResponse<PromotionResponse>> viewAllPromotions(
+          Pageable pageable, List<PromotionScope> scopes,List<PromotionStatus> statuses);
 
-  APIResponse<PageResponse<PromotionResponse>> viewHistoryDealerPromotion(List<PromotionStatus> statuses,
-                                                                            String keyword,
-                                                                            Pageable pageable);
+  APIResponse<List<PromotionResponse>> viewHistoryDealerPromotion(UUID dealerId);
 }
