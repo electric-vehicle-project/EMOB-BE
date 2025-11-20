@@ -8,7 +8,6 @@ import com.example.emob.model.response.*;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.emob.model.response.vehicleRequest.VehicleRequestResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface IDealer {

@@ -358,6 +358,9 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   public APIResponse<AccountResponse> registerByAdmin(RegisterRequest request) {
+    if (accountRepository.existsByPhone(request.getPhone())) {
+      throw new GlobalException(ErrorCode.PHONE_EXISTED);
+    }
     // Map RegisterRequest => Account
     Account account = accountMapper.toAccount(request);
     if (request.getDealerId() != null) {
@@ -391,9 +394,8 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       //      AuthenticationController.log.info(errorMessage);
       if (errorMessage.contains("email")) {
         throw new GlobalException(ErrorCode.EMAIL_EXISTED);
-      } else if (errorMessage.contains("phone")) {
-        throw new GlobalException(ErrorCode.PHONE_EXISTED);
-      } else {
+      }
+      else {
         throw new GlobalException(ErrorCode.OTHER);
       }
     }
@@ -402,18 +404,30 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
   @Override
   @PreAuthorize("hasRole('MANAGER')")
   public APIResponse<AccountResponse> registerByManager(RegisterRequest request) {
-    // Map RegisterRequest => Account
-    Account account = accountMapper.toAccount(request);
-    account.setRole(Role.DEALER_STAFF);
-    // Mã hóa mật khẩu trước khi lưu
-    account.setDealer(AccountUtil.getCurrentUser().getDealer());
-    account.setStatus(AccountStatus.ACTIVE);
-    account.setPassword(passwordEncoder.encode(request.getPassword()));
-    // Lưu tài khoản vào DB
-    Account newAccount = accountRepository.save(account);
-    AccountResponse response = accountMapper.toAccountResponse(newAccount);
-    response.setDealerId(account.getDealer().getId());
-    return APIResponse.success(response, "Login Successful");
+    if (accountRepository.existsByPhone(request.getPhone())) {
+      throw new GlobalException(ErrorCode.PHONE_EXISTED);
+    }
+    try {
+      // Map RegisterRequest => Account
+      Account account = accountMapper.toAccount(request);
+      account.setRole(Role.DEALER_STAFF);
+      // Mã hóa mật khẩu trước khi lưu
+      account.setDealer(AccountUtil.getCurrentUser().getDealer());
+      account.setStatus(AccountStatus.ACTIVE);
+      account.setPassword(passwordEncoder.encode(request.getPassword()));
+      // Lưu tài khoản vào DB
+      Account newAccount = accountRepository.save(account);
+      AccountResponse response = accountMapper.toAccountResponse(newAccount);
+      response.setDealerId(account.getDealer().getId());
+      return APIResponse.success(response, "Login Successful");
+    } catch (Exception e) {
+      String errorMessage = e.getMessage().toLowerCase();
+      if (errorMessage.contains("email")) {
+        throw new GlobalException(ErrorCode.EMAIL_EXISTED);
+      } else {
+        throw new GlobalException(ErrorCode.OTHER);
+      }
+    }
   }
 
   @Override

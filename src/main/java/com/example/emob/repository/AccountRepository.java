@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, UUID> {
   Account findAccountById(UUID id);
+  boolean existsByPhone(String phone);
 
   Account findAccountByEmail(String email);
 
