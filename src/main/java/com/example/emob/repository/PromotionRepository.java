@@ -14,9 +14,40 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PromotionRepository extends JpaRepository<Promotion, UUID> {
-  Page<Promotion> findByScope(PromotionScope scope, Pageable pageable);
+  @Query("""
+    SELECT p FROM Promotion p
+    WHERE p.scope = :scope
+      AND (:statuses IS NULL OR p.status IN :statuses)
+      AND (
+            :keyword IS NULL 
+            OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+""")
+  Page<Promotion> filterAndSearchByScope(
+          @Param("scope") PromotionScope scope,
+          @Param("statuses") List<PromotionStatus> statuses,
+          @Param("keyword") String keyword,
+          Pageable pageable
+  );
 
-  List<Promotion> findAllByDealersId(UUID dealerId);
+  @Query("""
+    SELECT p FROM Promotion p
+    JOIN p.dealers d
+    WHERE d.id = :dealerId
+      AND (:statuses IS NULL OR p.status IN :statuses)
+      AND (
+            :keyword IS NULL
+            OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+""")
+  Page<Promotion> filterAndSearch(
+          @Param("dealerId") UUID dealerId,
+          @Param("statuses") List<PromotionStatus> statuses,
+          @Param("keyword") String keyword,
+          Pageable pageable
+  );
 
   Page<Promotion> findAllByDealersContains(Dealer dealer, Pageable pageable);
 
