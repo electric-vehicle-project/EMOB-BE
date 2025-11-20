@@ -85,30 +85,30 @@ public interface VehicleUnitRepository extends JpaRepository<VehicleUnit, UUID> 
    * DATE_ADD để cộng phút trong MySQL
    */
   @Query(
-      value =
-          """
-        SELECT v.*
-        FROM vehicle_unit v
-        JOIN electric_vehicle ev ON v.vehicle_id = ev.id
-        WHERE v.status = 'TEST_DRIVE'
-          AND ev.model = :model
-          AND v.id NOT IN (
-              SELECT t.vehicle_unit
-              FROM test_drive t
-              WHERE t.status <> 'CANCELLED'
-                AND (
-                    t.scheduled_at < :endAt
-                    AND DATE_ADD(t.scheduled_at, INTERVAL t.duration MINUTE) > :startAt
-                )
-                AND  v.inventory_id = :inventoryId
-          )
-    """,
-      nativeQuery = true)
+          value = """
+      SELECT v.*
+      FROM vehicle_unit v
+      JOIN electric_vehicle ev ON v.vehicle_id = ev.id
+      WHERE v.status = 'TEST_DRIVE'
+        AND ev.model = :model
+        AND v.inventory_id = :inventoryId
+        AND v.id NOT IN (
+            SELECT t.vehicle_unit
+            FROM test_drive t
+            WHERE t.status <> 'CANCELLED'
+              AND (
+                  t.scheduled_at < :endAt
+                  AND DATE_ADD(t.scheduled_at, INTERVAL t.duration MINUTE) > :startAt
+              )
+        )
+      """,
+          nativeQuery = true
+  )
   List<VehicleUnit> findAvailableVehiclesByTimeRangeAndModel(
-      @Param("startAt") LocalDateTime startAt,
-      @Param("endAt") LocalDateTime endAt,
-      @Param("model") String model,
-      @Param("inventoryId") UUID inventoryId
+          @Param("startAt") LocalDateTime startAt,
+          @Param("endAt") LocalDateTime endAt,
+          @Param("model") String model,
+          @Param("inventoryId") UUID inventoryId
   );
 
   @Query("""

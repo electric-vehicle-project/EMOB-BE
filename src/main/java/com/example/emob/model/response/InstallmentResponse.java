@@ -23,6 +23,7 @@ public class InstallmentResponse {
   BigDecimal totalAmount; // tổng tiền cần trả góp
   BigDecimal monthlyAmount; // số tiền phải trả mỗi tháng
   float interestRate; // lãi suất
+  int paidMonths = 0; // số tháng đã trả
   int termMonths; // thời hạn trả góp theo tháng
   LocalDate nextDueDate; // ngày thanh toán tiếp theo
   InstallmentStatus status;

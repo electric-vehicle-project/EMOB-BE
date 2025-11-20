@@ -25,6 +25,7 @@ public class InstallmentPlan {
   BigDecimal monthlyAmount; // số tiền phải trả mỗi tháng
   float interestRate; // lãi suất
   int termMonths; // thời hạn trả góp theo tháng
+  int paidMonths = 0; // số tháng đã trả
   LocalDate nextDueDate; // ngày thanh toán tiếp theo
 
   @Enumerated(EnumType.STRING)
