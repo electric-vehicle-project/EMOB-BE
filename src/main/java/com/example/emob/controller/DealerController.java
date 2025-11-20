@@ -87,7 +87,8 @@ public class DealerController {
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) List<String> country,
+      @RequestParam(required = false) String country,
+      @RequestParam(required = false) List<Region> regions,
       @RequestParam(defaultValue = "createdAt") String sortField,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
@@ -95,7 +96,7 @@ public class DealerController {
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    return ResponseEntity.ok(dealerService.getAll(pageable, keyword, country));
+    return ResponseEntity.ok(dealerService.getAll(pageable, keyword, country,regions));
   }
 
   @PutMapping("/{id}")

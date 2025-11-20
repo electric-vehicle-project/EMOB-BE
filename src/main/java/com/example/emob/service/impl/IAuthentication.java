@@ -1,8 +1,12 @@
 /* EMOB-2025 */
 package com.example.emob.service.impl;
 
+import com.example.emob.constant.AccountStatus;
+import com.example.emob.constant.Role;
 import com.example.emob.model.request.*;
 import com.example.emob.model.response.*;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 
@@ -17,9 +21,9 @@ public interface IAuthentication {
 
   APIResponse<AccountResponse> get(UUID id);
 
-  APIResponse<PageResponse<AccountResponse>> getAllByAdmin(Pageable pageable);
+  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(List<Role> roles,List<AccountStatus> statuses,String keyword,Pageable pageable);
 
-  APIResponse<PageResponse<AccountResponse>> getAllByManager(Pageable pageable);
+  public APIResponse<PageResponse<AccountResponse>> getAllByManager(List<AccountStatus> statuses, String keyword, Pageable pageable);
 
   void logout(TokenRequest refreshRequest);
 

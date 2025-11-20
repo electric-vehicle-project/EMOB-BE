@@ -470,10 +470,19 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @Operation(summary = "Get all by admin")
-  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(Pageable pageable) {
+  public APIResponse<PageResponse<AccountResponse>> getAllByAdmin(List<Role> roles,List<AccountStatus> statuses,String keyword,Pageable pageable) {
     try {
-      List<Role> roles = List.of(Role.MANAGER, Role.EVM_STAFF);
-      Page<Account> page = accountRepository.findByRoleIn(roles, pageable);
+
+      if (roles == null || roles.isEmpty()) {
+        roles = List.of(Role.MANAGER, Role.EVM_STAFF);
+      }else {
+        for (Role role : roles) {
+          if (role != Role.MANAGER && role != Role.EVM_STAFF) {
+            throw new GlobalException(ErrorCode.INVALID_CODE, "Invalid role in roles list");
+          }
+        }
+      }
+      Page<Account> page = accountRepository.findByRolesStatusesAndKeyword(roles,statuses,keyword, pageable);
       PageResponse<AccountResponse> response =
           pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
       return APIResponse.success(response);
@@ -484,7 +493,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
 
   @Override
   @PreAuthorize("hasRole('MANAGER')")
-  public APIResponse<PageResponse<AccountResponse>> getAllByManager(Pageable pageable) {
+  public APIResponse<PageResponse<AccountResponse>> getAllByManager(List<AccountStatus> statuses,String keyword, Pageable pageable) {
     try {
       Account current = AccountUtil.getCurrentUser();
       if (current == null) {
@@ -495,7 +504,7 @@ public class AuthenticationService implements IAuthentication, UserDetailsServic
       }
 
       Page<Account> page =
-          accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(), pageable);
+          accountRepository.findByRoleAndDealer(Role.DEALER_STAFF, current.getDealer(),statuses,keyword,  pageable);
       PageResponse<AccountResponse> response =
           pageMapper.toPageResponse(page, accountMapper::toAccountResponse);
 

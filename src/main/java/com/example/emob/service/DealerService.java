@@ -50,7 +50,16 @@ public class DealerService implements IDealer {
       DealerResponse response = dealerMapper.toDealerResponse(dealer);
       return APIResponse.success(response, "Created successfully");
     } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+      // Kiểm tra lỗi từ database
+      String errorMessage = e.getMessage().toLowerCase();
+      //      AuthenticationController.log.info(errorMessage);
+      if (errorMessage.contains("email")) {
+        throw new GlobalException(ErrorCode.EMAIL_EXISTED);
+      } else if (errorMessage.contains("phone")) {
+        throw new GlobalException(ErrorCode.PHONE_EXISTED);
+      } else {
+        throw new GlobalException(ErrorCode.OTHER);
+      }
     }
   }
 
@@ -66,7 +75,16 @@ public class DealerService implements IDealer {
       return APIResponse.success(dealerMapper.toDealerResponse(dealer), "Updated successfully");
 
     } catch (Exception e) {
-      throw new GlobalException(ErrorCode.INVALID_CODE);
+      // Kiểm tra lỗi từ database
+      String errorMessage = e.getMessage().toLowerCase();
+      //      AuthenticationController.log.info(errorMessage);
+      if (errorMessage.contains("email")) {
+        throw new GlobalException(ErrorCode.EMAIL_EXISTED);
+      } else if (errorMessage.contains("phone")) {
+        throw new GlobalException(ErrorCode.PHONE_EXISTED);
+      } else {
+        throw new GlobalException(ErrorCode.OTHER);
+      }
     }
   }
 
@@ -103,9 +121,9 @@ public class DealerService implements IDealer {
   @Override
   //  @PreAuthorize("hasAnyRole('EVM_STAFF','ADMIN')")
   public APIResponse<PageResponse<DealerResponse>> getAll(
-      Pageable pageable, String keyword, List<String> country) {
+      Pageable pageable, String keyword, String country, List<Region> regions) {
     try {
-      Page<Dealer> page = dealerRepository.searchAndFilter(keyword, country, pageable);
+      Page<Dealer> page = dealerRepository.searchAndFilter(keyword, country,regions, pageable);
       PageResponse<DealerResponse> response =
           pageMapper.toPageResponse(page, dealerMapper::toDealerResponse);
 

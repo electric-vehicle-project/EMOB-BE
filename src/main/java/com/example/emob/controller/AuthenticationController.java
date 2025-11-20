@@ -1,6 +1,8 @@
 /* EMOB-2025 */
 package com.example.emob.controller;
 
+import com.example.emob.constant.AccountStatus;
+import com.example.emob.constant.Role;
 import com.example.emob.model.request.*;
 import com.example.emob.model.response.*;
 import com.example.emob.service.AuthenticationService;
@@ -12,6 +14,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,26 +238,27 @@ public class AuthenticationController {
   @Operation(summary = "Get all by manager")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByManager(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField, @RequestParam(required = false) List<AccountStatus> statuses,   @RequestParam(required = false) String keyword,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    return ResponseEntity.ok(authenticationService.getAllByManager(pageable));
+    return ResponseEntity.ok(authenticationService.getAllByManager(statuses, keyword, pageable));
   }
 
   @GetMapping("by-admin")
   public ResponseEntity<APIResponse<PageResponse<AccountResponse>>> getAllByAdmin(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "createdAt") String sortField,
+      @RequestParam(defaultValue = "createdAt") String sortField, @RequestParam(required = false) List<AccountStatus> statuses,   @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) List<Role> roles,
       @RequestParam(defaultValue = "desc") String sortDir) {
 
     Sort sort = Sort.by(sortField);
     sort = "asc".equalsIgnoreCase(sortDir) ? sort.ascending() : sort.descending();
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(authenticationService.getAllByAdmin(pageable));
+    return ResponseEntity.ok(authenticationService.getAllByAdmin(roles,statuses, keyword,pageable));
   }
 
   @Operation(summary = "Delete account by ID")
