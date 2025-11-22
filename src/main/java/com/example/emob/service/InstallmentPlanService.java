@@ -226,9 +226,17 @@ public class InstallmentPlanService implements IInstallmentPlan {
     // Cập nhật trạng thái nếu đã trả hết
     if (installmentPlan.getTotalAmount().compareTo(BigDecimal.ZERO) > 0) {
       installmentPlan.setStatus(InstallmentStatus.NOT_PAID);
-    } else{
+    } else if (installmentPlan.getTotalAmount().compareTo(BigDecimal.ZERO) == 0){
         installmentPlan.setStatus(InstallmentStatus.PAID);
+    }else{
+       throw new GlobalException(ErrorCode.INVALID_CODE,"Invalid installment plan");
     }
+    if(installmentPlan.getTotalAmount().compareTo(installmentPlan.getMonthlyAmount()) < 0){
+      installmentPlan.setMonthlyAmount(installmentPlan.getMonthlyAmount().subtract(request.getAmountPaid()));
+    }
+
+
+
     installmentPlan.setUpdateAt(LocalDateTime.now());
     installmentPlanRepository.save(installmentPlan);
     InstallmentResponse installmentResponse =
