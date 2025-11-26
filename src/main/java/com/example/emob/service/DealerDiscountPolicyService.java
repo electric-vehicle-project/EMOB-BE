@@ -87,6 +87,9 @@ public class DealerDiscountPolicyService implements IDealerDiscountPolicy {
 
     for (Dealer dealer : dealers) {
       for (ElectricVehicle model : models) {
+//          if (dealerDiscountPolicyRepository.existsByDealerAndVehicleAndStatus(dealer, model, DiscountPolicyStatus.ACTIVE)) {
+//              throw new GlobalException(ErrorCode.DATA_INVALID, "Chính sách chiết khấu đã tồn tại");
+//          }
         DealerDiscountPolicy policy = new DealerDiscountPolicy();
         policy.setDealer(dealer);
         policy.setVehicle(model);

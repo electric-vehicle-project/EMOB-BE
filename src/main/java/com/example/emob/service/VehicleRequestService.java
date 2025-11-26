@@ -60,7 +60,7 @@ public class VehicleRequestService implements IVehicleRequest {
         VehicleRequestItem item = createVehicleRequestItem(itemRequest);
         VehiclePriceRule priceRule = vehiclePriceRuleService.getRule(item.getVehicleStatus());
         DealerDiscountPolicy dealerDiscountPolicy =
-            dealerDiscountPolicyRepository.findByDealerAndVehicleAndStatus(
+            dealerDiscountPolicyRepository.findFirstByDealerAndVehicleAndStatusOrderByCreateAtDesc(
                 AccountUtil.getCurrentUser().getDealer(),
                 item.getVehicle(),
                 DiscountPolicyStatus.ACTIVE);
@@ -163,7 +163,7 @@ public class VehicleRequestService implements IVehicleRequest {
         // --- Tính giá ---
         VehiclePriceRule priceRule = vehiclePriceRuleService.getRule(item.getVehicleStatus());
         DealerDiscountPolicy dealerDiscountPolicy =
-            dealerDiscountPolicyRepository.findByDealerAndVehicleAndStatus(
+            dealerDiscountPolicyRepository.findFirstByDealerAndVehicleAndStatusOrderByCreateAtDesc(
                 AccountUtil.getCurrentUser().getDealer(),
                 item.getVehicle(),
                 DiscountPolicyStatus.ACTIVE);

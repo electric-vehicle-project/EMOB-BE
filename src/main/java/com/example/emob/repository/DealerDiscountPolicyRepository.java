@@ -19,8 +19,11 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
   List<DealerDiscountPolicy> findAllByDealerIdInAndVehicleIdIn(
       List<UUID> dealerIds, List<UUID> vehicleIds);
 
-  DealerDiscountPolicy findByDealerAndVehicleAndStatus(
-      Dealer dealer, ElectricVehicle vehicle, DiscountPolicyStatus status);
+    DealerDiscountPolicy findFirstByDealerAndVehicleAndStatusOrderByCreateAtDesc(
+            Dealer dealer,
+            ElectricVehicle vehicle,
+            DiscountPolicyStatus status
+    );
 
   List<DealerDiscountPolicy> findAllByStatusAndExpiryDateBefore(
       DiscountPolicyStatus status, LocalDate date);
@@ -67,4 +70,5 @@ public interface DealerDiscountPolicyRepository extends JpaRepository<DealerDisc
           @Param("statuses") List<DiscountPolicyStatus> statuses,
           Pageable pageable
   );
+
 }
