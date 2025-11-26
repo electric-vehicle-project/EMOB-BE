@@ -44,127 +44,127 @@ public class SaleOrderService implements ISaleOrder {
   @Override
   @Transactional
   public APIResponse<SaleOrderResponse> createSaleOrderFromQuotation(
-      Quotation quotation, List<SaleOrderItemRequest> itemRequests) {
+          Quotation quotation, List<SaleOrderItemRequest> itemRequests) {
 
-    Set<UUID> quotationItemIds =
-        itemRequests.stream().map(SaleOrderItemRequest::getItemsId).collect(Collectors.toSet());
-    for (UUID itemId : quotationItemIds) {
-      boolean exists =
-          quotation.getQuotationItems().stream().anyMatch(item -> item.getId().equals(itemId));
-      if (!exists) {
-        throw new GlobalException(
-            ErrorCode.INVALID_CODE,
-            "Quotation item with ID " + itemId + " does not belong to the quotation");
+      Set<UUID> quotationItemIds =
+              itemRequests.stream().map(SaleOrderItemRequest::getItemsId).collect(Collectors.toSet());
+      for (UUID itemId : quotationItemIds) {
+          boolean exists =
+                  quotation.getQuotationItems().stream().anyMatch(item -> item.getId().equals(itemId));
+          if (!exists) {
+              throw new GlobalException(
+                      ErrorCode.INVALID_CODE,
+                      "Quotation item with ID " + itemId + " does not belong to the quotation");
+          }
       }
-    }
-    // === 1. Duyệt các QuotationItem được chọn ===
-    Set<SaleOrderItem> saleOrderItems =
-        quotation.getQuotationItems().stream()
-            .filter(item -> quotationItemIds.contains(item.getId()))
-            .map(
-                item -> {
-                  SaleOrderItemRequest req =
-                      itemRequests.stream()
-                          .filter(r -> r.getItemsId().equals(item.getId()))
-                          .findFirst()
-                          .orElseThrow(
-                              () ->
-                                  new GlobalException(
-                                      ErrorCode.INVALID_CODE, "Invalid item request"));
+      // === 1. Duyệt các QuotationItem được chọn ===
+      Set<SaleOrderItem> saleOrderItems =
+              quotation.getQuotationItems().stream()
+                      .filter(item -> quotationItemIds.contains(item.getId()))
+                      .map(
+                              item -> {
+                                  SaleOrderItemRequest req =
+                                          itemRequests.stream()
+                                                  .filter(r -> r.getItemsId().equals(item.getId()))
+                                                  .findFirst()
+                                                  .orElseThrow(
+                                                          () ->
+                                                                  new GlobalException(
+                                                                          ErrorCode.INVALID_CODE, "Invalid item request"));
 
-                  Promotion promotion = null;
-                  if (req.getPromotionId() != null) {
-                    promotion =
-                        promotionRepository
-                            .findById(req.getPromotionId())
-                            .orElseThrow(
-                                () ->
-                                    new GlobalException(
-                                        ErrorCode.NOT_FOUND, "Promotion not found"));
-                    PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
-                    PromotionHelper.checkPromotionValid(promotion);
-                  }
+                                  Promotion promotion = null;
+                                  if (req.getPromotionId() != null) {
+                                      promotion =
+                                              promotionRepository
+                                                      .findById(req.getPromotionId())
+                                                      .orElseThrow(
+                                                              () ->
+                                                                      new GlobalException(
+                                                                              ErrorCode.NOT_FOUND, "Promotion not found"));
+                                      PromotionHelper.checkPromotionExists(promotion, item.getVehicle());
+                                      PromotionHelper.checkPromotionValid(promotion);
+                                  }
 
-                  // === 2. Tạo SaleOrderItem ===
-                  SaleOrderItem saleItem = new SaleOrderItem();
+                                  // === 2. Tạo SaleOrderItem ===
+                                  SaleOrderItem saleItem = new SaleOrderItem();
 
-                  // === 3. Gán các xe khả dụng ===
-                  List<VehicleUnit> units =
-                      vehicleUnitRepository
-                          .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
-                              AccountUtil.getCurrentUser().getDealer().getInventory(),
-                              item.getVehicle(),
-                              item.getColor(),
-                              item.getVehicleStatus(),
-                              PageRequest.of(0, req.getQuantity()));
-                  if (units.size() < req.getQuantity()) {
-                    throw new GlobalException(
-                        ErrorCode.INVALID_CODE,
-                        "Insufficient vehicle units for vehicle: "
-                            + item.getVehicle().getModel()
-                            + ", color: "
-                            + item.getColor()
-                            + ", status: "
-                            + item.getVehicleStatus());
-                  }
-                  saleItem.setVehicleUnits(new HashSet<>(units));
+                                  // === 3. Gán các xe khả dụng ===
+                                  List<VehicleUnit> units =
+                                          vehicleUnitRepository
+                                                  .findTopNByInventoryAndVehicleAndColorIgnoreCaseAndStatus(
+                                                          AccountUtil.getCurrentUser().getDealer().getInventory(),
+                                                          item.getVehicle(),
+                                                          item.getColor(),
+                                                          item.getVehicleStatus(),
+                                                          PageRequest.of(0, req.getQuantity()));
+                                  if (units.size() < req.getQuantity()) {
+                                      throw new GlobalException(
+                                              ErrorCode.INVALID_CODE,
+                                              "Insufficient vehicle units for vehicle: "
+                                                      + item.getVehicle().getModel()
+                                                      + ", color: "
+                                                      + item.getColor()
+                                                      + ", status: "
+                                                      + item.getVehicleStatus());
+                                  }
+                                  saleItem.setVehicleUnits(new HashSet<>(units));
 
-                  BigDecimal unitPrice =
-                      Objects.requireNonNullElse(item.getUnitPrice(), BigDecimal.ZERO);
-                  BigDecimal discountedPrice =
-                      PromotionHelper.calculateDiscountedPrice(
-                          unitPrice, promotion, quotation.getCustomer());
-                  BigDecimal totalPrice =
-                      discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+                                  BigDecimal unitPrice =
+                                          Objects.requireNonNullElse(item.getUnitPrice(), BigDecimal.ZERO);
+                                  BigDecimal discountedPrice =
+                                          PromotionHelper.calculateDiscountedPrice(
+                                                  unitPrice, promotion, quotation.getCustomer());
+                                  BigDecimal totalPrice =
+                                          discountedPrice.multiply(BigDecimal.valueOf(req.getQuantity()));
 
-                  saleItem.setQuantity(item.getQuantity());
-                  saleItem.setVehicleStatus(item.getVehicleStatus());
-                  saleItem.setPromotion(promotion);
-                  saleItem.setColor(item.getColor());
-                  saleItem.setUnitPrice(unitPrice);
-                  saleItem.setDiscountPrice(discountedPrice);
-                  saleItem.setTotalPrice(totalPrice);
+                                  saleItem.setQuantity(req.getQuantity());
+                                  saleItem.setVehicleStatus(item.getVehicleStatus());
+                                  saleItem.setPromotion(promotion);
+                                  saleItem.setColor(item.getColor());
+                                  saleItem.setUnitPrice(unitPrice);
+                                  saleItem.setDiscountPrice(discountedPrice);
+                                  saleItem.setTotalPrice(totalPrice);
 
-                  return saleItem;
-                })
-            .collect(Collectors.toSet());
+                                  return saleItem;
+                              })
+                      .collect(Collectors.toSet());
 
-    // === 4. Tạo SaleOrder ===
-    SaleOrder saleOrder = new SaleOrder();
-    saleOrder.setAccount(AccountUtil.getCurrentUser());
-    saleOrder.setStatus(OrderStatus.CREATED);
-    saleOrder.setCreatedAt(LocalDateTime.now());
-    saleOrder.setQuotation(quotation);
-    quotation.setSaleOrder(saleOrder);
+      // === 4. Tạo SaleOrder ===
+      SaleOrder saleOrder = new SaleOrder();
+      saleOrder.setAccount(AccountUtil.getCurrentUser());
+      saleOrder.setStatus(OrderStatus.CREATED);
+      saleOrder.setCreatedAt(LocalDateTime.now());
+      saleOrder.setQuotation(quotation);
+      quotation.setSaleOrder(saleOrder);
 
-    saleOrder.setSaleOrderItems(saleOrderItems);
-    // === 5. Tính tổng tiền + VAT ===
-    BigDecimal totalAmount =
-        saleOrderItems.stream()
-            .map(SaleOrderItem::getTotalPrice)
-            .filter(Objects::nonNull)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+      saleOrder.setSaleOrderItems(saleOrderItems);
+      // === 5. Tính tổng tiền + VAT ===
+      BigDecimal totalAmount =
+              saleOrderItems.stream()
+                      .map(SaleOrderItem::getTotalPrice)
+                      .filter(Objects::nonNull)
+                      .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    int totalQuantity =
-        saleOrderItems.stream().mapToInt(SaleOrderItem::getQuantity).reduce(0, Integer::sum);
+      int totalQuantity =
+              saleOrderItems.stream().mapToInt(SaleOrderItem::getQuantity).reduce(0, Integer::sum);
 
-    BigDecimal vatRate = new BigDecimal("0.1");
-    BigDecimal vatAmount = totalAmount.multiply(vatRate);
-    BigDecimal totalWithVat = totalAmount.add(vatAmount);
+      BigDecimal vatRate = new BigDecimal("0.1");
+      BigDecimal vatAmount = totalAmount.multiply(vatRate);
+      BigDecimal totalWithVat = totalAmount.add(vatAmount);
 
-    saleOrder.setVatAmount(vatAmount);
-    saleOrder.setTotalPrice(totalWithVat);
-    saleOrder.setTotalQuantity(totalQuantity);
-    saleOrderItems.stream()
-        .flatMap(item -> item.getVehicleUnits().stream().peek(unit -> unit.setSaleOrderItem(item)))
-        .forEach(vehicleUnitRepository::save);
+      saleOrder.setVatAmount(vatAmount);
+      saleOrder.setTotalPrice(totalWithVat);
+      saleOrder.setTotalQuantity(totalQuantity);
+      saleOrderItems.stream()
+              .flatMap(item -> item.getVehicleUnits().stream().peek(unit -> unit.setSaleOrderItem(item)))
+              .forEach(vehicleUnitRepository::save);
 
-    // === 6. Persist toàn bộ theo cascade ===
-    saleOrderItems.forEach(item -> item.setSaleOrder(saleOrder));
-    SaleOrder savedSaleOrder = saleOrderRepository.save(saleOrder);
+      // === 6. Persist toàn bộ theo cascade ===
+      saleOrderItems.forEach(item -> item.setSaleOrder(saleOrder));
+      SaleOrder savedSaleOrder = saleOrderRepository.save(saleOrder);
 
-    SaleOrderResponse response = saleOrderMapper.toSaleOrderResponse(savedSaleOrder);
-    return APIResponse.success(response, "Sale order created successfully");
+      SaleOrderResponse response = saleOrderMapper.toSaleOrderResponse(savedSaleOrder);
+      return APIResponse.success(response, "Sale order created successfully");
   }
 
   @Override

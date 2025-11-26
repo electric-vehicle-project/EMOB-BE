@@ -27,7 +27,7 @@ public class QuotationItem {
   @Enumerated(EnumType.STRING)
   VehicleStatus vehicleStatus;
 
-  int quantity;
+//  int quantity;
   String color;
 
   @ManyToOne(cascade = CascadeType.ALL)

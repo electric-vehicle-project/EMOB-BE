@@ -92,7 +92,7 @@ public class QuotationService implements IQuotation {
       Set<QuotationItem> quotationItems = new HashSet<>();
       Set<QuotationItemResponse> itemResponses = new HashSet<>();
       BigDecimal totalPrice = BigDecimal.ZERO;
-      int totalQuantity = 0;
+//      int totalQuantity = 0;
 
       for (QuotationItemRequest itemRequest : request.getItems()) {
         QuotationItem item = createQuotationItem(itemRequest);
@@ -122,13 +122,12 @@ public class QuotationService implements IQuotation {
 
         // Gán các giá trị vào item
         item.setUnitPrice(basePrice);
-        item.setDiscountPrice(discountedPrice);
-        item.setTotalPrice(discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
+        item.setDiscountPrice(basePrice.subtract(discountedPrice));
+        item.setTotalPrice(discountedPrice);
         item.setQuotation(quotation);
-
         quotationItems.add(item);
         totalPrice = totalPrice.add(item.getTotalPrice());
-        totalQuantity += item.getQuantity();
+//        totalQuantity += item.getQuantity();
       }
       BigDecimal vatRate = new BigDecimal("0.1"); // 10%
       BigDecimal vatAmount = totalPrice.multiply(vatRate);
@@ -137,7 +136,7 @@ public class QuotationService implements IQuotation {
       quotation.setQuotationItems(quotationItems);
       quotation.setVatAmount(vatAmount);
       quotation.setTotalPrice(totalWithVat);
-      quotation.setTotalQuantity(totalQuantity);
+//      quotation.setTotalQuantity(totalQuantity);
 
       Quotation savedQuotation = quotationRepository.save(quotation);
 
@@ -151,7 +150,7 @@ public class QuotationService implements IQuotation {
                     saveItem.getPromotion() != null ? saveItem.getPromotion().getId() : null)
                 .vehicleStatus(saveItem.getVehicleStatus())
                 .color(saveItem.getColor())
-                .quantity(saveItem.getQuantity())
+//                .quantity(saveItem.getQuantity())
                 .unitPrice(saveItem.getUnitPrice())
                 .discountPrice(saveItem.getDiscountPrice())
                 .totalPrice(saveItem.getTotalPrice())
@@ -225,7 +224,7 @@ public class QuotationService implements IQuotation {
         item.setVehicle(vehicle);
         item.setVehicleStatus(itemReq.getVehicleStatus());
         item.setColor(itemReq.getColor());
-        item.setQuantity(itemReq.getQuantity());
+//        item.setQuantity(itemReq.getQuantity());
         item.setDeleted(false); // Item được cập nhật hoặc thêm mới là active
 
         // --- Tính giá ---
@@ -253,9 +252,9 @@ public class QuotationService implements IQuotation {
         }
 
         item.setUnitPrice(basePrice);
-        item.setDiscountPrice(discountedPrice);
+        item.setDiscountPrice(basePrice.subtract(discountedPrice));
 
-        item.setTotalPrice(discountedPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
+        item.setTotalPrice(discountedPrice);
 
         updatedItems.add(item);
       }
@@ -283,11 +282,11 @@ public class QuotationService implements IQuotation {
       // --- Tính lại tổng ---
       for (QuotationItem item : updatedItems) {
         totalPrice = totalPrice.add(item.getTotalPrice());
-        totalQuantity += item.getQuantity();
+//        totalQuantity += item.getQuantity();
       }
       quotation.setVatAmount(totalPrice);
       quotation.setTotalPrice(totalPrice.multiply(BigDecimal.valueOf(1.1)));
-      quotation.setTotalQuantity(totalQuantity);
+//      quotation.setTotalQuantity(totalQuantity);
       quotation.setUpdatedAt(LocalDateTime.now());
 
       Quotation savedQuotation = quotationRepository.save(quotation);
@@ -348,7 +347,7 @@ public class QuotationService implements IQuotation {
                     savedItem.getPromotion() != null ? savedItem.getPromotion().getId() : null)
                 .vehicleStatus(savedItem.getVehicleStatus())
                 .color(savedItem.getColor())
-                .quantity(savedItem.getQuantity())
+//                .quantity(savedItem.getQuantity())
                 .unitPrice(savedItem.getUnitPrice())
                 .discountPrice(savedItem.getDiscountPrice())
                 .totalPrice(savedItem.getTotalPrice())
@@ -393,7 +392,7 @@ public class QuotationService implements IQuotation {
 
     return QuotationItem.builder()
         .color(request.getColor())
-        .quantity(request.getQuantity())
+//        .quantity(request.getQuantity())
         .vehicleStatus(request.getVehicleStatus())
         .vehicle(vehicle)
         .build();

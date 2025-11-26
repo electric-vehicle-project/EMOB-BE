@@ -16,5 +16,5 @@ public class QuotationItemRequest {
   UUID promotionId;
   VehicleStatus vehicleStatus;
   String color;
-  int quantity;
+//  int quantity;
 }

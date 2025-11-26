@@ -21,7 +21,4 @@ public interface IDealer {
 
   public APIResponse<PageResponse<DealerResponse>> getAll(
           Pageable pageable, String keyword, String country, List<Region> regions);
-
-
-
 }
