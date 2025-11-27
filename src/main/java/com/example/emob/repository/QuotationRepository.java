@@ -29,7 +29,7 @@ public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
     AND q.dealer = :dealer
     AND (
       :keyword IS NULL
-      OR LOWER(CAST(q.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      OR LOWER(CAST(q.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
     )
     AND (
       :statuses IS NULL
@@ -51,7 +51,7 @@ public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
         AND q.account.id = :id
         AND (
           :keyword IS NULL
-          OR LOWER(CAST(q.totalQuantity AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+          OR LOWER(CAST(q.totalPrice AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
         )
         AND (
           :statuses IS NULL

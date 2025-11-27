@@ -122,6 +122,7 @@ public class SaleOrderService implements ISaleOrder {
                                   saleItem.setPromotion(promotion);
                                   saleItem.setColor(item.getColor());
                                   saleItem.setUnitPrice(unitPrice);
+                                  saleItem.setVehicle(item.getVehicle());
                                   saleItem.setDiscountPrice(discountedPrice);
                                   saleItem.setTotalPrice(totalPrice);
 

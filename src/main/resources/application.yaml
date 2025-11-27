@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: 8081
   address: 0.0.0.0
 spring:
   application: ElectricVehicleSystem
   datasource:
 #    url: jdbc:mysql://localhost:3306/Test
-    url: jdbc:mysql://103.90.226.19/emob
+    url: jdbc:mysql://localhost:3306/emob
     username: root
-    password: 12345678
+    password: "0908754979a@A"
   jpa:
     hibernate:
       ddl-auto: update
@@ -64,7 +64,7 @@ spring:
     duration: 30
   ai:
     openai:
-      api-key: ${GENMINI_KEY}
+      api-key: AIzaSyDRypAgAzB_SigvnLaVLL1RvJLa2270gzc
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
